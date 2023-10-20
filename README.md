@@ -4,7 +4,7 @@ The goal of this repository is to contain different tools for Thing Descriptions
 Currently, they are scattered in different Thingweb repositories and packages and they will be moved here. 
 
 The list of all tools:
-- TD Validation: https://github.com/eclipse-thingweb/playground/tree/master/packages/core
+- TD Validation: https://github.com/eclipse-thingweb/playground/tree/master/packages/core . Also in node-wot via simple AJV/Schema plus sanity checks on forms. 
 - Thing Model helpers to resolve sub TMs: https://github.com/eclipse-thingweb/node-wot/blob/master/packages/td-tools/src/thing-model-helpers.ts
 - AAS AID <-> TD converter: https://github.com/eclipse-thingweb/node-wot/tree/master/packages/td-tools/src/util
 - Default addition or removal for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/defaults
