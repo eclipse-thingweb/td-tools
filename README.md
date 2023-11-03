@@ -14,3 +14,7 @@ The list of all tools:
 - TD to OpenAPI converter: https://github.com/eclipse-thingweb/playground/tree/master/packages/td_to_openAPI
 - TD to AsyncAPI converter: https://github.com/eclipse-thingweb/playground/tree/master/packages/td_to_asyncapi
 - Feature/Assertion detecter for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/assertions (will be moved to W3C Thing Description Repository)
+
+> **Warning**
+> When transferring we should avoid circular dependencies. 
+    
