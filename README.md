@@ -1,6 +1,10 @@
-<img title="ThingWeb" alt="Thingweb logo" src="https://raw.githubusercontent.com/eclipse-thingweb/website/master/misc/thingweb_logo.svg" width="300">
-
-# Thing Description Tools
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/thingweb/main/brand/logos/td-tools_for_dark_bg.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/eclipse-thingweb/thingweb/master/brand/logos/td-tools.svg">
+    <img title="Eclipse Thingweb TD Tools" alt="Eclipse Thingweb logo with TD Tools" src="https://github.com/eclipse-thingweb/thingweb/raw/main/brand/logos/td-tools.svg" width="300">
+  </picture>
+</h1>
 
 The goal of this repository is to contain different tools for Thing Descriptions and Thing Models.
 Currently, they are scattered in different Thingweb repositories and packages and they will be moved here. 
