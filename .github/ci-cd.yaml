@@ -1,0 +1,64 @@
+name: Default CI & CD Pipeline
+
+on:
+    push:
+        paths-ignore:
+            - "**.md"
+            - "**.png"
+            - "**.drawio"
+            - "**.xlsx"
+    pull_request:
+        paths-ignore:
+            - "**.md"
+            - "**.png"
+            - "**.drawio"
+            - "**.xlsx"
+jobs:
+    setup-and-test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [16.x, 18.x]
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: Use lerna
+              run: npm install -g lerna@6.6.2
+
+            - name: Bootstrap
+              run: lerna bootstrap --no-ci
+
+            - name: Test
+              run: lerna run test --no-bail --stream
+
+            - name: TD test
+              run: node packages/cli/index.js -i examples/td/*/*.jsonld
+
+            - name: TM test
+              run: node packages/cli/index.js -t TM -i examples/tm/*/*.jsonld
+
+    deploy-via-ssh:
+        runs-on: ubuntu-latest
+
+        needs: setup-and-test
+
+        if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' && github.repository_owner == 'thingweb' }}
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Run remote commands script
+              run: ./.github/scripts/deploy-web.sh
+              shell: bash
+              env:
+                  SSH_PASS: ${{ secrets.SSH_PASS }}
+                  SSH_HOST: ${{ secrets.SSH_HOST }}
