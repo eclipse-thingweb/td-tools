@@ -1,0 +1,28 @@
+# os
+.DS_STORE
+
+# node
+node_modules
+
+# dist directory should be included only in the Package but not Repository
+dist
+out
+
+# logging
+logs.json
+log.json
+
+# vscode
+.vscode/*
+!.vscode/templates/
+
+# JetBrains IDEs
+.idea
+
+# linting results
+eslint-results.sarif
+
+# junit test results # Not relevant until validation comes here
+junit-tests.xml
+packages/web-new/test-results
+packages/web-new/playwright-report
