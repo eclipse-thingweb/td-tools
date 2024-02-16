@@ -14,7 +14,7 @@
  */
 
 const { dataToAsyncSchema, extractChannel } = require("./utils");
-const { Channel, Operation, Tag, Message, MqttOperationBinding, Server } = require("./definitions");
+const { Channel, Operation, Message, MqttOperationBinding, Server } = require("./definitions");
 
 /**
  * Maps TD interactions and their forms to AsyncAPI channels

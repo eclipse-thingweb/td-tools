@@ -44,7 +44,7 @@ function AsyncAPI(asyncapi, info, channels, opts) {
     };
 
     this.parse = function () {
-        return new Promise((res, rej) => {
+        return new Promise((res) => {
             // use object copy to avoid exporting parser annotations
             const propsCopy = JSON.parse(JSON.stringify(this.props));
             apiParser.parse(propsCopy).then((parsedAapi) => {
