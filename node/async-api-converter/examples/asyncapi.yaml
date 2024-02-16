@@ -87,5 +87,5 @@ components:
             scheme: "basic"
             x-in: "header"
 externalDocs:
-    url: "http://plugfest.thingweb.io/playground/"
-    description: "This AsyncAPI instance was generated from a Web of Things (WoT) - Thing Description by the WoT Playground"
+    url: "https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter"
+    description: "This AsyncAPI instance was generated from Eclipse Thingweb TD Tools"

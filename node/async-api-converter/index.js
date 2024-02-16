@@ -46,8 +46,8 @@ function toAsyncAPI(td) {
             tags: genTags(td),
             components: components,
             externalDocs: new ExternalDocs(
-                "http://plugfest.thingweb.io/playground/",
-                "This AsyncAPI instance was generated from a Web of Things (WoT) - Thing Description by the WoT Playground"
+                "https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter",
+                "This AsyncAPI instance was generated from Eclipse Thingweb TD Tools"
             ),
         });
 

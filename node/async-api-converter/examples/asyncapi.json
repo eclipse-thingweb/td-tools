@@ -9,9 +9,6 @@
             {
                 "cov": "http://www.example.org/coap-binding#",
                 "mqv": "http://www.example.org/mqtt-binding#"
-            },
-            {
-                "@language": "en"
             }
         ],
         "x-AT-type": "Thing",
@@ -142,7 +139,7 @@
         }
     },
     "externalDocs": {
-        "url": "http://plugfest.thingweb.io/playground/",
-        "description": "This AsyncAPI instance was generated from a Web of Things (WoT) - Thing Description by the WoT Playground"
+        "url": "https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter",
+        "description": "This AsyncAPI instance was generated from Eclipse Thingweb TD Tools"
     }
 }
