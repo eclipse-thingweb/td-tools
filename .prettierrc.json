@@ -3,5 +3,13 @@
     "printWidth": 120,
     "singleQuote": false,
     "tabWidth": 4,
-    "endOfLine": "lf"
+    "endOfLine": "lf",
+    "overrides": [
+        {
+            "files": "*.yaml",
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
 }
