@@ -1,18 +1,18 @@
 {
-    "name": "@thing-description-playground/td_to_asyncapi",
+    "name": "@thingweb/async-api-converter",
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
-    "version": "1.1.1",
-    "description": "Provides AsyncAPI instance generation for Thing Descriptions in the Web of Things - Thing Description Playground.",
-    "homepage": "https://github.com/eclipse-thingweb/playground#readme",
+    "version": "1.0.0",
+    "description": "Provides AsyncAPI instance generation for WoT Thing Descriptions",
+    "homepage": "https://thingweb.io",
     "bugs": {
-        "url": "https://github.com/eclipse-thingweb/playground/issues"
+        "url": "https://github.com/eclipse-thingweb/td-tools/issues"
     },
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/eclipse-thingweb/playground.git",
-        "directory": "packages/td_to_asyncapi"
+        "url": "https://github.com/eclipse-thingweb/td-tools/issues.git",
+        "directory": "node/async-api-converter"
     },
     "scripts": {
         "test": "jest",
