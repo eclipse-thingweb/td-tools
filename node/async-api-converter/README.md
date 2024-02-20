@@ -6,22 +6,22 @@ The package provides support for AsyncAPI instance generation (output as `json` 
 
 You can use this package to integrate AsyncAPI instance generation from a TD in your application.
 
-- Install this package via NPM (`npm install @thingweb/async-api-converter`) (or clone the repo, change to `node/async-api-converter` and install the package with `npm install`)
-- Node.js or Browser import:
+-   Install this package via NPM (`npm install @thingweb/async-api-converter`) (or clone the repo, change to `node/async-api-converter` and install the package with `npm install`)
+-   Node.js or Browser import:
 
-  - Node.js: Require the package and use the functions
+    -   Node.js: Require the package and use the functions
 
 ```javascript
 const tdToAsyncAPI = require("@thingweb/async-api-converter");
 ```
 
-  - Browser: Import the `tdToAsyncAPI` object as a global by adding a script tag to your HTML.
+-   Browser: Import the `tdToAsyncAPI` object as a global by adding a script tag to your HTML.
 
 ```html
 <script src="./node_modules/@thingweb/async-api-converter/dist/web-bundle.min.js"></script>
 ```
 
-- Now you can convert a TD to an AsyncAPI instance.
+-   Now you can convert a TD to an AsyncAPI instance.
 
 ```javascript
 tdToAsyncAPI(td).then((AsyncAPI) => {
@@ -47,28 +47,29 @@ Due to the structure of both specifications, there occur other limitations, e.g.
 
 Resulting of the current Limitations there are possible extensions for the future:
 
-- Supporting HTTP:  
-Both the TD and the AsyncAPI specification support describing http-based operations but they are doing so in a quite different way, which is the tricky part if one wants to convert from one to another.
-The Thing Description supports HTTP for asynchronous and synchronous messages.
-In AsyncAPI, the HTTP protocol is always mentioned to support "HTTP streaming APIs".
-The specification does not mention certain subprotocols but allows defining HTTP messages (as request/response and with the method) so one way of converting could be to specify necessary messages for every subprotocol. 
-Still, this does probably not represent the real implementations properly.
+-   Supporting HTTP:  
+    Both the TD and the AsyncAPI specification support describing http-based operations but they are doing so in a quite different way, which is the tricky part if one wants to convert from one to another.
+    The Thing Description supports HTTP for asynchronous and synchronous messages.
+    In AsyncAPI, the HTTP protocol is always mentioned to support "HTTP streaming APIs".
+    The specification does not mention certain subprotocols but allows defining HTTP messages (as request/response and with the method) so one way of converting could be to specify necessary messages for every subprotocol.
+    Still, this does probably not represent the real implementations properly.
 
-- Supporting WebSockets:  
-AsyncAPI treats WebSocket connections as independent protocols with given restrictions, e.g., only one WebSocket connection is possible per AsyncAPI instance (because routing channels to certain servers is not possible and WebSocket does not support channels/topics/...).
-This should be taken into account for the conversion, one promising approach for converting protocols other than MQTT-like, could be to generate one AsyncAPI instance per available server to deal with the in this case more expressive TDs.
-- Adding security support:  
-The focus of AsyncAPI is hardly on security (since event-based solutions are often used in closed systems) but still it supports quite some mechanisms. 
-The more complicated part in converting this from TD to AsyncAPI is that TDs support different security mechanisms for every operation, while AsyncAPI allows only defining them per Server (and there is no server-to-channel/operation/message mapping).
+-   Supporting WebSockets:  
+    AsyncAPI treats WebSocket connections as independent protocols with given restrictions, e.g., only one WebSocket connection is possible per AsyncAPI instance (because routing channels to certain servers is not possible and WebSocket does not support channels/topics/...).
+    This should be taken into account for the conversion, one promising approach for converting protocols other than MQTT-like, could be to generate one AsyncAPI instance per available server to deal with the in this case more expressive TDs.
+-   Adding security support:  
+    The focus of AsyncAPI is hardly on security (since event-based solutions are often used in closed systems) but still it supports quite some mechanisms.
+    The more complicated part in converting this from TD to AsyncAPI is that TDs support different security mechanisms for every operation, while AsyncAPI allows only defining them per Server (and there is no server-to-channel/operation/message mapping).
 
-- Add further use cases:
-Currently, only two types of TD interactions are mapped to their AsyncAPI equivalents:
-  - Properties with the op `observeproperty` indicating that the property can be watched asynchronously
-  - Events to which a client can subscribe (`subscribeevent`)
+-   Add further use cases:
+    Currently, only two types of TD interactions are mapped to their AsyncAPI equivalents:
 
-    But there could be other use cases that should be taken into account, e.g., reading (possible with retain option) variables via MQTT that might not be an asynchronous operation itself but useful to support since MQTT operations cannot be represented with OpenAPI instances.
+    -   Properties with the op `observeproperty` indicating that the property can be watched asynchronously
+    -   Events to which a client can subscribe (`subscribeevent`)
 
-- Think about how to treat interactions with the same path (-> same AsyncAPI channel), e.g., a property and an event that both interact with `thing.example.com/status`
+        But there could be other use cases that should be taken into account, e.g., reading (possible with retain option) variables via MQTT that might not be an asynchronous operation itself but useful to support since MQTT operations cannot be represented with OpenAPI instances.
+
+-   Think about how to treat interactions with the same path (-> same AsyncAPI channel), e.g., a property and an event that both interact with `thing.example.com/status`
 
 ## Comments
 
