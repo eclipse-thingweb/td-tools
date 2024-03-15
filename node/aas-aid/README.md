@@ -105,7 +105,6 @@ Note: make sure that the file `counterHTTP.json` is in the same folder as the sc
 `node td-to-aid.js`
 ... will show the online counter in AAS/AID JSON format (compliant with AAS V3.0 and can be imported by AASX Package Explorer).
 
-
 ## License
 
 Licensed under the Eclipse or W3C license, see [License](https://github.com/eclipse-thingweb/td-tools/blob/main/LICENSE.md).
