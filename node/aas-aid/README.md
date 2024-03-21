@@ -1,8 +1,8 @@
 # Eclipse Thingweb - AAS AID tooling for WoT Thing Descriptions
 
-The package provides tooling for Asset Adminstration Shell (AAS) w.r.t. Asset Interface Description (AID).
+The package provides tooling for Asset Adminstration Shell (AAS) w.r.t. Asset Interfaces Description (AID).
 
-The [IDTA Asset Interface Description (AID) working group](https://github.com/admin-shell-io/submodel-templates/tree/main/development/Asset%20Interface%20Description/1/0) defines a submodel template specification for the Asset Adminstration Shell that can be used to describe the asset's service interface or asset's related service interfaces. The current AID working assumptions reuse existing definitions from [WoT Thing Descriptions](https://www.w3.org/TR/wot-thing-description11/). Hence it is possible to consume AAS with AID definitions with [node-wot](https://github.com/eclipse-thingweb/node-wot) (e.g., read/subscribe live data of the asset and/or associated service).
+The [IDTA Asset Interfaces Description (AID) working group](https://github.com/admin-shell-io/submodel-templates/tree/main/development/Asset%20Interface%20Description/1/0) defines a submodel template specification for the Asset Adminstration Shell that can be used to describe the asset's service interface or asset's related service interfaces. The current AID working assumptions reuse existing definitions from [WoT Thing Descriptions](https://www.w3.org/TR/wot-thing-description11/). Hence it is possible to consume AAS with AID definitions with [node-wot](https://github.com/eclipse-thingweb/node-wot) (e.g., read/subscribe live data of the asset and/or associated service).
 
 ## Sample Applications
 
