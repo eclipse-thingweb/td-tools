@@ -242,11 +242,6 @@ export class AssetInterfaceDescriptionUtil {
         return JSON.stringify(aidObject);
     }
 
-    /** @deprecated use transformAAS2TD method instead */
-    public transformToTD(aid: string, template?: string, submodelRegex?: string): string {
-        return this.transformAAS2TD(aid, template, submodelRegex);
-    }
-
     /*
      * PRIVATE IMPLEMENTATION METHODS ARE FOLLOWING
      *
