@@ -14,7 +14,7 @@ The [IDTA Asset Interface Description (AID) working group](https://github.com/ad
 
 ### AAS/AID to WoT TD
 
-The file `counterHTTP.json` describes the counter sample in AAS/AID format for http binding. The `AssetInterfaceDescriptionUtil` utility class allows to transform the AID format to a valid WoT TD format which in the end can be properly consumed by node-wot.
+The file `counterHTTP.json` describes the counter sample in AAS/AID format for http binding. The `AssetInterfacesDescription` utility class allows to transform the AID format to a valid WoT TD format which in the end can be properly consumed by node-wot.
 
 The example `aid-to-td.js` tries to transform an AID submodel (from an AAS file) into a regular WoT TD.
 Note: Besides converting the AID submodel it is also possible to convert a full AAS file (see `transformTD2AAS(...)`).
@@ -27,13 +27,13 @@ Servient = require("@node-wot/core").Servient;
 HttpClientFactory = require("@node-wot/binding-http").HttpClientFactory;
 
 // AID Util
-AssetInterfaceDescriptionUtil = require("@node-wot/td-tools").AssetInterfaceDescriptionUtil;
+AssetInterfacesDescription = require("@node-wot/td-tools").AssetInterfacesDescription;
 
 // create Servient and add HTTP binding
 let servient = new Servient();
 servient.addClientFactory(new HttpClientFactory(null));
 
-let assetInterfaceDescriptionUtil = new AssetInterfaceDescriptionUtil();
+let assetInterfacesDescription = new AssetInterfacesDescription();
 
 async function example() {
     try {
@@ -44,7 +44,7 @@ async function example() {
         const aid = JSON.stringify(JSON.parse(aas).submodels[0]);
 
         // transform AID to WoT TD
-        const tdAID = assetInterfaceDescriptionUtil.transformSM2TD(aid, `{"title": "counter"}`);
+        const tdAID = assetInterfacesDescription.transformSM2TD(aid, `{"title": "counter"}`);
         // Note: transformSM2TD() may have up to 3 input parameters
         // * aid (required):           AID submodel in JSON format
         // * template (optional):      Initial TD template
@@ -74,16 +74,16 @@ Note: Besides converting it into an AID submodel it is also possible to convert 
 
 ```js
 // td-to-aid.js
-AssetInterfaceDescriptionUtil = require("@node-wot/td-tools").AssetInterfaceDescriptionUtil;
+AssetInterfacesDescription = require("@node-wot/td-tools").AssetInterfacesDescription;
 
-let assetInterfaceDescriptionUtil = new AssetInterfaceDescriptionUtil();
+let assetInterfacesDescription = new AssetInterfacesDescription();
 
 async function example() {
     try {
         const response = await fetch("http://plugfest.thingweb.io:8083/counter");
         const counterTD = await response.json();
 
-        const sm = assetInterfaceDescriptionUtil.transformTD2SM(JSON.stringify(counterTD), ["http", "coap"]);
+        const sm = assetInterfacesDescription.transformTD2SM(JSON.stringify(counterTD), ["http", "coap"]);
 
         // print JSON format of AID submodel
         console.log(sm);

@@ -35,7 +35,7 @@ const logError = debug(`${namespace}:error`);
  *
  */
 
-export class AssetInterfaceDescriptionUtil {
+export class AssetInterfacesDescription {
     /**
      * Transform AAS in JSON format to a WoT ThingDescription (TD)
      *
