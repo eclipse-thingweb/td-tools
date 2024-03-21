@@ -16,7 +16,7 @@
 import { suite, test } from "@testdeck/mocha";
 import { expect } from "chai";
 
-import { AssetInterfacesDescription } from "../src/asset-interface-description";
+import { AssetInterfacesDescription } from "../src/asset-interfaces-description";
 import { promises as fs } from "fs";
 import { ThingDescription } from "wot-typescript-definitions";
 
