@@ -45,15 +45,15 @@ class AssetInterfaceDescriptionTest {
         };
     }
 
-    @test async "should correctly transform counterHTTP into a TD"() {
-        const modelAID = (await fs.readFile("test/counterHTTP.json")).toString();
+    @test async "should correctly transform counterHTTP AAS into a TD"() {
+        const modelAAS = (await fs.readFile("test/counterHTTP.json")).toString();
 
-        const modelAIDobj = JSON.parse(modelAID);
+        const modelAIDobj = JSON.parse(modelAAS);
         expect(modelAIDobj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
         const isValid = this.validateAID(modelAIDobj.submodels[0]);
         expect(isValid.valid, isValid.errors).to.equal(true);
 
-        const td = this.assetInterfacesDescription.transformAAS2TD(modelAID, `{"title": "bla"}`);
+        const td = this.assetInterfacesDescription.transformAID2TD(modelAAS, `{"title": "bla"}`);
 
         const tdObj = JSON.parse(td);
         expect(tdObj).to.have.property("@context").that.equals("https://www.w3.org/2022/wot/td/v1.1");
@@ -173,23 +173,77 @@ class AssetInterfaceDescriptionTest {
         // TODO actions and events for counter thing (TBD by AAS)
 
         // check RegEx capability with fully qualified submodel
-        const td2 = this.assetInterfacesDescription.transformAAS2TD(
-            modelAID,
-            `{"title": "counter"}`,
-            "InterfaceHTTP"
-        );
+        const td2 = this.assetInterfacesDescription.transformAID2TD(modelAAS, `{"title": "counter"}`, "InterfaceHTTP");
         const td2Obj = JSON.parse(td2);
         expect(tdObj).to.deep.equal(td2Obj);
 
         // check RegEx capability with search pattern for submodel
-        const td3 = this.assetInterfacesDescription.transformAAS2TD(modelAID, `{"title": "counter"}`, "HTTP*");
+        const td3 = this.assetInterfacesDescription.transformAID2TD(modelAAS, `{"title": "counter"}`, "HTTP*");
         const td3Obj = JSON.parse(td3);
         expect(tdObj).to.deep.equal(td3Obj);
 
         // check RegEx capability with fully unknown submodel
-        const td4 = this.assetInterfacesDescription.transformAAS2TD(modelAID, `{"title": "counter"}`, "OPC*");
+        const td4 = this.assetInterfacesDescription.transformAID2TD(modelAAS, `{"title": "counter"}`, "OPC*");
         const td4Obj = JSON.parse(td4);
         expect(td4Obj).to.not.have.property("properties");
+    }
+
+    @test async "should correctly transform counterHTTP AID submodel into a TD"() {
+        const modelAAS = (await fs.readFile("test/counterHTTP.json")).toString();
+
+        const modelAIDobj = JSON.parse(modelAAS);
+        expect(modelAIDobj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
+
+        const aidSubmodel = modelAIDobj.submodels[0];
+        const isValid = this.validateAID(aidSubmodel);
+        expect(isValid.valid, isValid.errors).to.equal(true);
+
+        const td = this.assetInterfacesDescription.transformAID2TD(JSON.stringify(aidSubmodel), `{"title": "bla"}`);
+
+        const tdObj = JSON.parse(td);
+        expect(tdObj).to.have.property("@context").that.equals("https://www.w3.org/2022/wot/td/v1.1");
+        expect(tdObj).to.have.property("title").that.equals("Counter"); // should come form AAS
+        expect(tdObj).to.have.property("support").that.equals("https://github.com/eclipse-thingweb/node-wot/");
+
+        expect(tdObj).to.have.property("securityDefinitions").to.be.an("object");
+
+        expect(tdObj).to.have.property("security").to.be.an("array").to.have.lengthOf(1);
+        expect(tdObj.securityDefinitions[tdObj.security[0]]).to.have.property("scheme").that.equals("nosec");
+
+        // check count property
+        expect(tdObj).to.have.property("properties").to.have.property("count");
+        expect(tdObj).to.have.property("properties").to.have.property("count").to.have.property("descriptions").to.eql({
+            en: "Current counter value",
+            de: "Derzeitiger Zählerwert",
+            it: "Valore attuale del contatore",
+        });
+        expect(tdObj)
+            .to.have.property("properties")
+            .to.have.property("count")
+            .to.have.property("type")
+            .that.equals("integer");
+        expect(tdObj)
+            .to.have.property("properties")
+            .to.have.property("count")
+            .to.have.property("title")
+            .that.equals("Count");
+        expect(tdObj)
+            .to.have.property("properties")
+            .to.have.property("count")
+            .to.have.property("observable")
+            .that.equals(true);
+        expect(tdObj)
+            .to.have.property("properties")
+            .to.have.property("count")
+            .to.have.property("forms")
+            .to.be.an("array")
+            .to.have.lengthOf(1);
+        expect(tdObj.properties.count.forms[0])
+            .to.have.property("href")
+            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/count");
+        expect(tdObj.properties.count.forms[0]).to.have.property("htv:methodName").to.eql("GET");
+        expect(tdObj.properties.count.forms[0]).to.have.property("contentType").to.eql("application/json");
+        expect(tdObj.properties.count.forms[0]).not.to.have.property("security");
     }
 
     @test async "should correctly transform inverterModbus into a TD"() {
@@ -200,7 +254,7 @@ class AssetInterfaceDescriptionTest {
         const isValid = this.validateAID(modelAIDobj.submodels[0]);
         expect(isValid.valid, isValid.errors).to.equal(true);
 
-        const td = this.assetInterfacesDescription.transformAAS2TD(modelAID, `{"title": "bla"}`);
+        const td = this.assetInterfacesDescription.transformAID2TD(modelAID, `{"title": "bla"}`);
 
         const tdObj = JSON.parse(td);
         expect(tdObj).to.have.property("@context").that.equals("https://www.w3.org/2022/wot/td/v1.1");
@@ -277,9 +331,9 @@ class AssetInterfaceDescriptionTest {
 
     @test async "should correctly roundtrip inverterModbus from/to AID"() {
         const aasInput = (await fs.readFile("test/inverterModbus.json")).toString();
-        const td = this.assetInterfacesDescription.transformAAS2TD(aasInput);
+        const td = this.assetInterfacesDescription.transformAID2TD(aasInput);
 
-        const aidOutput = this.assetInterfacesDescription.transformTD2SM(td);
+        const aidOutput = this.assetInterfacesDescription.transformTD2AID(td);
 
         const smObj = JSON.parse(aidOutput);
         const isValid = this.validateAID(smObj);
@@ -564,7 +618,7 @@ class AssetInterfaceDescriptionTest {
     };
 
     @test async "should correctly transform sample TD1 into AID submodel"() {
-        const sm = this.assetInterfacesDescription.transformTD2SM(JSON.stringify(this.td1), ["https"]);
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), undefined, ["https"]);
 
         const smObj = JSON.parse(sm);
         const isValid = this.validateAID(smObj);
@@ -835,14 +889,14 @@ class AssetInterfaceDescriptionTest {
 
         // Test to use all possible prefixes -> in this case it is only https
         // Note: id is autogenerated (if not present) -> needs to be exluded/removed/set in TD
-        const sm2 = this.assetInterfacesDescription.transformTD2SM(JSON.stringify(this.td1));
+        const sm2 = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1));
         const sm2Obj = JSON.parse(sm2);
         expect(smObj).to.eql(sm2Obj);
     }
 
     @test
     async "should transform sample TD1 into JSON submodel without any properties due to unknown protocol prefix"() {
-        const sm = this.assetInterfacesDescription.transformTD2SM(JSON.stringify(this.td1), ["unknown"]);
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), undefined, ["unknown"]);
 
         const smObj = JSON.parse(sm);
         expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
@@ -867,7 +921,9 @@ class AssetInterfaceDescriptionTest {
     }
 
     @test async "should correctly transform sample TD1 into JSON AAS"() {
-        const sm = this.assetInterfacesDescription.transformTD2AAS(JSON.stringify(this.td1), ["http"]);
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), { createAAS: true }, [
+            "http",
+        ]);
 
         const aasObj = JSON.parse(sm);
         expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array");
@@ -900,7 +956,7 @@ class AssetInterfaceDescriptionTest {
     };
 
     @test async "should correctly transform sample TD2 into AID submodel"() {
-        const sm = this.assetInterfacesDescription.transformTD2SM(JSON.stringify(this.td2));
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td2));
 
         const smObj = JSON.parse(sm);
         // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
@@ -1079,7 +1135,7 @@ class AssetInterfaceDescriptionTest {
     };
 
     @test async "should correctly transform sample TD3 into AID submodel"() {
-        const sm = this.assetInterfacesDescription.transformTD2SM(JSON.stringify(this.td3));
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td3));
 
         const smObj = JSON.parse(sm);
         // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
@@ -1251,7 +1307,9 @@ class AssetInterfaceDescriptionTest {
         const response = await fetch("http://plugfest.thingweb.io:8083/counter");
         const counterTD = await response.json();
 
-        const sm = this.assetInterfacesDescription.transformTD2AAS(JSON.stringify(counterTD), ["http"]); // "coap"
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), { createAAS: true }, [
+            "http",
+        ]); // "coap"
         console.log("XXX AAS\n\n" + sm + "\n\nXXX");
 
         const aasObj = JSON.parse(sm);
