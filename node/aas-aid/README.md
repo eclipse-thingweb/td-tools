@@ -8,8 +8,7 @@ The [IDTA Asset Interfaces Description (AID) working group](https://github.com/a
 
 ### Prerequisites
 
--   `npm install @node-wot/td-tools`
--   `npm install @node-wot/core`
+-   `npm install @thingweb/aas-aid`
 -   `npm install @node-wot/binding-http`
 
 ### AAS/AID to WoT TD
@@ -44,7 +43,7 @@ async function example() {
         const aid = JSON.stringify(JSON.parse(aas).submodels[0]);
 
         // transform AID to WoT TD
-        const tdAID = assetInterfacesDescription.transformSM2TD(aid, `{"title": "counter"}`);
+        const tdAID = assetInterfacesDescription.transformAID2TD(aid, `{"title": "counter"}`);
         // Note: transformSM2TD() may have up to 3 input parameters
         // * aid (required):           AID submodel in JSON format
         // * template (optional):      Initial TD template
@@ -83,7 +82,7 @@ async function example() {
         const response = await fetch("http://plugfest.thingweb.io:8083/counter");
         const counterTD = await response.json();
 
-        const sm = assetInterfacesDescription.transformTD2SM(JSON.stringify(counterTD), ["http", "coap"]);
+        const sm = assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), undefined, ["http", "coap"]);
 
         // print JSON format of AID submodel
         console.log(sm);
