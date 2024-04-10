@@ -26,7 +26,7 @@ Servient = require("@node-wot/core").Servient;
 HttpClientFactory = require("@node-wot/binding-http").HttpClientFactory;
 
 // AID Util
-AssetInterfacesDescription = require("@node-wot/td-tools").AssetInterfacesDescription;
+AssetInterfacesDescription = require("@thingweb/aas-aid").AssetInterfacesDescription;
 
 // create Servient and add HTTP binding
 let servient = new Servient();
@@ -73,7 +73,7 @@ Note: Besides converting it into an AID submodel it is also possible to convert 
 
 ```js
 // td-to-aid.js
-AssetInterfacesDescription = require("@node-wot/td-tools").AssetInterfacesDescription;
+AssetInterfacesDescription = require("@thingweb/aas-aid").AssetInterfacesDescription;
 
 let assetInterfacesDescription = new AssetInterfacesDescription();
 
@@ -82,7 +82,10 @@ async function example() {
         const response = await fetch("http://plugfest.thingweb.io:8083/counter");
         const counterTD = await response.json();
 
-        const sm = assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), undefined, ["http", "coap"]);
+        const sm = assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), { createAAS: true }, [
+            "http",
+            "coap",
+        ]);
 
         // print JSON format of AID submodel
         console.log(sm);
