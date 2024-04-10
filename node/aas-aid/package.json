@@ -1,6 +1,6 @@
 {
     "name": "@thingweb/aas-aid",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "AAS AID tooling for WoT Thing Descriptions",
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
