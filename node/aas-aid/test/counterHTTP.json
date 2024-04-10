@@ -328,7 +328,7 @@
                                                         }
                                                     ],
                                                     "valueType": "xs:integer",
-                                                    "min": "1",
+                                                    "min": "-100",
                                                     "max": "100",
                                                     "modelType": "Range"
                                                 },
