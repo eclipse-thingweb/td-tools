@@ -6,7 +6,7 @@
     "license": "EPL-2.0 OR W3C-20150513",
     "repository": {
         "type": "git",
-        "url": "https://github.com/eclipse-thingweb/td-tools/issues.git",
+        "url": "https://github.com/eclipse-thingweb/td-tools/",
         "directory": "node/aas/aid"
     },
     "publishConfig": {
@@ -16,8 +16,8 @@
         "dist/",
         "src/"
     ],
-    "main": "dist/aas-aid.js",
-    "types": "dist/aas-aid.d.ts",
+    "main": "dist/src/asset-interfaces-description.js",
+    "types": "dist/src/asset-interfaces-description.d.ts",
     "dependencies": {
         "@node-wot/td-tools": "0.8.12",
         "ajv": "^8.11.0",
