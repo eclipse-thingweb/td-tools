@@ -16,7 +16,7 @@ The [IDTA Asset Interfaces Description (AID) working group](https://github.com/a
 The file `counterHTTP.json` describes the counter sample in AAS/AID format for http binding. The `AssetInterfacesDescription` utility class allows to transform the AID format to a valid WoT TD format which in the end can be properly consumed by node-wot.
 
 The example `aid-to-td.js` tries to transform an AID submodel (from an AAS file) into a regular WoT TD.
-Note: Besides converting the AID submodel it is also possible to convert a full AAS file (see `transformTD2AAS(...)`).
+Note: Besides converting the AID submodel it is also possible to convert a full AAS file.
 
 ```js
 // aid-to-td.js
