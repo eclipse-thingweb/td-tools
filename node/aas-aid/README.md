@@ -9,13 +9,13 @@ The [IDTA Asset Interfaces Description (AID) working group](https://github.com/a
 ### Prerequisites
 
 -   `npm install @thingweb/aas-aid`
--   `npm install @node-wot/binding-http`
+-   `npm install @node-wot/binding-http` (needed for consuming the generated TD with node-wot only)
 
 ### AAS/AID to WoT TD
 
 The file `counterHTTP.json` describes the counter sample in AAS/AID format for http binding. The `AssetInterfacesDescription` utility class allows to transform the AID format to a valid WoT TD format which in the end can be properly consumed by node-wot.
 
-The example `aid-to-td.js` tries to transform an AID submodel (from an AAS file) into a regular WoT TD.
+The example `aid-to-td.js` transforms an AID submodel (from an AAS file) into a regular WoT TD.
 Note: Besides converting the AID submodel it is also possible to convert a full AAS file.
 
 ```js
@@ -66,10 +66,18 @@ async function example() {
 example();
 ```
 
+#### Run AID to TD transformation sample
+
+`node aid-to-td.js`
+... will show the counter value retrieved from http://plugfest.thingweb.io:8083/counter/properties/count
+
+Note: make sure that the file `counterHTTP.json` is in the same folder as the script.
+
 ### WoT TD to AAS/AID
 
-The example `td-to-aid.js` tries to load the online counter TD and converts it to an AID submodel in JSON format.
-Note: Besides converting it into an AID submodel it is also possible to convert it into a full AAS form (see `transformTD2AAS(...)`).
+The example `td-to-aid.js` loads the online [counter TD](http://plugfest.thingweb.io:8083/counter/) and converts it to an AID submodel in JSON format.
+
+Note: by using the option `createAAS` a full AAS form is created (instead of the AID submodel only).
 
 ```js
 // td-to-aid.js
@@ -98,11 +106,7 @@ async function example() {
 example();
 ```
 
-### Run the sample scripts
-
-`node aid-to-td.js`
-... will show the counter value retrieved from http://plugfest.thingweb.io:8083/counter/properties/count
-Note: make sure that the file `counterHTTP.json` is in the same folder as the script.
+#### Run TD to AAS/AID transformation sample
 
 `node td-to-aid.js`
 ... will show the online counter in AAS/AID JSON format (compliant with AAS V3.0 and can be imported by AASX Package Explorer).
