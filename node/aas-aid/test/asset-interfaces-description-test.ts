@@ -97,7 +97,7 @@ class AssetInterfaceDescriptionTest {
             .to.have.property("href")
             .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/count");
         expect(tdObj.properties.count.forms[0]).to.have.property("htv:methodName").to.eql("GET");
-        expect(tdObj.properties.count.forms[0]).to.have.property("contentType").to.eql("application/json");
+        expect(tdObj.properties.count.forms[0]).to.have.property("contentType").to.eql("application/jsonXXXX");
         expect(tdObj.properties.count.forms[0]).not.to.have.property("security");
 
         // check countAsImage property
