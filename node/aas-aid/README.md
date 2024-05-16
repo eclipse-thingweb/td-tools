@@ -44,7 +44,7 @@ async function example() {
 
         // transform AID to WoT TD
         const tdAID = assetInterfacesDescription.transformAID2TD(aid, `{"title": "counter"}`);
-        // Note: transformSM2TD() may have up to 3 input parameters
+        // Note: transformAID2TD() may have up to 3 input parameters
         // * aid (required):           AID submodel in JSON format
         // * template (optional):      Initial TD template
         // * submodelRegex (optional): Submodel filter based on regular expression
