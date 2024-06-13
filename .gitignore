@@ -26,3 +26,5 @@ eslint-results.sarif
 junit-tests.xml
 packages/web-new/test-results
 packages/web-new/playwright-report
+**/coverage
+**/.nyc_output
