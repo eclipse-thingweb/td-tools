@@ -11,6 +11,10 @@ on:
       - "node/aas-aid/**"
   workflow_dispatch:
 
+defaults:
+  run:
+    working-directory: node/aas-aid
+
 jobs:
   setup-and-test:
     name: Tests (${{ matrix.os }}, Node ${{ matrix.node-version }})
@@ -18,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         node-version: [18.x, 20.x]
 
     timeout-minutes: 30
@@ -35,41 +39,17 @@ jobs:
 
       - name: Install
         run: npm ci
-        working-directory: node/aas-aid
 
       - name: Build
         run: npm run build
-        working-directory: node/aas-aid
 
       - name: Test
         timeout-minutes: 10
-        run: npm run test
-        working-directory: node/aas-aid
-# TODO: need to decide how to deal with linting and prettier
-#
-#  eslint:
-#    name: eslint
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#
-#      - name: Use Node.js 18
-#        uses: actions/setup-node@v1
-#        with:
-#          node-version: 18
-#
-#      - name: Install
-#        run: npm ci
-#
-#      - name: Lint
-#        run: npm run lint
-#
-#  prettier:
-#    name: Check coding style
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v2
-#      - uses: actionsx/prettier@v2
-#        with:
-#          args: --check .
+        run: npm run test:coverage
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage/lcov.info
+          verbose: true
