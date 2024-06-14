@@ -11,8 +11,8 @@ Currently, they are scattered in different Thingweb repositories and packages an
 
 Tools in this repository:
 
-- Async API Converter: https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter
-- AAS AID Tooling: https://github.com/eclipse-thingweb/td-tools/tree/main/node/aas-aid
+-   Async API Converter: https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter
+-   AAS AID Tooling: https://github.com/eclipse-thingweb/td-tools/tree/main/node/aas-aid
 
 The list of all existing tools:
 
