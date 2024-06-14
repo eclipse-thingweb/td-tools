@@ -1,0 +1,55 @@
+name: AAS AID CI Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "node/aas-aid/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "node/aas-aid/**"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: node/aas-aid
+
+jobs:
+  setup-and-test:
+    name: Tests (${{ matrix.os }}, Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [18.x, 20.x]
+
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.os }} ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        timeout-minutes: 10
+        run: npm run test:coverage
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage/lcov.info
+          verbose: true
