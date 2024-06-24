@@ -1,0 +1,32 @@
+{
+    "name": "@thingweb/json-spell-checker",
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "version": "1.0.0",
+    "description": "",
+    "homepage": "https://github.com/eclipse-thingweb/td-tools#readme",
+    "bugs": {
+        "url": "https://github.com/eclipse-thingweb/td-tools/issues"
+    },
+    "main": "index.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/eclipse-thingweb/td-tools.git"
+    },
+    "scripts": {
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "bundle": "npx browserify ./src/index.js -s JsonSpellChecker -o ./dist/web-bundle.js && npx terser ./dist/web-bundle.js -o ./dist/web-bundle.min.js",
+        "prepare": "npm run bundle"
+    },
+    "dependencies": {
+        "json-source-map": "^0.6.1"
+    },
+    "devDependencies": {
+        "@jest/globals": "^29.3.1",
+        "jest": "^29.3.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
