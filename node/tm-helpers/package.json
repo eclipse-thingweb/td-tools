@@ -13,7 +13,7 @@
     "homepage": "https://github.com/eclipse-thingweb/td-tools#readme",
     "scripts": {
         "test": "mocha --require ts-node/register --extension ts",
-        "test:coverage": "mocha nyc --require ts-node/register --extension ts"
+        "test:coverage": "nyc --reporter=lcov mocha --require ts-node/register --extension ts"
     },
     "main": "dist/src/tm-helpers.js",
     "types": "dist/src/tm-helpers.d.ts",
