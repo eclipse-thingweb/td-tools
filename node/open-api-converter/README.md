@@ -6,7 +6,7 @@ The package supports OpenAPI instance generation (output as `json` or `yaml`), u
 
 This package can integrate OpenAPI instance generation from a TD in your application.
 
-- Install this package via NPM (`npm install @thingweb/open-api-converter`) (or clone the repo, change to `node/open-api-converter`, and install the package with `npm install`)
+-   Install this package via NPM (`npm install @thingweb/open-api-converter`) (or clone the repo, change to `node/open-api-converter`, and install the package with `npm install`)
 
 -   Node.js or Browser import:
 
