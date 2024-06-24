@@ -17,7 +17,7 @@
  * @file Modules test for mapSecurity.js, test its functionality by hardcoded example -> expected output pairs
  */
 
-const { mapSecurity, mapSecurityString, mapSecurityDefinitions, hasNoSec, mapFormSecurity } = require("../mapSecurity");
+const { mapSecurity, mapSecurityString, mapSecurityDefinitions, mapFormSecurity } = require("../mapSecurity");
 
 // reused definitions
 const oauth2Definitions = {

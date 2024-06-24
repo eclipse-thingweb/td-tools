@@ -6,7 +6,7 @@ info:
   x-@context:
     - "https://www.w3.org/2022/wot/td/v1.1"
     - cov: "http://www.example.org/coap-binding#"
-    - @language: "en"
+    - "@language": "en"
   x-@type: "Thing"
   x-id: "urn:dev:home:coff:type123-SNR123456"
   x-name: "MyCoffeeMaker"

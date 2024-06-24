@@ -48,10 +48,6 @@ function toOpenAPI(td) {
         };
 
         const tags = addTags(td);
-        const externalDocs = new ExternalDocs(
-            "http://plugfest.thingweb.io/playground/",
-            "This OAP specification was generated from a Web of Things (WoT) - Thing Description by the WoT Playground"
-        );
 
         // add optional fields if they are filled
         if (servers.length > 0) {
