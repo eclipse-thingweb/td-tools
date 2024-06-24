@@ -1,7 +1,7 @@
-# @thing-description-playground/**JSON-SPELL-CHECKER**
+# Eclipse Thingweb - JSON Spell Checker
 
 This package provides spell-checking support for JSON files when a JSON Schema is given.
-You can find more information about the Playground [here](https://github.com/eclipse-thingweb/playground).
+
 
 Limitations:
 
@@ -53,7 +53,7 @@ jsonSpellChecker.checkTypos(stringifiedJsonFile);
 
 ### Structure
 
-The [index.js](./index.js) file contains the main validation functionality and exports the modules functionalities.
+The [index.js](./src/index.js) file contains the main validation functionality and exports the module's functionalities.
 
 ## Examples
 
