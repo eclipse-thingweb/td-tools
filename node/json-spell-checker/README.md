@@ -2,7 +2,6 @@
 
 This package provides spell-checking support for JSON files when a JSON Schema is given.
 
-
 Limitations:
 
 -   There is limited nested spell-checking. Some of the $ref definitions can be nested infinitely. Therefore, spell-checking stops when recursive nesting is first detected.
