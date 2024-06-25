@@ -1,6 +1,12 @@
 # Eclipse Thingweb - TM Helpers
 
 The package provides helper tools for Thing Models.
+Tools help to:
+- Validate TMs, 
+- Get the version of TMs,
+- Build partial TDs from a given TM, 
+- Retrieve TMs with an URI,
+- Retrieve external references of a TM.
 
 ## Usage
 
