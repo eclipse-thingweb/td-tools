@@ -4,16 +4,16 @@ on:
   push:
     branches: [main]
     paths:
-      - "node/tm-helpers/**"
+      - "node/thing-model/**"
   pull_request:
     branches: [main]
     paths:
-      - "node/tm-helpers/**"
+      - "node/thing-model/**"
   workflow_dispatch:
 
 defaults:
   run:
-    working-directory: node/tm-helpers
+    working-directory: node/thing-model
 
 jobs:
   setup-and-test:
