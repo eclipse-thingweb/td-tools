@@ -11,7 +11,7 @@ Tools help to:
 
 ## Usage
 
--   Install this package via NPM (`npm install @thingweb/tm-helpers`) (or clone the repo, change to `node/tm-helpers`, and install the package with `npm install`)
+-   Install this package via NPM (`npm install @thingweb/thing-model`) (or clone the repo, change to `node/thing-model`, and install the package with `npm install`)
 
 You can find usage examples in the [tests folder](./tests/).
 
