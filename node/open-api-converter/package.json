@@ -1,8 +1,8 @@
 {
     "name": "@thingweb/open-api-converter",
-    "version": "1.3.1",
+    "version": "1.0.0",
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
-    "description": "",
+    "description": "Tooling to convert WoT Thing Descriptions to OpenAPI descriptions when the TD uses HTTP protocol",
     "main": "index.js",
     "repository": {
         "type": "git",
