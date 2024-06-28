@@ -1,6 +1,6 @@
 {
     "name": "@thingweb/thing-model",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eclipse-thingweb/td-tools.git",
@@ -19,7 +19,7 @@
     },
     "main": "dist/src/tm-helpers.js",
     "types": "dist/src/tm-helpers.d.ts",
-    "description": "",
+    "description": "Tooling to use WoT Thing Models in your workflows such as validation, model resolution and more.",
     "dependencies": {
         "ajv": "^8.11.0",
         "ajv-formats": "^3.0.1",
