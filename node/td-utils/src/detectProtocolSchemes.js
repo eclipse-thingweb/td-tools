@@ -1,4 +1,4 @@
-const { uniqWith, isEqual } = require('lodash');
+const { uniqWith, isEqual } = require("lodash");
 
 /**
  * Detect protocol schemes of a TD
@@ -28,7 +28,6 @@ function detectProtocolSchemes(td) {
             ...propertiesProtocols,
         ]),
     ].filter((p) => p !== undefined);
-
 
     return uniqWith(protocolSchemes, isEqual);
 }
@@ -76,7 +75,7 @@ function detectProtocolInForms(forms) {
 /**
  * Get href data
  * @param {string} href URI string
- * @returns an object with protocol, hostname and port 
+ * @returns an object with protocol, hostname and port
  */
 function getHrefData(href) {
     if (!href) {

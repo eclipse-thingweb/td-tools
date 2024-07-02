@@ -1,7 +1,8 @@
 # Eclipse Thingweb - TD Utils
 
 The package provides utility tools for TDs, such as:
-- Detecting protocol schemes in a TD
+
+-   Detecting protocol schemes in a TD
 
 ## Usage
 

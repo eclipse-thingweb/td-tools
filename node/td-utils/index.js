@@ -1,5 +1,5 @@
-const { detectProtocolSchemes } = require("./src/detectProtocolSchemes")
+const { detectProtocolSchemes } = require("./src/detectProtocolSchemes");
 
 module.exports = {
-    detectProtocolSchemes
-}
+    detectProtocolSchemes,
+};
