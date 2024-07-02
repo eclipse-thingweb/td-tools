@@ -1,0 +1,31 @@
+{
+    "name": "@thingweb/td-utils",
+    "version": "1.0.0",
+    "description": "The package provides utility tools for TDs.",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest",
+        "test:coverage": "jest --coverage",
+        "bundle": "npx browserify ./index.js -s tdUtils -o ./dist/web-bundle.js && npx terser ./dist/web-bundle.js -o ./dist/web-bundle.min.js",
+        "prepare": "npm run bundle"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/eclipse-thingweb/td-tools.git",
+        "directory": "node/td-utils"
+    },
+    "devDependencies": {
+        "browserify": "^17.0.0",
+        "jest": "^28.1.3",
+        "terser": "^5.14.2"
+    },
+    "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
+    "license": "EPL-2.0 OR W3C-20150513",
+    "bugs": {
+        "url": "https://github.com/eclipse-thingweb/td-tools/issues"
+    },
+    "homepage": "https://github.com/eclipse-thingweb/td-tools#readme",
+    "dependencies": {
+        "lodash": "^4.17.21"
+    }
+}
