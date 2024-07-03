@@ -13,11 +13,11 @@
  *  SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  */
 
-const { detectProtocolSchemes } = require("../src/detectProtocolSchemes");
-const { examples } = require("./protocol-detection-examples");
+import { detectProtocolSchemes } from "../src/detectProtocolSchemes";
+import { examples, ThingDescriptionTest } from "./protocol-detection-examples";
 
 describe("test examples", () => {
-    examples.forEach((e) => {
+    examples.forEach((e: ThingDescriptionTest) => {
         test(e.name, () => {
             const detectedProtocolSchemes = detectProtocolSchemes(JSON.stringify(e));
 

@@ -1,5 +1,2 @@
-const { detectProtocolSchemes } = require("./src/detectProtocolSchemes");
-
-module.exports = {
-    detectProtocolSchemes,
-};
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
