@@ -13,35 +13,35 @@
  *  SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  */
 import { detectProtocolSchemes, ProtocolScheme } from "../src/detectProtocolSchemes";
-import { ThingDescription } from 'wot-thing-description-types';
-import httpAndMqtt from './examples/httpAndMqtt.json';
-import noProtocol from './examples/noProtocol.json';
-import onlyHttp from './examples/onlyHttp.json'
-import onlyMqtt from './examples/onlyMqtt.json'
-import secureProtocols from './examples/secureProtocols.json'
+import { ThingDescription } from "wot-thing-description-types";
+import httpAndMqtt from "./examples/httpAndMqtt.json";
+import noProtocol from "./examples/noProtocol.json";
+import onlyHttp from "./examples/onlyHttp.json";
+import onlyMqtt from "./examples/onlyMqtt.json";
+import secureProtocols from "./examples/secureProtocols.json";
 
 export type ThingDescriptionTest = ThingDescription & { protocolSchemes: ProtocolScheme[] };
 
 describe("test examples", () => {
     it("should test httpAndMqtt", () => {
-        testTD(httpAndMqtt)
-    })
+        testTD(httpAndMqtt);
+    });
 
     it("should test noProtocol", () => {
-        testTD(noProtocol)
-    })
+        testTD(noProtocol);
+    });
 
     it("should test onlyHttp", () => {
-        testTD(onlyHttp)
-    })
+        testTD(onlyHttp);
+    });
 
     it("should test onlyMqtt", () => {
-        testTD(onlyMqtt)
-    })
+        testTD(onlyMqtt);
+    });
 
     it("should test secureProtocols", () => {
-        testTD(secureProtocols)
-    })
+        testTD(secureProtocols);
+    });
 });
 
 const testTD = (td: any) => {
