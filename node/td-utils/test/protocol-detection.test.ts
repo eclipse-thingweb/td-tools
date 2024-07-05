@@ -14,41 +14,23 @@
  */
 import { detectProtocolSchemes, ProtocolScheme } from "../src/detectProtocolSchemes";
 import { ThingDescription } from "wot-thing-description-types";
-import httpAndMqtt from "./examples/httpAndMqtt.json";
-import noProtocol from "./examples/noProtocol.json";
-import onlyHttp from "./examples/onlyHttp.json";
-import onlyMqtt from "./examples/onlyMqtt.json";
-import secureProtocols from "./examples/secureProtocols.json";
+import { testSuite } from "./protocol-detection.test.suite";
 
 export type ThingDescriptionTest = ThingDescription & { protocolSchemes: ProtocolScheme[] };
 
 describe("test examples", () => {
-    it("should test httpAndMqtt", () => {
-        testTD(httpAndMqtt);
-    });
-
-    it("should test noProtocol", () => {
-        testTD(noProtocol);
-    });
-
-    it("should test onlyHttp", () => {
-        testTD(onlyHttp);
-    });
-
-    it("should test onlyMqtt", () => {
-        testTD(onlyMqtt);
-    });
-
-    it("should test secureProtocols", () => {
-        testTD(secureProtocols);
+    testSuite.forEach((t) => {
+        it(`should test ${t.name}`, () => {
+            testTD(t.input, t.expected);
+        });
     });
 });
 
-const testTD = (td: any) => {
+const testTD = (td: any, expected: ProtocolScheme[]) => {
     const detectedProtocolSchemes = detectProtocolSchemes(JSON.stringify(td));
 
-    expect(detectedProtocolSchemes.length).toBe(td.protocolSchemes.length);
-    td.protocolSchemes.forEach((s: ProtocolScheme) => {
+    expect(detectedProtocolSchemes.length).toBe(expected.length);
+    expected.forEach((s: ProtocolScheme) => {
         expect(detectedProtocolSchemes).toContainEqual(s);
     });
 };

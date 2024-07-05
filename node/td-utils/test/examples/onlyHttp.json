@@ -28,17 +28,5 @@
                 }
             ]
         }
-    },
-    "protocolSchemes": [
-        {
-            "protocol": "http",
-            "hostname": "mylamp.example.com",
-            "port": 4212
-        },
-        {
-            "protocol": "http",
-            "hostname": "mylamp.example.com",
-            "port": 4214
-        }
-    ]
+    }
 }

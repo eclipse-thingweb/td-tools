@@ -17,17 +17,5 @@
         "toggle": {
             "forms": [{ "href": "mqtt://mylamp.example.com:1234/toggle" }]
         }
-    },
-    "protocolSchemes": [
-        {
-            "protocol": "http",
-            "hostname": "mylamp.example.com",
-            "port": 1234
-        },
-        {
-            "protocol": "mqtt",
-            "hostname": "mylamp.example.com",
-            "port": 1234
-        }
-    ]
+    }
 }

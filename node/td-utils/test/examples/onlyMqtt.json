@@ -28,11 +28,5 @@
                 }
             ]
         }
-    },
-    "protocolSchemes": [
-        {
-            "protocol": "mqtt",
-            "hostname": "mylamp.example.com"
-        }
-    ]
+    }
 }

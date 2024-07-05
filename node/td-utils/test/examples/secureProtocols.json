@@ -18,15 +18,5 @@
                 }
             ]
         }
-    },
-    "protocolSchemes": [
-        {
-            "protocol": "https",
-            "hostname": "mylamp.example.com"
-        },
-        {
-            "protocol": "mqtts",
-            "hostname": "mylamp.example.com"
-        }
-    ]
+    }
 }
