@@ -8,62 +8,39 @@ export const testSuite = [
     {
         name: "httpAndMqtt",
         input: httpAndMqtt,
-        expected: [
-            {
-                protocol: "http",
-                hostname: "mylamp.example.com",
-                port: 1234,
-            },
-            {
-                protocol: "mqtt",
-                hostname: "mylamp.example.com",
-                port: 1234,
-            },
-        ],
+        expected: {
+            http: [{ uri: "http://mylamp.example.com:1234" }],
+            mqtt: [{ uri: "mqtt://mylamp.example.com:1234" }],
+        },
     },
     {
         name: "noProtocol",
         input: noProtocol,
-        expected: [],
+        expected: {},
     },
     {
         name: "onlyHttp",
         input: onlyHttp,
-        expected: [
-            {
-                protocol: "http",
-                hostname: "mylamp.example.com",
-                port: 4212,
-            },
-            {
-                protocol: "http",
-                hostname: "mylamp.example.com",
-                port: 4214,
-            },
-        ],
+        expected: {
+            http: [
+                { uri: "http://mylamp.example.com:4212" },
+                { uri: "http://mylamp.example.com:4214", subprotocol: "longpoll" },
+            ],
+        },
     },
     {
         name: "onlyMqtt",
         input: onlyMqtt,
-        expected: [
-            {
-                protocol: "mqtt",
-                hostname: "mylamp.example.com",
-            },
-        ],
+        expected: {
+            mqtt: [{ uri: "mqtt://mylamp.example.com" }, { uri: "mqtt://mylamp.example.com", subprotocol: "longpoll" }],
+        },
     },
     {
         name: "secureProtocols",
         input: secureProtocols,
-        expected: [
-            {
-                protocol: "https",
-                hostname: "mylamp.example.com",
-            },
-            {
-                protocol: "mqtts",
-                hostname: "mylamp.example.com",
-            },
-        ],
+        expected: {
+            https: [{ uri: "https://mylamp.example.com", subprotocol: "longpoll" }],
+            mqtts: [{ uri: "mqtts://mylamp.example.com" }],
+        },
     },
 ];

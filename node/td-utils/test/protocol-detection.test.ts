@@ -12,11 +12,11 @@
  *
  *  SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  */
-import { detectProtocolSchemes, ProtocolScheme } from "../src/detectProtocolSchemes";
+import { detectProtocolSchemes, ProtocolSchemeMap } from "../src/detectProtocolSchemes";
 import { ThingDescription } from "wot-thing-description-types";
 import { testSuite } from "./protocol-detection.test.suite";
 
-export type ThingDescriptionTest = ThingDescription & { protocolSchemes: ProtocolScheme[] };
+export type ThingDescriptionTest = ThingDescription & { protocolSchemes: ProtocolSchemeMap[] };
 
 describe("test examples", () => {
     testSuite.forEach((t) => {
@@ -26,11 +26,8 @@ describe("test examples", () => {
     });
 });
 
-const testTD = (td: any, expected: ProtocolScheme[]) => {
+const testTD = (td: any, expected: ProtocolSchemeMap[]) => {
     const detectedProtocolSchemes = detectProtocolSchemes(JSON.stringify(td));
 
-    expect(detectedProtocolSchemes.length).toBe(expected.length);
-    expected.forEach((s: ProtocolScheme) => {
-        expect(detectedProtocolSchemes).toContainEqual(s);
-    });
+    expect(detectedProtocolSchemes).toMatchObject(expected);
 };

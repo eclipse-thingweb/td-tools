@@ -1,4 +1,3 @@
-import { uniqWith, isEqual } from "lodash";
 import {
     AnyUri,
     Form,
@@ -8,10 +7,18 @@ import {
     EventElement,
 } from "wot-thing-description-types";
 
+export interface ProtocolSchemeMap {
+    [k: string]: ProtocolScheme[];
+}
+
 export interface ProtocolScheme {
+    uri: string;
+    subprotocol?: string;
+}
+
+export interface HrefInfo {
     protocol: string;
-    hostname: string;
-    port?: number;
+    uri: string;
 }
 
 type AffordanceElement = { [k: string]: PropertyElement | ActionElement | EventElement };
@@ -21,75 +28,63 @@ type AffordanceElement = { [k: string]: PropertyElement | ActionElement | EventE
  * @param {string} td TD string to detect protocols of
  * return List of available protocol schemes
  */
-export const detectProtocolSchemes = (td: string): ProtocolScheme[] => {
+export const detectProtocolSchemes = (td: string): ProtocolSchemeMap => {
     let tdJson: ThingDescription;
+
+    const protocolSchemes: ProtocolSchemeMap = {};
 
     try {
         tdJson = JSON.parse(td);
     } catch (err) {
         console.error("Could not parse the TD string.");
-        return [];
+        return protocolSchemes;
     }
 
-    const baseUriProtocol: ProtocolScheme | undefined = tdJson.base ? getHrefData(tdJson.base) : undefined;
-    const thingProtocols: ProtocolScheme[] = tdJson.forms ? detectProtocolInForms(tdJson.forms) : [];
-    const actionsProtocols: ProtocolScheme[] = tdJson.actions ? detectProtocolInAffordance(tdJson.actions) : [];
-    const eventsProtocols: ProtocolScheme[] = tdJson.events ? detectProtocolInAffordance(tdJson.events) : [];
-    const propertiesProtocols: ProtocolScheme[] = tdJson.properties
-        ? detectProtocolInAffordance(tdJson.properties)
-        : [];
-    const protocolSchemes: ProtocolScheme[] = [
-        ...thingProtocols,
-        ...actionsProtocols,
-        ...eventsProtocols,
-        ...propertiesProtocols,
-    ];
+    const baseHrefInfo = getHrefInfo(tdJson.base);
 
-    if (baseUriProtocol) protocolSchemes.push(baseUriProtocol);
+    addProtocolScheme(protocolSchemes, baseHrefInfo);
+    detectProtocolInForms(protocolSchemes, tdJson.forms);
+    detectProtocolInAffordance(protocolSchemes, tdJson.actions);
+    detectProtocolInAffordance(protocolSchemes, tdJson.events);
+    detectProtocolInAffordance(protocolSchemes, tdJson.properties);
 
-    return uniqWith(protocolSchemes, isEqual);
+    return protocolSchemes;
 };
 
 /**
  * Detect protocols in a TD affordance
+ * @param protocolSchemes Protocol scheme map that the protocol scheme will be added
  * @param {object} affordance That belongs to a TD
  * @returns List of protocol schemes
  */
-const detectProtocolInAffordance = (affordance: AffordanceElement): ProtocolScheme[] => {
+const detectProtocolInAffordance = (protocolSchemes: ProtocolSchemeMap, affordance?: AffordanceElement) => {
     if (!affordance) {
-        return [];
+        return;
     }
-
-    let protocolSchemes: ProtocolScheme[] = [];
 
     for (const key in affordance) {
         if (key) {
-            protocolSchemes = protocolSchemes.concat(detectProtocolInForms(affordance[key].forms));
+            detectProtocolInForms(protocolSchemes, affordance[key].forms);
         }
     }
-
-    return protocolSchemes;
 };
 
 /**
  * Detect protocols in a TD forms or a TD affordance forms
+ * @param protocolSchemes Protocol scheme map that the protocol scheme will be added
  * @param {object} forms Forms field of a TD or a TD affordance
  * @returns List of protocol schemes
  */
-const detectProtocolInForms = (forms: Form[]): ProtocolScheme[] => {
+const detectProtocolInForms = (protocolSchemes: ProtocolSchemeMap, forms?: Form[]) => {
     if (!forms) {
-        return [];
+        return;
     }
 
-    const protocolSchemes: ProtocolScheme[] = [];
-
     forms.forEach((form) => {
-        const hrefData = getHrefData(form.href);
+        const hrefInfo = getHrefInfo(form.href);
 
-        if (hrefData) protocolSchemes.push(hrefData);
+        addProtocolScheme(protocolSchemes, hrefInfo, form.subprotocol);
     });
-
-    return protocolSchemes;
 };
 
 /**
@@ -97,21 +92,43 @@ const detectProtocolInForms = (forms: Form[]): ProtocolScheme[] => {
  * @param {string} href URI string
  * @returns an object with protocol, hostname and port
  */
-const getHrefData = (href: AnyUri): ProtocolScheme | undefined => {
+const getHrefInfo = (href?: AnyUri): HrefInfo | undefined => {
     if (!href) {
         return;
     }
 
     const splitHref = href.split(":");
-    const hostAndPort = href.split("/")[2];
-    const splitHostAndPort = hostAndPort.split(":");
+    const uri = href.split("/")[2];
     const protocol = splitHref[0];
-    const hostname = splitHostAndPort[0];
-    const port = splitHostAndPort[1] ? Number(splitHostAndPort[1]) : undefined;
 
     return {
         protocol,
-        hostname,
-        port,
+        uri: protocol + "://" + uri,
     };
+};
+
+/**
+ *
+ * @param protocolSchemes Protocol scheme map that the protocol scheme will be added
+ * @param hrefInfo Protocol scheme's information that is extracted from the href
+ * @param subprotocol Subprotocol of the protocol scheme
+ */
+const addProtocolScheme = (protocolSchemes: ProtocolSchemeMap, hrefInfo?: HrefInfo, subprotocol?: string) => {
+    if (hrefInfo) {
+        const protocolScheme = {
+            uri: hrefInfo.uri,
+            subprotocol: subprotocol,
+        };
+
+        if (protocolSchemes[hrefInfo.protocol]) {
+            const schemeExists =
+                protocolSchemes[hrefInfo.protocol].filter(
+                    (s) => s.uri === protocolScheme.uri && s.subprotocol === protocolScheme.subprotocol
+                ).length > 0;
+
+            if (!schemeExists) protocolSchemes[hrefInfo.protocol].push(protocolScheme);
+        } else {
+            protocolSchemes[hrefInfo.protocol] = [protocolScheme];
+        }
+    }
 };
