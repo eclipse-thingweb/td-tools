@@ -32,7 +32,7 @@ export const testSuite = [
         name: "onlyMqtt",
         input: onlyMqtt,
         expected: {
-            mqtt: [{ uri: "mqtt://mylamp.example.com" }, { uri: "mqtt://mylamp.example.com", subprotocol: "longpoll" }],
+            mqtt: [{ uri: "mqtt://mylamp.example.com" }, { uri: "mqtt://mylamp.example.com", subprotocol: "sparkplug" }],
         },
     },
     {

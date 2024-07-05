@@ -24,7 +24,7 @@
             "forms": [
                 {
                     "href": "mqtt://mylamp.example.com/oh",
-                    "subprotocol": "longpoll"
+                    "subprotocol": "sparkplug"
                 }
             ]
         }
