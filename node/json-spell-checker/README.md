@@ -1,5 +1,10 @@
 # Eclipse Thingweb - JSON Spell Checker
 
+[![JSON Spell Checker CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-json-spell-checker.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-json-spell-checker.yaml)
+[![CodeQL](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml)
+[![ESLint](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml)
+[![Prettier](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml)
+
 This package provides spell-checking support for JSON files when a JSON Schema is given.
 
 Limitations:

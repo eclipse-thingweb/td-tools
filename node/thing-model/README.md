@@ -1,5 +1,10 @@
 # Eclipse Thingweb - TM Helpers
 
+[![Thing Model CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-thing-model.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-thing-model.yaml)
+[![CodeQL](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml)
+[![ESLint](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml)
+[![Prettier](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml)
+
 The package provides helper tools for Thing Models.
 Tools help to:
 

@@ -1,4 +1,4 @@
-name: TM Helpers CI Pipeline
+name: Thing Model CI Pipeline
 
 on:
   push:
