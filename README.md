@@ -16,6 +16,7 @@
 [![CodeQL](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml)
 [![ESLint](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml)
 [![Prettier](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml)
+[![codecov](https://codecov.io/gh/eclipse-thingweb/td-tools/branch/main/graph/badge.svg?token=ZP8VZROLXD)](https://codecov.io/gh/eclipse-thingweb/td-tools)
 
 The goal of this repository is to contain different tools for Thing Descriptions and Thing Models.
 Currently, they are scattered in different Thingweb repositories and packages and they will be moved here.

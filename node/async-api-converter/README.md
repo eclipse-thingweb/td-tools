@@ -1,5 +1,11 @@
 # Eclipse Thingweb - TD to AsyncAPI Converter
 
+[![AsyncAPI Converter CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-async-api-converter.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-async-api-converter.yaml)
+[![CodeQL](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/codeql-analysis.yml)
+[![ESLint](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/eslint.yml)
+[![Prettier](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/prettier.yml)
+
+
 The package provides support for AsyncAPI instance generation (output as `json` or `yaml`), using a Thing Description (TD) as input.
 
 ## Usage
