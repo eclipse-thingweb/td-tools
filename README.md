@@ -31,8 +31,7 @@ Tools in this repository:
 
 Additionally, the [TD Utils](https://github.com/eclipse-thingweb/td-tools/tree/main/node/td-utils) package contains small tools that help with TD-based workflows. These are:
 
-- Protocol Detection: Going through a TD and providing an object with all found protocols.
-
+-   Protocol Detection: Going through a TD and providing an object with all found protocols.
 
 The list of existing tools in other Thingweb repositories, which will be moved here over time:
 
