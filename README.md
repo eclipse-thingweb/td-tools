@@ -23,17 +23,19 @@ Currently, they are scattered in different Thingweb repositories and packages an
 
 Tools in this repository:
 
--   Async API Converter: https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter
--   AAS AID Tooling: https://github.com/eclipse-thingweb/td-tools/tree/main/node/aas-aid
+-   [AAS AID Tooling](https://github.com/eclipse-thingweb/td-tools/tree/main/node/aas-aid): Converting TD to AAS AID and vice versa
+-   [AsyncAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter): Converting TDs to AsyncAPI documents when the TD uses MQTT binding
+-   [JSON Spell Checker](https://github.com/eclipse-thingweb/td-tools/tree/main/node/json-spell-checker): Checking errors in JSON documents (e.g. TDs) when there is a JSON Schema available (e.g. TD JSON Schema). This is not limited to TDs only.
+-   [OpenAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/open-api-converter): Converting TDs to OpenAPI documents when the TD uses HTTP binding
+-   [Thing Model Tooling](https://github.com/eclipse-thingweb/td-tools/tree/main/node/thing-model): Tooling to use Thing Models, such as resolving dependencies and imports.
 
-The list of all existing tools:
+Additionally, the [TD Utils](https://github.com/eclipse-thingweb/td-tools/tree/main/node/td-utils) package contains small tools that help with TD-based workflows. These are:
+
+- Protocol Detection: Going through a TD and providing an object with all found protocols.
+
+
+The list of existing tools in other Thingweb repositories, which will be moved here over time:
 
 -   TD Validation: https://github.com/eclipse-thingweb/playground/tree/master/packages/core . Also in node-wot via simple AJV/Schema plus sanity checks on forms.
--   Thing Model helpers to resolve sub TMs: https://github.com/eclipse-thingweb/node-wot/blob/master/packages/td-tools/src/thing-model-helpers.ts
 -   Default addition or removal for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/defaults
--   JSON Schema based "spell checker" to find mistakes in a TD: https://github.com/eclipse-thingweb/playground/tree/master/packages/json-spell-checker
--   TD to OpenAPI converter: https://github.com/eclipse-thingweb/playground/tree/master/packages/td_to_openAPI
 -   Feature/Assertion detecter for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/assertions (will be moved to W3C Thing Description Repository)
-
-> **Warning**
-> When transferring we should avoid circular dependencies.
