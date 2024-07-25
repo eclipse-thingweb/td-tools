@@ -22,11 +22,8 @@ import { JsonPlaceholderReplacer } from "json-placeholder-replacer";
 import { LinkElement } from "wot-thing-description-types";
 import { DataSchema, ExposedThingInit } from "wot-typescript-definitions";
 import { ThingModel } from "wot-thing-model-types";
+import { Resolver } from "./resolver-interface";
 import TMSchema from "wot-thing-model-types/schema/tm-json-schema-validation.json";
-
-interface Resolver {
-    fetch(uri: string): Promise<unknown>;
-}
 
 // TODO: Refactor and reuse debug solution from core package
 import debug from "debug";
