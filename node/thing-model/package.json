@@ -1,6 +1,6 @@
 {
     "name": "@thingweb/thing-model",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eclipse-thingweb/td-tools.git",
