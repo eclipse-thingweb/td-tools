@@ -1,6 +1,6 @@
 {
     "name": "@thingweb/thing-model",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eclipse-thingweb/td-tools.git",
@@ -17,8 +17,8 @@
         "test": "mocha --require ts-node/register --extension ts",
         "test:coverage": "nyc --reporter=lcov mocha --require ts-node/register --extension ts"
     },
-    "main": "dist/src/tm-helpers.js",
-    "types": "dist/src/tm-helpers.d.ts",
+    "main": "dist/src/thing-model.js",
+    "types": "dist/src/thing-model.d.ts",
     "description": "Tooling to use WoT Thing Models in your workflows such as validation, model resolution and more.",
     "dependencies": {
         "ajv": "^8.11.0",
