@@ -13,6 +13,6 @@
  * SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  ********************************************************************************/
 
-/** Exports of thing-module tool */
+/** Exports of thing-model tool */
 export * from "./tm-helpers";
 export * from "./resolver-interface";
