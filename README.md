@@ -37,4 +37,4 @@ The list of existing tools in other Thingweb repositories, which will be moved h
 
 -   TD Validation: https://github.com/eclipse-thingweb/playground/tree/master/packages/core . Also in node-wot via simple AJV/Schema plus sanity checks on forms.
 -   Default addition or removal for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/defaults
--   Feature/Assertion detecter for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/assertions (will be moved to W3C Thing Description Repository)
+-   Feature/Assertion detector for TDs: https://github.com/eclipse-thingweb/playground/tree/master/packages/assertions (will be moved to W3C Thing Description Repository)
