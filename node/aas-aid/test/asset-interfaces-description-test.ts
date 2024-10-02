@@ -921,9 +921,11 @@ class AssetInterfaceDescriptionTest {
     }
 
     @test async "should correctly transform sample TD1 into JSON AAS"() {
-        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), { createAAS: true, aasIdShort: "FooAAS", aasId: "https://example.com/1234"  }, [
-            "http",
-        ]);
+        const sm = this.assetInterfacesDescription.transformTD2AID(
+            JSON.stringify(this.td1),
+            { createAAS: true, aasIdShort: "FooAAS", aasId: "https://example.com/1234" },
+            ["http"]
+        );
 
         const aasObj = JSON.parse(sm);
         expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array").to.have.lengthOf(1);

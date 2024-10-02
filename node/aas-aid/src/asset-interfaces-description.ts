@@ -98,8 +98,9 @@ export class AssetInterfacesDescription {
             const submodelId = submodelObj.id;
 
             // configuration
-            const aasName = !!options.aasIdShort ? options.aasIdShort: "SampleAAS";
-            const aasId = options.aasId?.length !== 0 ? options.aasId : "https://example.com/ids/aas/7474_9002_6022_1115";
+            const aasName = !!options.aasIdShort ? options.aasIdShort : "SampleAAS";
+            const aasId =
+                options.aasId?.length !== 0 ? options.aasId : "https://example.com/ids/aas/7474_9002_6022_1115";
 
             const aas = {
                 assetAdministrationShells: [
