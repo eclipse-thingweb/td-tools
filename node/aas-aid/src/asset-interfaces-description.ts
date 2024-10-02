@@ -37,6 +37,8 @@ const logError = debug(`${namespace}:error`);
 
 export interface Options {
     createAAS?: boolean;
+    aasId?: string;
+    aasIdShort?: string;
 }
 
 export class AssetInterfacesDescription {
@@ -82,7 +84,7 @@ export class AssetInterfacesDescription {
      * Transform WoT ThingDescription (TD) to AID submodel in JSON format
      *
      * @param td input TD
-     * @param options options such as creating AAS wrapper
+     * @param options options such as creating AAS wrapper with providing id/idShort
      * @param protocols protocol prefixes of interest (e.g., ["http", "coap"]) or optional if all
      * @returns transformed AAS in JSON format
      */
@@ -96,8 +98,8 @@ export class AssetInterfacesDescription {
             const submodelId = submodelObj.id;
 
             // configuration
-            const aasName = "SampleAAS";
-            const aasId = "https://example.com/ids/aas/7474_9002_6022_1115";
+            const aasName = !!options.aasIdShort ? options.aasIdShort: "SampleAAS";
+            const aasId = options.aasId?.length !== 0 ? options.aasId : "https://example.com/ids/aas/7474_9002_6022_1115";
 
             const aas = {
                 assetAdministrationShells: [

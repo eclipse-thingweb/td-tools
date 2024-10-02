@@ -82,7 +82,7 @@ Note: make sure that the file `counterHTTP.json` is in the same folder as the sc
 
 The example `td-to-aid.js` loads the online [counter TD](http://plugfest.thingweb.io:8083/counter/) and converts it to an AID submodel in JSON format.
 
-Note: by using the option `createAAS` a full AAS form is created (instead of the AID submodel only).
+Note: by using the option `createAAS` a full AAS form is created (instead of the AID submodel only). The AAS can be configured with `aasId` and `aasIdShort` also.
 
 ```js
 // td-to-aid.js
