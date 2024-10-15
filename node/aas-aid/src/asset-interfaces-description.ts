@@ -1391,11 +1391,12 @@ export class AssetInterfacesDescription {
 
                     if (property.readOnly != null) {
                         propertyKeys.splice(propertyKeys.indexOf("readOnly"), 1);
-                        // TODO: readOnly and writeOnly marked as EXTERNAL in AID spec
+                        // TODO: readOnly marked as EXTERNAL in AID spec
                     }
 
                     if (property.writeOnly != null) {
                         propertyKeys.splice(propertyKeys.indexOf("writeOnly"), 1);
+                        // TODO: writeOnly marked as EXTERNAL in AID spec
                     }
 
                     // range and others? Simply add them as is?
