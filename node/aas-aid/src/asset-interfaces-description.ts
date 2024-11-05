@@ -1531,19 +1531,22 @@ export class AssetInterfacesDescription {
                     let prefixObject: any = {};
 
                     if (Array.isArray(tdContext)) {
-                        if (tdContext.length > 3) {
-                            // if it is longer than 3, assume 3rd item is the object. This offset is needed as node-wot always adds @language at the end
-                            // this is the case with 1.0 and 1.1 context together and then an object
-                            prefixObject = tdContext[2];
-                        } else if (tdContext.length > 2) {
-                            // this is the case only with 1.1 context and object
-                            prefixObject = tdContext[1];
-                        } else {
-                            // then it is an array with only a string
-                            continue;
-                        }
+                        // iterate through the array and add key-value pairs of each object to a single one
+                        tdContext.forEach((arrayItem) => {
+                            if (typeof arrayItem === "object") {
+                                // insert every pair into the prefixObject
+                                for (const key in arrayItem) {
+                                    prefixObject[key] = arrayItem[key as keyof typeof arrayItem];
+                                }
+                            } else if (typeof arrayItem === "string") {
+                                // it is either the standard context or another non-prefix term.
+                                // in second case, it is not useful without full rdf processing
+                            } else {
+                                //probably a json-ld error?
+                            }
+                        });
                     } else {
-                        continue;
+                        // then it is a simple string
                     }
 
                     // iterate through the remaining property keys to add extended semantic ids
@@ -1560,7 +1563,7 @@ export class AssetInterfacesDescription {
                                 const semanticId = baseUri + element.slice(colonLoc + 1);
 
                                 propertyValues.push({
-                                    idShort: element,
+                                    idShort: this.sanitizeIdShort(element),
                                     semanticId: this.createSemanticId(semanticId),
                                     valueType: this.getSimpleValueTypeXsd(property.element),
                                     value: property[element],
