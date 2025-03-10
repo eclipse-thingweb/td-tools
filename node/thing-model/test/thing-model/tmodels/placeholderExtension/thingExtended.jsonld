@@ -1,0 +1,37 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1"
+  ],
+  "@type": "Thing",
+  "title": "extended_thing",
+  "id": "urn:uuid:bf2c24bc-9232-454d-ac17-90feb3647b71",
+  "description": "Extends the base thing with some properties",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "links": [
+    {
+      "rel": "type",
+      "href": "./extended_thing.tm.jsonld",
+      "type": "application/tm+json"
+    }
+  ],
+  "properties": {
+    "some_property": {
+      "type": "string",
+      "description": "Some property",
+      "forms": [
+        {
+          "href": "mqtt://example.org:1883",
+          "mqv:topic": "extended_thing/bf2c24bc-9232-454d-ac17-90feb3647b71/properties/some_property",
+          "op": "observeproperty",
+          "mqv:qos": 1,
+          "mqv:retain": false,
+          "contentType": "application/json"
+        }
+      ]
+    }
+  }
+}

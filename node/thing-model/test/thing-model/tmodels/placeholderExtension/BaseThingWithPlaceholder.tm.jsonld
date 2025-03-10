@@ -1,0 +1,17 @@
+{
+    "@context": [
+        "https://www.w3.org/2022/wot/td/v1.1"
+    ],
+    "@type": "tm:ThingModel",
+    "title": "base_thing",
+    "version": {
+        "model": "0.0.1"
+    },
+    "id": "urn:uuid:{{THING_UUID_V4}}",
+    "description": "The most basic thing",
+    "securityDefinitions": {
+        "nosec_sc": {
+            "scheme": "nosec"
+        }
+    }
+}
