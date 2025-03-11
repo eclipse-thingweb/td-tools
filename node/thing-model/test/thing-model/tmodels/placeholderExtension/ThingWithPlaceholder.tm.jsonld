@@ -1,0 +1,30 @@
+{
+    "@context": [
+        "https://www.w3.org/2022/wot/td/v1.1"
+    ],
+    "@type": "tm:ThingModel",
+    "title": "extended_thing",
+    "version": {
+        "model": "0.0.1"
+    },
+    "description": "Extends the base thing with some properties",
+    "links": [{
+        "rel": "tm:extends",
+        "href": "file://./test/thing-model/tmodels/placeholderExtension/BaseThingWithPlaceholder.tm.jsonld",
+        "type": "application/tm+json"
+    }],
+    "properties": {
+        "some_property": {
+            "type": "string",
+            "description": "Some property",
+            "forms": [{
+                "href": "mqtt://{{MQTT_BROKER_ADDR}}",
+                "mqv:topic": "{{THING_MODEL}}/{{THING_UUID_V4}}/properties/some_property",
+                "op": "observeproperty",
+                "mqv:qos": 1,
+                "mqv:retain": false,
+                "contentType": "application/json"
+            }]
+        }
+    }
+}
