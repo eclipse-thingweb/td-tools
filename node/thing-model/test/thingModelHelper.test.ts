@@ -451,7 +451,7 @@ class ThingModelHelperTest {
         const modelUri = "file://./test/thing-model/tmodels/placeholderExtension/ThingWithPlaceholder.tm.jsonld";
         const placeholderThing = await this.thingModelHelpers.fetchModel(modelUri);
 
-        const tdUri= "./test/thing-model/tmodels/placeholderExtension/thingExtended.jsonld";
+        const tdUri = "./test/thing-model/tmodels/placeholderExtension/thingExtended.jsonld";
         const td = await fs.readFile(tdUri, "utf-8");
         const tdJson = JSON.parse(td);
 
@@ -459,7 +459,7 @@ class ThingModelHelperTest {
             THING_MODEL: "extended_thing",
             THING_UUID_V4: "bf2c24bc-9232-454d-ac17-90feb3647b71",
             MQTT_BROKER_ADDR: "example.org:1883",
-        }
+        };
 
         const options: CompositionOptions = {
             map,
