@@ -29,3 +29,9 @@ packages/web-new/test-results
 packages/web-new/playwright-report
 **/coverage
 **/.nyc_output
+
+# nix
+.direnv
+.envrc
+flake.nix
+flake.lock

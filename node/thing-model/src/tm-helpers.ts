@@ -291,7 +291,7 @@ export class ThingModelHelpers {
             throw new Error(isValid.errors);
         }
 
-        const modelInput = await this.fetchAffordances(model);
+        const modelInput = await this.fetchAffordances(model, options);
         const extendedModels = await this.composeModel(model, modelInput, options);
         return extendedModels;
     }
@@ -304,14 +304,14 @@ export class ThingModelHelpers {
      *
      * @experimental
      */
-    private async fetchAffordances(data: ThingModel): Promise<modelComposeInput> {
+    private async fetchAffordances(data: ThingModel, options?: CompositionOptions): Promise<modelComposeInput> {
         const modelInput: modelComposeInput = {};
         const extLinks = ThingModelHelpers.getThingModelLinks(data, "tm:extends");
         if (extLinks.length > 0) {
             modelInput.extends = [] as ThingModel[];
             for (const s of extLinks) {
                 let source = await this.fetchModel(s.href);
-                [source] = await this._getPartialTDs(source);
+                [source] = await this._getPartialTDs(source, options);
                 modelInput.extends.push(source);
             }
         }
@@ -325,7 +325,7 @@ export class ThingModelHelpers {
                     throw new Error(`Missing remote path in ${affUri}`);
                 }
                 let source = await this.fetchModel(refObj.uri);
-                [source] = await this._getPartialTDs(source);
+                [source] = await this._getPartialTDs(source, options);
                 delete (data[affType] as DataSchema)[aff]["tm:ref"];
                 const importedAffordance = this.getRefAffordance(refObj, source) ?? {};
                 refObj.name = aff; // update the name of the affordance
