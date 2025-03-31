@@ -1,0 +1,53 @@
+const { Servient } = require("@node-wot/core");
+const { HttpClientFactory } = require("@node-wot/binding-http");
+
+const servient = new Servient();
+servient.addClientFactory(new HttpClientFactory(null));
+
+servient.start().then(async (WoT) => {
+
+    //Utilize the link to your Thing Description or enter your Thing Description directly
+    //const td = await WoT.requestThingDescription(/*Path to Thing Description*/);
+    const td = {...};
+    let thing = await WoT.consume(td);
+    
+    {{#if (equalTo affordanceType "properties")}}
+    {{#if (equalTo operation "readproperty")}}
+    // Reading a property
+    let {{affordance}} = await (await thing.readProperty("{{affordance}}")).value();
+    console.log("{{affordance}} value:", {{affordance}});
+    {{/if}}
+    {{#if (equalTo operation "writeproperty")}}
+    // Writing to a property
+    await thing.writeProperty("{{affordance}}", {{generateTestInput affordanceObject}});
+    {{/if}}
+    {{#if (or (equalTo operation "observeproperty") (equalTo operation "unobserveproperty"))}}
+    // Observing a property
+    thing.observeProperty("{{affordance}}", async (data) => {
+        console.log("{{affordance}} value:", await data.value());
+    });
+    {{/if}}
+    {{/if}}
+    {{#if (equalTo affordanceType "actions")}}
+    {{#if (equalTo operation "invokeaction")}}
+    // Invoking an action
+    let {{affordance}} = await thing.invokeAction("{{affordance}}", {{generateTestInput affordanceObject}});
+    console.log("{{affordance}} value:", await {{affordance}}.value());
+    {{/if}}
+    {{/if}}
+    {{#if (equalTo affordanceType "events")}}
+    {{#if (or (equalTo operation "subscribeevent") (equalTo operation "unsubscribeevent"))}}
+    // Subscribing to an event
+    thing.subscribeEvent("{{affordance}}", async (data) => {
+        console.log("Event data:", await data.value());
+    });
+
+    // Unsubscribe after a certain period of time
+    setTimeout(() => {
+        thing.unsubscribeEvent("{{affordance}}");
+        console.log('Unsubscribed from {{affordance}} event');
+    }, 10000);
+    {{/if}}
+    {{/if}}
+
+}).catch((err) => { console.error(err); });
