@@ -37,13 +37,13 @@ A command-line interface tool for generating protocol-specific code snippets fro
 1. Clone the repository using Git:
 
     ```bash
-    git clone https://github.com/SergioCasCeb/code-generator.git
+    git clone https://github.com/eclipse-thingweb/td-tools
     ```
 
 2. Navigate to the project directory:
 
     ```bash
-    cd code-generator
+    cd node/code-gen
     ```
 
 3. Install all project dependencies:
@@ -156,7 +156,7 @@ The deterministic code generation uses `handlebars` templates and protocol-speci
 
 To contribute new templates:
 
-1. Submit a PR containing only the template in the respective folder.
+1. Submit a PR containing only the template in the respective folder, as well as updating the `templates-paths.json` file.
 2. Test it within the code generator.
 3. If protocol-specific logic is required, add the necessary helper functions in the respective folder along with documentation.
 4. Finally, submit a final PR including any updates or additions to the code-generator, the `handlebars` helpers, etc.
