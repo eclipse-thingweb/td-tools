@@ -1,0 +1,115 @@
+{{#if (equalTo (getSubprotocol form operation) "sse")}}
+import { EventSource } from 'eventsource';
+{{else}}
+import fetch from 'node-fetch';
+{{/if}}
+
+const URL = "{{absoluteURL}}";
+
+{{!-- Start by checking for observation/subscription --}}
+{{#if (getSubprotocol form operation)}}
+{{!--if the subprotocol is sse return the following code --}}
+{{#if (equalTo (getSubprotocol form operation) "sse")}}
+function {{toCamelCase (joinStr operation affordance)}}() {
+    const eventSource = new EventSource(URL);
+
+    eventSource.onopen = () => {
+        console.log("Connected Successfully");
+    };
+
+    eventSource.onmessage = (e) => {
+        try {
+            console.log("{{affordance}}: ", JSON.parse(e.data));
+        } catch (error) {
+            console.error('Error with {{affordance}}:', error);
+        }
+    };
+
+    eventSource.onerror = (error) => {
+        console.error('Error with {{affordance}}:', error);
+    };
+
+    return {
+        unsubscribe: () => {
+            eventSource.close();
+        }
+    };
+}
+
+const event = {{toCamelCase (joinStr operation affordance)}}();
+
+//Disconnect after 10 seconds
+setTimeout(() => {
+    event.unsubscribe();
+    console.log("Disconnected");
+}, 10000);
+{{/if}}
+{{!--if the subprotocol is longpoll return the following code --}}
+{{#if (equalTo (getSubprotocol form operation) "longpoll")}}
+async function {{toCamelCase (joinStr operation affordance)}}() {
+    while (true) {
+        try {
+            const response = await fetch(URL, {
+                method: "{{getMethod form operation}}",
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to {{joinStr operation affordance}}: ${response.status} ${response.statusText}`);
+            }
+
+            const {{affordance}} = await response.json();
+            console.log("{{affordance}} value:", {{affordance}});
+
+            return {{affordance}};
+        } catch (error) {
+            console.error("Error:", error);
+        }
+
+        // Adding a 500 ms delay before the next request
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+}
+
+{{toCamelCase (joinStr operation affordance)}}();
+{{/if}}
+{{else}}
+{{!--if no observation/subscription return the following code --}}
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+const bodyInput = {{generateTestInput affordanceObject}};
+
+{{/if}}
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+async function {{toCamelCase (joinStr operation affordance)}}(inputValue) {
+{{else}}
+async function {{toCamelCase (joinStr operation affordance)}}() {
+{{/if}}
+    try {
+        const response = await fetch(URL, {
+            method: "{{getMethod form operation}}",
+            {{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+            headers: {
+                "Content-Type": "{{getContentType form}}",
+            },
+            body: JSON.stringify(inputValue),
+            {{/if}}
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to {{joinStr operation affordance}}: ${response.status} ${response.statusText}`);
+        }
+
+        const {{affordance}} = await response.json();
+        console.log("{{affordance}} value:", {{affordance}});
+
+        return {{affordance}};
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+{{toCamelCase (joinStr operation affordance)}}(bodyInput);
+{{else}}
+{{toCamelCase (joinStr operation affordance)}}();
+{{/if}}
+{{/if}}
