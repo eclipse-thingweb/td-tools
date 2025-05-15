@@ -1,6 +1,6 @@
 {
     "name": "@thingweb/thing-model",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eclipse-thingweb/td-tools.git",
@@ -25,9 +25,9 @@
         "ajv-formats": "^3.0.1",
         "debug": "^4.3.4",
         "json-placeholder-replacer": "^2.0.4",
-        "wot-thing-description-types": "1.1.0-09-November-2023",
-        "wot-thing-model-types": "^1.1.0-09-November-2023",
-        "wot-typescript-definitions": "0.8.0-SNAPSHOT.29"
+        "wot-thing-description-types": "^1.1.0-12-March-2025",
+        "wot-thing-model-types": "^1.1.0-12-March-2025",
+        "wot-typescript-definitions": "^0.8.0-SNAPSHOT.30"
     },
     "devDependencies": {
         "@testdeck/mocha": "^0.1.2",
