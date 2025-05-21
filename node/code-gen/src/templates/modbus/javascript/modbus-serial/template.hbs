@@ -1,0 +1,73 @@
+const ModbusRTU = require("modbus-serial")
+
+const client = new ModbusRTU();
+
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+const payload = {{generateTestInput affordanceObject}};
+
+async function {{toCamelCase (joinStr operation affordance)}}(inputValue) {
+{{else}}
+async function {{toCamelCase (joinStr operation affordance)}}() {
+{{/if}}
+    try {
+        await client.connectTCP("{{getIP absoluteURL}}", { port: {{getPort absoluteURL}} });
+
+        client.setID({{getUnitID absoluteURL}});
+
+        const address = {{getAddress absoluteURL}};
+        
+        {{#if (equalTo operation 'readproperty')}}
+        const res = await client.{{getModbusFunction form operation}}(address, {{getQuantity absoluteURL}});
+        console.log("{{affordance}} value: ", res.data[0]);
+        return res.data[0];
+        {{!--client.close();--}}
+        {{/if}}
+        {{!--Output code for invoking an action or writing to a property --}}
+        {{#if (or (equalTo operation 'writeproperty') (equalTo operation 'invokeaction'))}}
+        {{#if (or (equalTo (getModbusFunction form operation) 'writeCoil') (equalTo (getModbusFunction form operation) 'writeRegister'))}}
+        const res = await client.{{getModbusFunction form operation}}(address, inputValue);
+        {{/if}}
+        {{#if (or (equalTo (getModbusFunction form operation) 'writeCoils') (equalTo (getModbusFunction form operation) 'writeRegisters'))}}
+        const res = await client.{{getModbusFunction form operation}}(address, [inputValue]);
+        {{/if}}
+        {{#if (or (equalTo (getModbusFunction form operation) 'writeCoil') (equalTo (getModbusFunction form operation) 'writeCoils'))}}
+        console.log("{{affordance}} value: ", res["state"]);
+        return res["state"];
+        {{/if}}
+        {{#if (or (equalTo (getModbusFunction form operation) 'writeRegister') (equalTo (getModbusFunction form operation) 'writeRegisters'))}}
+        console.log("{{affordance}} value: ", res["value"]);
+        return res["value"];
+        {{/if}}
+        {{!--client.close();--}}
+        {{/if}}
+        {{!--Output code for observation --}}
+        {{#if (or (equalTo operation 'observeproperty') (equalTo operation 'subscribeevent'))}}
+        // read values every {{getPollingTime form}} ms
+        const intervalId = setInterval(async () => {
+            try {
+                const res = await client.{{getModbusFunction form operation}}(address, {{getQuantity absoluteURL}});
+                console.log("{{affordance}} value: ", res.data[0]);
+            } catch (err) {
+                console.error("Failed to {{joinStr operation affordance}}", err);
+            }
+        }, {{getPollingTime form}});
+
+        // Stop observing after 10 seconds
+        setTimeout(() => {
+            clearInterval(intervalId);
+            console.log("Stopped observing {{affordance}}.");
+            client.close();
+        }, 10000);
+        {{/if}}
+
+    } catch (err) {
+        console.error("Failed to {{joinStr operation affordance}}", err);
+        client.close();
+    }
+}
+
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+{{toCamelCase (joinStr operation affordance)}}(payload);
+{{else}}
+{{toCamelCase (joinStr operation affordance)}}();
+{{/if}}

@@ -1,0 +1,50 @@
+import requests
+
+URL = "{{absoluteURL}}"
+
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+payload = {{generateTestInput affordanceObject}}
+
+{{/if}}
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+def {{toSnakeCase (joinStr operation affordance)}}(payload_value):
+{{else}}
+def {{toSnakeCase (joinStr operation affordance)}}():
+{{/if}}
+{{#if (or (equalTo operation 'observeproperty') (equalTo operation 'subscribeevent'))}}
+  while True:
+    try: 
+      response = requests.get(URL, stream=True, timeout=10)
+
+      if response.status_code == 200:
+        for line in response.iter_lines():
+          if line:
+            data = line.decode("utf-8")
+            print(data)
+      else:
+        print(f"Failed to {{joinStr operation affordance}}. Status code: {response.status_code}, Response: {response.text}")
+        break
+
+    # Closing the connection after timeout or on error
+    except requests.exceptions.RequestException as error:
+      print("Error during the request:", error)
+      break
+{{else}}
+  try:
+    response = requests.{{toLowerCase (getMethod form operation)}}(URL{{#if (or (equalTo (getMethod form operation) "POST") (equalTo (getMethod form operation) "PUT"))}},json=payload_value, headers={"Content-Type": "{{getContentType form}}"}{{/if}})
+    if response.status_code == 200:
+      {{affordance}} = response.json()
+      print("{{affordance}} value:", {{affordance}})
+      return {{affordance}}
+    else:
+      print(f"Failed to {{joinStr operation affordance}}. Status code: {response.status_code}, Response: {response.text}")
+
+  except requests.exceptions.RequestException as error:
+    print("Error during the request:", error)
+{{/if}}
+
+{{#if (or (equalTo operation "invokeaction") (equalTo operation "writeproperty"))}}
+{{toSnakeCase (joinStr operation affordance)}}(payload)
+{{else}}
+{{toSnakeCase (joinStr operation affordance)}}()
+{{/if}}
