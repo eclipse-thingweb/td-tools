@@ -1213,12 +1213,15 @@ export class AssetInterfacesDescription {
                 for (const propertyKey in td.properties) {
                     const property: PropertyElement = td.properties[propertyKey];
 
+                    // we get all the property keys and remove known keys by the TD spec at each if clause
+                    let propertyKeys: any = Object.keys(property);
                     // check whether form exists for a given protocol (prefix)
                     const formElementPicked = this.getFormForProtocol(property, protocol);
                     if (formElementPicked === undefined) {
                         // do not add this property, since there will be no href of interest
                         continue;
                     }
+                    propertyKeys.splice(propertyKeys.indexOf("forms"), 1);
 
                     const propertyValues: Array<unknown> = [];
                     // type
@@ -1230,6 +1233,7 @@ export class AssetInterfacesDescription {
                             value: property.type,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("type"), 1);
                         // special AID treatment
                         if (property.minimum != null || property.maximum != null) {
                             const minMax: { [k: string]: unknown } = {
@@ -1246,12 +1250,14 @@ export class AssetInterfacesDescription {
                                 (minMax.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#minimum")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("minimum"), 1);
                             }
                             if (property.maximum != null) {
                                 minMax.max = property.maximum.toString();
                                 (minMax.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#maximum")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("maximum"), 1);
                             }
                             propertyValues.push(minMax);
                         }
@@ -1270,12 +1276,14 @@ export class AssetInterfacesDescription {
                                 (itemsRange.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#minItems")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("minItems"), 1);
                             }
                             if (property.maxItems != null) {
                                 itemsRange.max = property.maxItems.toString();
                                 (itemsRange.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#maxItems")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("maxItems"), 1);
                             }
                             propertyValues.push(itemsRange);
                         }
@@ -1294,12 +1302,14 @@ export class AssetInterfacesDescription {
                                 (lengthRange.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#minLength")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("minLength"), 1);
                             }
                             if (property.maxLength != null) {
                                 lengthRange.max = property.maxLength.toString();
                                 (lengthRange.supplementalSemanticIds as Array<unknown>).push(
                                     this.createSemanticId("https://www.w3.org/2019/wot/json-schema#maxLength")
                                 );
+                                propertyKeys.splice(propertyKeys.indexOf("maxLength"), 1);
                             }
                             propertyValues.push(lengthRange);
                         }
@@ -1313,10 +1323,12 @@ export class AssetInterfacesDescription {
                             value: property.title,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("title"), 1);
                     }
                     // description
                     if (property.description != null) {
                         // AID deals with description in level above
+                        propertyKeys.splice(propertyKeys.indexOf("description"), 1);
                     }
                     // observable (if it deviates from the default == false only)
                     if (property.observable != null && property.observable === true) {
@@ -1327,6 +1339,7 @@ export class AssetInterfacesDescription {
                             value: `${property.observable}`, // in AID represented as string
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("observable"), 1);
                     }
                     // contentMediaType
                     if (property.contentMediaType != null) {
@@ -1339,6 +1352,7 @@ export class AssetInterfacesDescription {
                             value: property.contentMediaType,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("contentMediaType"), 1);
                     }
                     // TODO enum
                     // const
@@ -1349,6 +1363,7 @@ export class AssetInterfacesDescription {
                             value: property.const,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("const"), 1);
                     }
                     // default
                     if (property.default != null) {
@@ -1359,19 +1374,31 @@ export class AssetInterfacesDescription {
                             value: property.default,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("default"), 1);
                     }
                     // unit
                     if (property.unit != null) {
+                        // TODO: handle if value has : in it
                         propertyValues.push({
                             idShort: "unit",
                             valueType: "xs:string",
                             value: property.unit,
                             modelType: "Property",
                         });
+                        propertyKeys.splice(propertyKeys.indexOf("unit"), 1);
                     }
                     // TODO items
 
-                    // readOnly and writeOnly marked as EXTERNAL in AID spec
+                    if (property.readOnly != null) {
+                        propertyKeys.splice(propertyKeys.indexOf("readOnly"), 1);
+                        // TODO: readOnly marked as EXTERNAL in AID spec
+                    }
+
+                    if (property.writeOnly != null) {
+                        propertyKeys.splice(propertyKeys.indexOf("writeOnly"), 1);
+                        // TODO: writeOnly marked as EXTERNAL in AID spec
+                    }
+
                     // range and others? Simply add them as is?
 
                     // forms
@@ -1497,6 +1524,59 @@ export class AssetInterfacesDescription {
                             text: property.description,
                         });
                     }
+
+                    // Handling of any key that has : in it by creating semantic ids for each
+                    // no need to bother if there is no object in the context or it is a string
+                    const tdContext = td["@context"];
+                    let prefixObject: any = {};
+
+                    if (Array.isArray(tdContext)) {
+                        // iterate through the array and add key-value pairs of each object to a single one
+                        tdContext.forEach((arrayItem) => {
+                            if (typeof arrayItem === "object") {
+                                // insert every pair into the prefixObject
+                                for (const key in arrayItem) {
+                                    prefixObject[key] = arrayItem[key as keyof typeof arrayItem];
+                                }
+                            } else if (typeof arrayItem === "string") {
+                                // it is either the standard context or another non-prefix term.
+                                // in second case, it is not useful without full rdf processing
+                            } else {
+                                //probably a json-ld error?
+                            }
+                        });
+                    } else {
+                        // then it is a simple string
+                    }
+
+                    // iterate through the remaining property keys to add extended semantic ids
+                    propertyKeys.forEach((element: string) => {
+                        if (element.includes(":")) {
+                            // find the prefix
+                            const colonLoc = element.indexOf(":");
+                            const prefix = element.slice(0, colonLoc);
+
+                            // check if the prefix is in the @context
+                            if (prefixObject.hasOwnProperty(prefix)) {
+                                const baseUri = prefixObject[prefix];
+
+                                const semanticId = baseUri + element.slice(colonLoc + 1);
+
+                                propertyValues.push({
+                                    idShort: this.sanitizeIdShort(element),
+                                    semanticId: this.createSemanticId(semanticId),
+                                    valueType: this.getSimpleValueTypeXsd(property.element),
+                                    value: property[element],
+                                    modelType: "Property",
+                                });
+                            } else {
+                                // TODO: What to do for unknown keys by the TD spec, have a : but not present in the @context?
+                                // Is this a JSON-LD bug? No error in JSON-LD playground
+                            }
+                        } else {
+                            // TODO: What to do for unknown keys by the TD spec and do not have a :, thus not in the context with a prefix. Should we do full json-ld processing?
+                        }
+                    });
 
                     properties.push({
                         idShort: propertyKey,
