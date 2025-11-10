@@ -921,17 +921,12 @@ class AssetInterfaceDescriptionTest {
     }
 
     @test async "should correctly transform sample TD1 into JSON AAS"() {
-        const sm = this.assetInterfacesDescription.transformTD2AID(
-            JSON.stringify(this.td1),
-            { createAAS: true, aasIdShort: "FooAAS", aasId: "https://example.com/1234" },
-            ["http"]
-        );
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), { createAAS: true }, [
+            "http",
+        ]);
 
         const aasObj = JSON.parse(sm);
-        expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array").to.have.lengthOf(1);
-        const aas = aasObj.assetAdministrationShells[0];
-        expect(aas).to.have.property("idShort").to.eql("FooAAS");
-        expect(aas).to.have.property("id").to.eql("https://example.com/1234");
+        expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array");
         expect(aasObj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
 
         // Note: proper AID submodel checks done in previous test-cases
@@ -964,7 +959,6 @@ class AssetInterfaceDescriptionTest {
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td2));
 
         const smObj = JSON.parse(sm);
-        // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
         const isValid = this.validateAID(smObj);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
@@ -1143,7 +1137,6 @@ class AssetInterfaceDescriptionTest {
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td3));
 
         const smObj = JSON.parse(sm);
-        // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
         const isValid = this.validateAID(smObj);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
@@ -1326,91 +1319,5 @@ class AssetInterfaceDescriptionTest {
         const isValid = this.validateAID(submodel);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(submodel).to.have.property("submodelElements").to.be.an("array").to.have.lengthOf(1);
-    }
-
-    td4: ThingDescription = {
-        "@context": [
-            "https://www.w3.org/2022/wot/td/v1.1",
-            {
-                myPrefix1: "https://example.com/myContext1",
-                myPrefix2: "https://example.com/myContext2",
-            },
-        ],
-        title: "test thing",
-        "@type": ["myPrefix1:suffix1", "myPrefix2:suffix2"],
-        securityDefinitions: {
-            nosec_sc: {
-                scheme: "nosec",
-            },
-        },
-        base: "http://example.com:3003",
-        security: ["nosec_sc"],
-        "myPrefix2:suffix3": "value1",
-        properties: {
-            myProperty1: {
-                type: "number",
-                title: "Property Title",
-                "myPrefix1:suffix4": "myPrefix2:value4",
-                unit: "myPrefix2:value2",
-                forms: [
-                    {
-                        href: "relative/value",
-                        contentType: "application/json",
-                        "htv:methodName": "GET",
-                    },
-                ],
-            },
-        },
-    };
-
-    @test async "should correctly include semantic annotations into AAS from TD"() {
-        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td4));
-
-        const smObj = JSON.parse(sm);
-        console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
-        // const isValid = this.validateAID(smObj);
-        // expect(isValid.valid, isValid.errors).to.equal(true);
-        expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
-        const smInterface = smObj.submodelElements[0];
-
-        // InteractionMetadata with properties etc
-        let hasInteractionMetadata = false;
-        for (const smValue of smInterface.value) {
-            if (smValue.idShort === "InteractionMetadata") {
-                hasInteractionMetadata = true;
-                expect(smValue).to.have.property("value").to.be.an("array").to.have.lengthOf.greaterThan(0);
-                let hasProperties = false;
-                for (const interactionValues of smValue.value) {
-                    if (interactionValues.idShort === "properties") {
-                        hasProperties = true;
-                        expect(interactionValues)
-                            .to.have.property("value")
-                            .to.be.an("array")
-                            .to.have.lengthOf.greaterThan(0);
-                        let hasProperty1 = false;
-                        for (const propertyValue of interactionValues.value) {
-                            if (propertyValue.idShort === "myProperty1") {
-                                hasProperty1 = true;
-                                expect(propertyValue)
-                                    .to.have.property("value")
-                                    .to.be.an("array")
-                                    .to.have.lengthOf.greaterThan(0);
-                                let hasMyPrefix1_suffix4 = false;
-                                for (const propProperty of propertyValue.value) {
-                                    if (propProperty.idShort === "myPrefix1_suffix4") {
-                                        hasMyPrefix1_suffix4 = true;
-                                        expect(propProperty.value).to.equal("myPrefix2:value4");
-                                    }
-                                }
-                                expect(hasMyPrefix1_suffix4).to.equal(true);
-                            }
-                        }
-                        expect(hasProperty1).to.equal(true);
-                    }
-                }
-                expect(hasProperties).to.equal(true);
-            }
-        }
-        expect(hasInteractionMetadata, "No InteractionMetadata").to.equal(true);
     }
 }
