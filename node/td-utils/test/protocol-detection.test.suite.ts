@@ -1,8 +1,8 @@
-import httpAndMqtt from "./examples/httpAndMqtt.json";
-import noProtocol from "./examples/noProtocol.json";
-import onlyHttp from "./examples/onlyHttp.json";
-import onlyMqtt from "./examples/onlyMqtt.json";
-import secureProtocols from "./examples/secureProtocols.json";
+import httpAndMqtt from "./protocolDetectionExamples/httpAndMqtt.json";
+import noProtocol from "./protocolDetectionExamples/noProtocol.json";
+import onlyHttp from "./protocolDetectionExamples/onlyHttp.json";
+import onlyMqtt from "./protocolDetectionExamples/onlyMqtt.json";
+import secureProtocols from "./protocolDetectionExamples/secureProtocols.json";
 
 export const testSuite = [
     {
