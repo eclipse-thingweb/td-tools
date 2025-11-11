@@ -20,34 +20,34 @@ export const testSuite = [
         name: "cborcoap",
         input: cborcoap,
         expected: {
-    "@context": "https://www.w3.org/ns/wot-next/td",
-    "title": "recommended-test-cbor-default",
-    "properties": {
-      "prop1": {
-        "type": "string",
-        "forms": [
-          {
-            "href": "coap://[2001:db8::1]/mything/props/prop1",
-            "contentType": "application/cbor",
-            "security": {
-              "scheme": "nosec"
-            }
-          }
-        ]
-      },
-      "prop2": {
-        "type": "string",
-        "forms": [
-          {
-            "href": "coap://[2001:db8::1]/mything/props/prop2",
-            "contentType": "application/cbor",
-            "security": {
-              "scheme": "nosec"
-            }
-          }
-        ]
-      }
-    }
-  }
-},
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            title: "recommended-test-cbor-default",
+            properties: {
+                prop1: {
+                    type: "string",
+                    forms: [
+                        {
+                            href: "coap://[2001:db8::1]/mything/props/prop1",
+                            contentType: "application/cbor",
+                            security: {
+                                scheme: "nosec",
+                            },
+                        },
+                    ],
+                },
+                prop2: {
+                    type: "string",
+                    forms: [
+                        {
+                            href: "coap://[2001:db8::1]/mything/props/prop2",
+                            contentType: "application/cbor",
+                            security: {
+                                scheme: "nosec",
+                            },
+                        },
+                    ],
+                },
+            },
+        },
+    },
 ];

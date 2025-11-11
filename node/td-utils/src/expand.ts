@@ -29,8 +29,7 @@ const topLevelConnectionDefinitions = "connectionDefinitions";
 const topLevelSecurityKey = "security";
 const topLevelSecurityDefinitions = "securityDefinitions";
 
-export function expandTD(inputTD: ThingDescription): ThingDescription|undefined {
-
+export function expandTD(inputTD: ThingDescription): ThingDescription | undefined {
     // finding default form(s) based on the top level "form" and "formDefinitions" keys
     if (topLevelFormKey in inputTD) {
         const topLevelForm = (inputTD as any)[topLevelFormKey];
@@ -93,8 +92,8 @@ export function expandTD(inputTD: ThingDescription): ThingDescription|undefined 
         }
         return inputTD;
     } else {
-      // no top level form to expand. There can be connection etc. in the top level. For now, we return input
-      // TODO: handle this properly
-      return inputTD;
+        // no top level form to expand. There can be connection etc. in the top level. For now, we return input
+        // TODO: handle this properly
+        return inputTD;
     }
 }

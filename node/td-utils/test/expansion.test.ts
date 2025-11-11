@@ -17,7 +17,7 @@ import { ThingDescription } from "wot-thing-description-types";
 import { testSuite } from "./expansion.test.suite";
 
 describe("test examples", () => {
-    testSuite.forEach((t: typeof testSuite[number]) => {
+    testSuite.forEach((t: (typeof testSuite)[number]) => {
         it(`should test ${t.name}`, () => {
             testTD(t.input, t.expected);
         });
