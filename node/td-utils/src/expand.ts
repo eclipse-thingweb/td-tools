@@ -113,7 +113,7 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
     } else if (Object.keys(defaultConnection).length > 0) {
         defaultForm = defaultConnection;
     }
-    defaultFormArray[0]=defaultForm;
+    defaultFormArray[0] = defaultForm;
 
     // // like above but for the array case. However, each array needs to be merged like a matrix multiplication. form array of length 2 and connection array of length 3 results in 6 forms
     if (defaultFormArray.length > 0 && defaultConnectionArray.length > 0) {
@@ -128,7 +128,6 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
         delete inputTD[topLevelFormDefinitions];
     }
 
-
     // Helper function to expand forms for an interaction affordance
     function expandForms(element: PropertyElement | ActionElement | EventElement, defaultFormArray: any) {
         // if single default form and multiple affordance forms, it is fine
@@ -139,11 +138,11 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
         const mergeFormWithDefaults = (original: Form, def: any): Form => {
             const newForm: Form = { ...original };
             if ("base" in def && newForm.href) {
-            try {
-                newForm.href = new URL(newForm.href as string, def.base as string).toString();
-            } catch {
-                // ignore URL errors and leave href as-is
-            }
+                try {
+                    newForm.href = new URL(newForm.href as string, def.base as string).toString();
+                } catch {
+                    // ignore URL errors and leave href as-is
+                }
             }
             for (const key in def) {
                 if (key === "base") continue;
@@ -164,7 +163,10 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
         } else if (defaultFormArray.length === 1 && element.forms.length >= 1) {
             // case for single default form
             const def = defaultFormArray[0];
-            element.forms = element.forms.map((formElement: Form) => mergeFormWithDefaults(formElement, def)) as [Form, ...Form[]];
+            element.forms = element.forms.map((formElement: Form) => mergeFormWithDefaults(formElement, def)) as [
+                Form,
+                ...Form[],
+            ];
             return;
         }
     }
@@ -197,7 +199,6 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
         // { base: 'http://192.168.1.10:8080/mything' },
         // { base: 'coap://[2001:DB8::1]/mything' }
         // ]
-
     } else {
         // no defaults at the top level. Investigate individual forms
     }
