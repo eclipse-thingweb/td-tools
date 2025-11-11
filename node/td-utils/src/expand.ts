@@ -30,15 +30,25 @@ const topLevelSecurityKey = "security";
 const topLevelSecurityDefinitions = "securityDefinitions";
 
 export function expandTD(inputTD: ThingDescription): ThingDescription | undefined {
+    // in case of single form or connectin
     let defaultForm: any = {};
     let defaultConnection: any = {};
+
+    // in case of multiple form or connections
+    let defaultFormArray: any = [];
+    let defaultConnectionArray: any = [];
+
     // finding default connection(s) based on the top level "connection" and "connectionDefinitions" keys
     if (topLevelConnectionKey in inputTD) {
         const topLevelConnection = (inputTD as any)[topLevelConnectionKey];
 
         if (Array.isArray(topLevelConnection)) {
             if (topLevelConnection.length > 1) {
-                // TODO: multiple connection: choose how to handle; for now, keep first as default
+                defaultConnectionArray = topLevelConnection.map((connKey: string) => {
+                    return (inputTD as any)[topLevelConnectionDefinitions]?.[connKey];
+                });
+
+                delete inputTD.connection;
             } else if (topLevelConnection.length === 1) {
                 defaultConnection = (inputTD as any)[topLevelConnectionDefinitions]?.[topLevelConnection[0]];
                 delete inputTD.connection;
@@ -59,13 +69,20 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
             // only object or array is allowed. return error
             throw new Error("Only object or array is allowed for the connection key in the top level");
         }
+    } else {
+        // no top level connection to expand. There can be form etc. in the top level.
     }
+
     // finding default form(s) based on the top level "form" and "formDefinitions" keys
     if (topLevelFormKey in inputTD) {
         const topLevelForm = (inputTD as any)[topLevelFormKey];
         if (Array.isArray(topLevelForm)) {
             if (topLevelForm.length > 1) {
-                // TODO: multiple forms: choose how to handle; for now, keep first as default
+                defaultFormArray = topLevelForm.map((formKey: string) => {
+                    return (inputTD as any)[topLevelFormDefinitions]?.[formKey];
+                });
+
+                delete inputTD.form;
             } else if (topLevelForm.length === 1) {
                 defaultForm = (inputTD as any)[topLevelFormDefinitions]?.[topLevelForm[0]];
                 delete inputTD.form;
@@ -86,58 +103,102 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
             // only object or array is allowed. return error
             throw new Error("Only non-empty object or array is allowed for the form key in the top level");
         }
-        // adding default connection to default form if there is only one of each
     } else {
-        // no top level form to expand. There can be connection etc. in the top level. For now, we return input
-        // TODO: handle this properly
-        return inputTD;
+        // no top level form to expand. There can be connection etc. in the top level.
     }
 
-    // if defaultForm and defaultConnection are both present, merge them. defaultForm takes precedence
+    // if defaultForm and defaultConnection are filled with items, merge them. defaultForm takes precedence
     if (Object.keys(defaultForm).length > 0 && Object.keys(defaultConnection).length > 0) {
         defaultForm = { ...defaultConnection, ...defaultForm };
     } else if (Object.keys(defaultConnection).length > 0) {
         defaultForm = defaultConnection;
     }
+    defaultFormArray[0]=defaultForm;
+
+    // // like above but for the array case. However, each array needs to be merged like a matrix multiplication. form array of length 2 and connection array of length 3 results in 6 forms
+    if (defaultFormArray.length > 0 && defaultConnectionArray.length > 0) {
+        const mergedFormArray: any[] = [];
+        for (const formItem of defaultFormArray) {
+            for (const connItem of defaultConnectionArray) {
+                mergedFormArray.push({ ...connItem, ...formItem });
+            }
+        }
+        defaultFormArray = mergedFormArray;
+        delete inputTD[topLevelConnectionDefinitions];
+        delete inputTD[topLevelFormDefinitions];
+    }
+
 
     // Helper function to expand forms for an interaction affordance
-    function expandForms(element: PropertyElement | ActionElement | EventElement, defaultForm: any) {
-        for (const formElement of element.forms) {
-            // if base is present in defaultForm and the href in the formElement is relative, expand it
-            if ("base" in defaultForm) {
-                formElement.href = new URL(formElement.href as string, defaultForm.base as string).toString();
+    function expandForms(element: PropertyElement | ActionElement | EventElement, defaultFormArray: any) {
+        // if single default form and multiple affordance forms, it is fine
+        // if multiple default forms and single affordance form, it is fine. Need to expand that form array with each default form as potentials
+        // if multiple default forms and multiple affordance forms, throw error
+
+        // helper to merge a form with a default object (handles base/href expansion and missing keys)
+        const mergeFormWithDefaults = (original: Form, def: any): Form => {
+            const newForm: Form = { ...original };
+            if ("base" in def && newForm.href) {
+            try {
+                newForm.href = new URL(newForm.href as string, def.base as string).toString();
+            } catch {
+                // ignore URL errors and leave href as-is
             }
-            // go through each key in defaultForm and add to formElement if not present
-            for (const key in defaultForm) {
-                if (key !== "base" && !(key in formElement)) {
-                    (formElement as any)[key] = (defaultForm as any)[key];
+            }
+            for (const key in def) {
+                if (key === "base") continue;
+                if (!(key in newForm)) {
+                    (newForm as any)[key] = def[key];
                 }
             }
+            return newForm;
+        };
+
+        if (defaultFormArray.length > 1 && element.forms.length > 1) {
+            throw new Error("Multiple default forms and multiple affordance forms are not allowed together");
+        } else if (defaultFormArray.length > 1 && element.forms.length === 1) {
+            // expand the single form with each default form
+            const originalForm = element.forms[0];
+            element.forms = defaultFormArray.map((defForm: any) => mergeFormWithDefaults(originalForm, defForm));
+            return;
+        } else if (defaultFormArray.length === 1 && element.forms.length >= 1) {
+            // case for single default form
+            const def = defaultFormArray[0];
+            element.forms = element.forms.map((formElement: Form) => mergeFormWithDefaults(formElement, def)) as [Form, ...Form[]];
+            return;
         }
     }
 
-    // Expand forms for properties
-    if ("properties" in inputTD) {
-        const properties = inputTD.properties;
-        for (const propertyKey in properties) {
-            expandForms(properties[propertyKey] as PropertyElement, defaultForm);
+    if (defaultFormArray.length > 0) {
+        // case for single default form
+        if ("properties" in inputTD) {
+            const properties = inputTD.properties;
+            for (const propertyKey in properties) {
+                expandForms(properties[propertyKey] as PropertyElement, defaultFormArray);
+            }
         }
-    }
 
-    // Expand forms for actions
-    if ("actions" in inputTD) {
-        const actions = inputTD.actions;
-        for (const actionKey in actions) {
-            expandForms(actions[actionKey] as ActionElement, defaultForm);
+        if ("actions" in inputTD) {
+            const actions = inputTD.actions;
+            for (const actionKey in actions) {
+                expandForms(actions[actionKey] as ActionElement, defaultFormArray);
+            }
         }
-    }
 
-    // Expand forms for events
-    if ("events" in inputTD) {
-        const events = inputTD.events;
-        for (const eventKey in events) {
-            expandForms(events[eventKey] as EventElement, defaultForm);
+        if ("events" in inputTD) {
+            const events = inputTD.events;
+            for (const eventKey in events) {
+                expandForms(events[eventKey] as EventElement, defaultFormArray);
+            }
         }
+        return inputTD;
+        // case for multiple default forms, i.e. multi ip address, multi protocol, multi content type
+        // [
+        // { base: 'http://192.168.1.10:8080/mything' },
+        // { base: 'coap://[2001:DB8::1]/mything' }
+        // ]
+
+    } else {
+        // no defaults at the top level. Investigate individual forms
     }
-    return inputTD;
 }
