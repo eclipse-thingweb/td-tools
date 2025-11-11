@@ -13,7 +13,7 @@
  *  SPDX-License-Identifier: EPL-2.0 OR W3C-20150513
  */
 
-export const testSuite = [
+export const positiveTestSuite = [
     {
         name: "cborcoap",
         input: {
@@ -169,87 +169,130 @@ export const testSuite = [
             },
         },
     },
-    // {
-    //     name: "modbus-separate-form-connection",
-    //     input: {
-    //         "@context": "https://www.w3.org/ns/wot-next/td",
-    //         "title": "recommended-test-modbus-params",
-    //         "connection": {
-    //             "base": "modbus+tcp://192.168.178.32:502/1/",
-    //             "modv:timeout": 1000,
-    //             "security": {
-    //                 "scheme": "nosec",
-    //             },
-    //         },
-    //         "form": {
-    //             "modv:pollingInterval": 5000,
-    //             "modv:zeroBasedAddressing": true,
-    //             "modv:mostSignificantByte": true,
-    //             "modv:mostSignificantWord": true,
-    //             "contentType": "application/octet-stream",
-    //         },
-    //         "properties": {
-    //             "prop1": {
-    //                 "type": "boolean",
-    //                 "forms": [
-    //                     {
-    //                         "href": "1",
-    //                         "modv:entity": "Coil",
-    //                     },
-    //                 ],
-    //             },
-    //             "prop2": {
-    //                 "type": "string",
-    //                 "forms": [
-    //                     {
-    //                         "href": "2?quantity=8",
-    //                         "modv:entity": "HoldingRegister",
-    //                     },
-    //                 ],
-    //             },
-    //         },
-    //     },
-    //     expected: {
-    //         "@context": "https://www.w3.org/ns/wot-next/td",
-    //         "title": "recommended-test-modbus-params",
-    //         "properties": {
-    //             "prop1": {
-    //                 "type": "boolean",
-    //                 "forms": [
-    //                     {
-    //                         "href": "modbus+tcp://192.168.178.32:502/1/1",
-    //                         "modv:entity": "Coil",
-    //                         "modv:timeout": 1000,
-    //                         "security": {
-    //                             "scheme": "nosec",
-    //                         },
-    //                         "modv:pollingInterval": 5000,
-    //                         "modv:zeroBasedAddressing": true,
-    //                         "modv:mostSignificantByte": true,
-    //                         "modv:mostSignificantWord": true,
-    //                         "contentType": "application/octet-stream",
-    //                     },
-    //                 ],
-    //             },
-    //             "prop2": {
-    //                 "type": "string",
-    //                 "forms": [
-    //                     {
-    //                         "href": "modbus+tcp://192.168.178.32:502/1/2?quantity=8",
-    //                         "modv:entity": "HoldingRegister",
-    //                         "modv:timeout": 1000,
-    //                         "security": {
-    //                             "scheme": "nosec",
-    //                         },
-    //                         "modv:pollingInterval": 5000,
-    //                         "modv:zeroBasedAddressing": true,
-    //                         "modv:mostSignificantByte": true,
-    //                         "modv:mostSignificantWord": true,
-    //                         "contentType": "application/octet-stream",
-    //                     },
-    //                 ],
-    //             },
-    //         },
-    //     },
-    // },
+    {
+        name: "modbus-separate-form-connection",
+        input: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-modbus-params",
+            "connection": {
+                "base": "modbus+tcp://192.168.178.32:502/1/",
+                "modv:timeout": 1000,
+                "security": {
+                    "scheme": "nosec",
+                },
+            },
+            "form": {
+                "modv:pollingInterval": 5000,
+                "modv:zeroBasedAddressing": true,
+                "modv:mostSignificantByte": true,
+                "modv:mostSignificantWord": true,
+                "contentType": "application/octet-stream",
+            },
+            "properties": {
+                "prop1": {
+                    "type": "boolean",
+                    "forms": [
+                        {
+                            "href": "1",
+                            "modv:entity": "Coil",
+                        },
+                    ],
+                },
+                "prop2": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "2?quantity=8",
+                            "modv:entity": "HoldingRegister",
+                        },
+                    ],
+                },
+            },
+        },
+        expected: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-modbus-params",
+            "properties": {
+                "prop1": {
+                    "type": "boolean",
+                    "forms": [
+                        {
+                            "href": "modbus+tcp://192.168.178.32:502/1/1",
+                            "modv:entity": "Coil",
+                            "modv:timeout": 1000,
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                            "modv:pollingInterval": 5000,
+                            "modv:zeroBasedAddressing": true,
+                            "modv:mostSignificantByte": true,
+                            "modv:mostSignificantWord": true,
+                            "contentType": "application/octet-stream",
+                        },
+                    ],
+                },
+                "prop2": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "modbus+tcp://192.168.178.32:502/1/2?quantity=8",
+                            "modv:entity": "HoldingRegister",
+                            "modv:timeout": 1000,
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                            "modv:pollingInterval": 5000,
+                            "modv:zeroBasedAddressing": true,
+                            "modv:mostSignificantByte": true,
+                            "modv:mostSignificantWord": true,
+                            "contentType": "application/octet-stream",
+                        },
+                    ],
+                },
+            },
+        },
+    },
+];
+
+export const negativeTestSuite = [
+    {
+        name: "empty-connection-object",
+        input: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-modbus-params",
+            "connection": {},
+            "properties": {
+                "prop1": {
+                    "type": "boolean",
+                    "forms": [
+                        {
+                            "href": "1",
+                            "modv:entity": "Coil",
+                        },
+                    ],
+                },
+            },
+        },
+        expected: "Only non-empty object or array is allowed for the form key in the top level",
+    },
+    {
+        name: "empty-connection-object",
+        input: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-modbus-params",
+            "form": {},
+            "properties": {
+                "prop1": {
+                    "type": "boolean",
+                    "forms": [
+                        {
+                            "href": "1",
+                            "modv:entity": "Coil",
+                        },
+                    ],
+                },
+            },
+        },
+        expected: "Only non-empty object or array is allowed for the form key in the top level",
+    },
 ];

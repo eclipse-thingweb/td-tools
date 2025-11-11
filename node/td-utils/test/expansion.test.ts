@@ -14,12 +14,25 @@
  */
 import { expandTD } from "../src/expand";
 import { ThingDescription } from "wot-thing-description-types";
-import { testSuite } from "./expansion.test.suite";
+import { positiveTestSuite } from "./expansion.test.suite";
+import { negativeTestSuite } from "./expansion.test.suite";
 
 describe("test examples", () => {
-    testSuite.forEach((t: (typeof testSuite)[number]) => {
+    positiveTestSuite.forEach((t: (typeof positiveTestSuite)[number]) => {
         it(`should test ${t.name}`, () => {
             testTD(t.input, t.expected);
+        });
+    });
+});
+
+describe("test negative examples", () => {
+    negativeTestSuite.forEach((t: (typeof negativeTestSuite)[number]) => {
+        it(`should test ${t.name}`, () => {
+            try {
+                const generatedTD = expandTD(t.input as any);
+            } catch (error) {
+                expect((error as Error).message).toBe(t.expected);
+            }
         });
     });
 });
