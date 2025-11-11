@@ -1,0 +1,11 @@
+# Ignore built distributions and generated bundles
+node/*/dist/**
+node/**/dist/**
+**/web-bundle*.js
+**/web-bundle*.min.js
+**/bundle*.js
+**/*.min.js
+# Keep node_modules excluded
+node_modules/**
+# Ignore other generated directories
+**/dist/**
