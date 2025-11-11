@@ -40,6 +40,7 @@ export const positiveTestSuite = [
                     "forms": [
                         {
                             "href": "props/prop2",
+                            "contentType": "application/json",
                         },
                     ],
                 },
@@ -86,7 +87,7 @@ export const positiveTestSuite = [
                     "forms": [
                         {
                             "href": "coap://[2001:db8::1]/mything/props/prop2",
-                            "contentType": "application/cbor",
+                            "contentType": "application/json",
                             "security": {
                                 "scheme": "nosec",
                             },
@@ -125,7 +126,7 @@ export const positiveTestSuite = [
         },
     },
     {
-        name: "cborcoap-alternate-input",
+        name: "cborcoap-alternate-input-1",
         input: {
             "@context": "https://www.w3.org/ns/wot-next/td",
             "title": "recommended-test-cbor-default",
@@ -139,6 +140,50 @@ export const positiveTestSuite = [
                 },
             },
             "form": ["f1"],
+            "properties": {
+                "prop1": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "props/prop1",
+                        },
+                    ],
+                },
+            },
+        },
+        expected: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-cbor-default",
+            "properties": {
+                "prop1": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "coap://[2001:db8::1]/mything/props/prop1",
+                            "contentType": "application/cbor",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                    ],
+                },
+            },
+        },
+    },
+    {
+        name: "cborcoap-alternate-input-2",
+        input: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-cbor-default",
+            "form": {
+                "contentType": "application/cbor",
+            },
+            "connection":{
+                "base": "coap://[2001:DB8::1]/mything/",
+            },
+            "security": {
+                "scheme": "nosec"
+            },
             "properties": {
                 "prop1": {
                     "type": "string",
@@ -246,6 +291,125 @@ export const positiveTestSuite = [
                             "modv:mostSignificantByte": true,
                             "modv:mostSignificantWord": true,
                             "contentType": "application/octet-stream",
+                        },
+                    ],
+                },
+            },
+        },
+    },
+    {
+        name: "multi-protocol-multi-contenttype",
+        input: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-multi-protocol",
+            "connectionDefinitions": {
+                "http": {
+                    "base": "http://192.168.1.10:8080/mything",
+                },
+                "coap": {
+                    "base": "coap://[2001:DB8::1]/mything",
+                },
+            },
+            "formDefinitions": {
+                "json": {
+                    "contentType": "application/json",
+                },
+                "cbor": {
+                    "contentType": "application/cbor",
+                },
+            },
+            "form": ["json", "cbor"],
+            "connection": ["http", "coap"],
+            "security": {
+                "scheme": "nosec",
+            },
+            "properties": {
+                "prop1": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "props/prop1",
+                        },
+                    ],
+                },
+                "prop2": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "props/prop2",
+                        },
+                    ],
+                },
+            },
+        },
+        expected: {
+            "@context": "https://www.w3.org/ns/wot-next/td",
+            "title": "recommended-test-multi-protocol",
+
+            "properties": {
+                "prop1": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "http://192.168.1.10:8080/props/prop1",
+                            "contentType": "application/json",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "coap://[2001:db8::1]/props/prop1",
+                            "contentType": "application/json",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "http://192.168.1.10:8080/props/prop1",
+                            "contentType": "application/cbor",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "coap://[2001:db8::1]/props/prop1",
+                            "contentType": "application/cbor",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                    ],
+                },
+                "prop2": {
+                    "type": "string",
+                    "forms": [
+                        {
+                            "href": "http://192.168.1.10:8080/props/prop2",
+                            "contentType": "application/json",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "coap://[2001:db8::1]/props/prop2",
+                            "contentType": "application/json",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "http://192.168.1.10:8080/props/prop2",
+                            "contentType": "application/cbor",
+                            "security": {
+                                "scheme": "nosec",
+                            },
+                        },
+                        {
+                            "href": "coap://[2001:db8::1]/props/prop2",
+                            "contentType": "application/cbor",
+                            "security": {
+                                "scheme": "nosec",
+                            },
                         },
                     ],
                 },

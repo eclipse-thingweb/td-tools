@@ -29,14 +29,52 @@ const topLevelConnectionDefinitions = "connectionDefinitions";
 const topLevelSecurityKey = "security";
 const topLevelSecurityDefinitions = "securityDefinitions";
 
-export function expandTD(inputTD: ThingDescription): ThingDescription | undefined {
-    // in case of single form or connectin
+// Expand a TD with form/connection/security definitions at the top level into each interaction affordance
+export function expandTD(inputTD: any): ThingDescription | undefined {
+    // in case of single form or connection
     let defaultForm: any = {};
     let defaultConnection: any = {};
+    let defaultSecurity: any = {};
 
     // in case of multiple form or connections
     let defaultFormArray: any = [];
     let defaultConnectionArray: any = [];
+    let defaultSecurityArray: any = [];
+
+    // finding default security(s) based on the top level "security" and "securityDefinitions" keys
+    if (topLevelSecurityKey in inputTD) {
+        const topLevelSecurity = (inputTD as any)[topLevelSecurityKey];
+
+        if (Array.isArray(topLevelSecurity)) {
+            if (topLevelSecurity.length > 1) {
+                defaultSecurityArray = topLevelSecurity.map((secKey: string) => {
+                    return (inputTD as any)[topLevelSecurityDefinitions]?.[secKey];
+                });
+
+                delete inputTD[topLevelSecurityKey];
+            } else if (topLevelSecurity.length === 1) {
+                defaultSecurity = {security:(inputTD as any)[topLevelSecurityDefinitions]?.[topLevelSecurity[0]]};
+                delete inputTD[topLevelSecurityKey];
+            } else if (topLevelSecurity.length === 0) {
+                throw new Error("Empty security array is not allowed");
+            } else {
+                // should not be possible. throw error
+                throw new Error("Badly formatted security array");
+            }
+        } else if (typeof topLevelSecurity === "object" && topLevelSecurity !== null) {
+            // Check if object is empty
+            if (Object.keys(topLevelSecurity).length === 0) {
+                throw new Error("Empty security object is not allowed");
+            }
+            defaultSecurity = {security:topLevelSecurity};
+            delete inputTD[topLevelSecurityKey];
+        } else {
+            // only object or array is allowed. return error
+            throw new Error("Only object or array is allowed for the security key in the top level");
+        }
+    } else {
+        // no top level security to expand. There can be in a form or connection in the top level.
+    }
 
     // finding default connection(s) based on the top level "connection" and "connectionDefinitions" keys
     if (topLevelConnectionKey in inputTD) {
@@ -48,10 +86,10 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                     return (inputTD as any)[topLevelConnectionDefinitions]?.[connKey];
                 });
 
-                delete inputTD.connection;
+                delete inputTD[topLevelConnectionKey];
             } else if (topLevelConnection.length === 1) {
                 defaultConnection = (inputTD as any)[topLevelConnectionDefinitions]?.[topLevelConnection[0]];
-                delete inputTD.connection;
+                delete inputTD[topLevelConnectionKey];
             } else if (topLevelConnection.length === 0) {
                 throw new Error("Empty connection array is not allowed");
             } else {
@@ -64,7 +102,7 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                 throw new Error("Empty connection object is not allowed");
             }
             defaultConnection = topLevelConnection;
-            delete inputTD.connection;
+            delete inputTD[topLevelConnectionKey];
         } else {
             // only object or array is allowed. return error
             throw new Error("Only object or array is allowed for the connection key in the top level");
@@ -82,10 +120,10 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                     return (inputTD as any)[topLevelFormDefinitions]?.[formKey];
                 });
 
-                delete inputTD.form;
+                delete inputTD[topLevelFormKey];
             } else if (topLevelForm.length === 1) {
                 defaultForm = (inputTD as any)[topLevelFormDefinitions]?.[topLevelForm[0]];
-                delete inputTD.form;
+                delete inputTD[topLevelFormKey];
             } else if (topLevelForm.length === 0) {
                 throw new Error("Empty form array is not allowed");
             } else {
@@ -98,7 +136,7 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                 throw new Error("Empty form object is not allowed");
             }
             defaultForm = topLevelForm;
-            delete inputTD.form;
+            delete inputTD[topLevelFormKey];
         } else {
             // only object or array is allowed. return error
             throw new Error("Only non-empty object or array is allowed for the form key in the top level");
@@ -107,13 +145,29 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
         // no top level form to expand. There can be connection etc. in the top level.
     }
 
-    // if defaultForm and defaultConnection are filled with items, merge them. defaultForm takes precedence
-    if (Object.keys(defaultForm).length > 0 && Object.keys(defaultConnection).length > 0) {
-        defaultForm = { ...defaultConnection, ...defaultForm };
-    } else if (Object.keys(defaultConnection).length > 0) {
-        defaultForm = defaultConnection;
+    console.log("Default form before merging:", defaultForm);
+    console.log("Default connection before merging:", defaultConnection);
+    console.log("Default security before merging:", defaultSecurity);
+
+    // if defaultForm, defaultConnection and defaultSecurity are filled with items, merge them. defaultForm > defaultConnection > defaultSecurity
+    // The merging happens in groups of two but only if both are objects and not empty due to initialization as {}
+    if (typeof defaultConnection === "object" && Object.keys(defaultConnection).length > 0 && typeof defaultSecurity === "object" && Object.keys(defaultSecurity).length > 0) {
+        if (Object.keys(defaultConnection).length > 0 && Object.keys(defaultSecurity).length > 0) {
+            defaultConnection = { defaultSecurity, ...defaultConnection };
+        } else if (Object.keys(defaultSecurity).length > 0) {
+            defaultConnection = defaultSecurity;
+        }
     }
-    defaultFormArray[0] = defaultForm;
+
+    console.log("Default connection after merging security:", defaultConnection);
+    if (typeof defaultConnection === "object" && Object.keys(defaultConnection).length > 0 && typeof defaultForm === "object" && Object.keys(defaultForm).length > 0) {
+        if (Object.keys(defaultForm).length > 0 && Object.keys(defaultConnection).length > 0) {
+            defaultForm = { ...defaultConnection, ...defaultForm };
+        } else if (Object.keys(defaultConnection).length > 0) {
+            defaultForm = defaultConnection;
+        }
+        defaultFormArray[0] = defaultForm;
+    }
 
     // // like above but for the array case. However, each array needs to be merged like a matrix multiplication. form array of length 2 and connection array of length 3 results in 6 forms
     if (defaultFormArray.length > 0 && defaultConnectionArray.length > 0) {
@@ -124,6 +178,7 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
             }
         }
         defaultFormArray = mergedFormArray;
+        console.log("Merged default form array:", defaultFormArray);
         delete inputTD[topLevelConnectionDefinitions];
         delete inputTD[topLevelFormDefinitions];
     }
