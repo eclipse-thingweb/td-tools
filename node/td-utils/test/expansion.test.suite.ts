@@ -273,10 +273,10 @@ export const negativeTestSuite = [
                 },
             },
         },
-        expected: "Only non-empty object or array is allowed for the form key in the top level",
+        expected: "Empty connection object is not allowed",
     },
     {
-        name: "empty-connection-object",
+        name: "empty-form-object",
         input: {
             "@context": "https://www.w3.org/ns/wot-next/td",
             "title": "recommended-test-modbus-params",
@@ -293,6 +293,6 @@ export const negativeTestSuite = [
                 },
             },
         },
-        expected: "Only non-empty object or array is allowed for the form key in the top level",
+        expected: "Empty form object is not allowed",
     },
 ];

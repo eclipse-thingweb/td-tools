@@ -49,6 +49,10 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                 throw new Error("Badly formatted connection array");
             }
         } else if (typeof topLevelConnection === "object" && topLevelConnection !== null) {
+            // Check if object is empty
+            if (Object.keys(topLevelConnection).length === 0) {
+                throw new Error("Empty connection object is not allowed");
+            }
             defaultConnection = topLevelConnection;
             delete inputTD.connection;
         } else {
@@ -72,6 +76,10 @@ export function expandTD(inputTD: ThingDescription): ThingDescription | undefine
                 throw new Error("Badly formatted form array");
             }
         } else if (typeof topLevelForm === "object" && topLevelForm !== null) {
+            // Check if object is empty
+            if (Object.keys(topLevelForm).length === 0) {
+                throw new Error("Empty form object is not allowed");
+            }
             defaultForm = topLevelForm;
             delete inputTD.form;
         } else {
