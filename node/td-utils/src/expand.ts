@@ -166,8 +166,15 @@ export function expandTD(inputTD: any): ThingDescription | undefined {
         } else if (Object.keys(defaultConnection).length > 0) {
             defaultForm = defaultConnection;
         }
-        defaultFormArray[0] = defaultForm;
+        
     }
+    defaultFormArray[0] = defaultForm;
+
+    console.log("Default form after merging:", defaultForm);
+    console.log("Default form after merging:", defaultFormArray);
+
+    // TODO: if one is object and the other is array, doesn't work. Way out?: convert the object to array of one and proceed
+    // TODO: no references in the root
 
     // // like above but for the array case. However, each array needs to be merged like a matrix multiplication. form array of length 2 and connection array of length 3 results in 6 forms
     if (defaultFormArray.length > 0 && defaultConnectionArray.length > 0) {

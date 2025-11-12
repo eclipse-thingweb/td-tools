@@ -31,7 +31,7 @@ describe("test negative examples", () => {
             try {
                 const generatedTD = expandTD(t.input as any);
             } catch (error) {
-                console.error(`❌ ${t.name} Caught error:`, (error as Error).message);
+                // console.error(`❌ ${t.name} Caught error:`, (error as Error).message);
                 expect((error as Error).message).toBe(t.expected);
             }
         });
