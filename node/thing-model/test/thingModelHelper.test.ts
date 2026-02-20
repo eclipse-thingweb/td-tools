@@ -507,10 +507,9 @@ class ThingModelHelperTest {
             ],
         } as unknown as ThingModel;
 
+        // Note: should fail with "https status code not 200" but CI might fire "unable to get local issuer certificate"
         await expect(this.thingModelHelpers.getPartialTDs(thing)).to.be.rejectedWith(
-            Error //,
-            // "https status code not 200"
-            // Note: CI might fire "unable to get local issuer certificate"
+            Error
         );
     }
 }
