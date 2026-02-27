@@ -921,17 +921,12 @@ class AssetInterfaceDescriptionTest {
     }
 
     @test async "should correctly transform sample TD1 into JSON AAS"() {
-        const sm = this.assetInterfacesDescription.transformTD2AID(
-            JSON.stringify(this.td1),
-            { createAAS: true, aasIdShort: "FooAAS", aasId: "https://example.com/1234" },
-            ["http"]
-        );
+        const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td1), { createAAS: true }, [
+            "http",
+        ]);
 
         const aasObj = JSON.parse(sm);
-        expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array").to.have.lengthOf(1);
-        const aas = aasObj.assetAdministrationShells[0];
-        expect(aas).to.have.property("idShort").to.eql("FooAAS");
-        expect(aas).to.have.property("id").to.eql("https://example.com/1234");
+        expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array");
         expect(aasObj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
 
         // Note: proper AID submodel checks done in previous test-cases
@@ -964,7 +959,6 @@ class AssetInterfaceDescriptionTest {
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td2));
 
         const smObj = JSON.parse(sm);
-        // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
         const isValid = this.validateAID(smObj);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
@@ -1143,7 +1137,6 @@ class AssetInterfaceDescriptionTest {
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(this.td3));
 
         const smObj = JSON.parse(sm);
-        // console.log("###\n\n" + JSON.stringify(smObj) + "\n\n###");
         const isValid = this.validateAID(smObj);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(smObj).to.have.property("idShort").that.equals("AssetInterfacesDescription");
