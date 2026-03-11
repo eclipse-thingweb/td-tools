@@ -17,6 +17,73 @@ const { dataToAsyncSchema, extractChannel } = require("./utils");
 const { Channel, Operation, Message, MqttOperationBinding, Server } = require("./definitions");
 
 /**
+ * Add a new server if it doesn't already exist in the servers object
+ * @param {[key:string]:Server} servers The AsyncAPI servers map
+ * @param {string|undefined} newServerUri
+ * @param {string} protocol
+ */
+function addServer(servers, newServerUri, newServerProtocol, newOptionalPara) {
+    if (
+        newServerUri &&
+        Object.keys(servers).every(
+            (asyncServer) =>
+                servers[asyncServer].url !== newServerUri || servers[asyncServer].protocol !== newServerProtocol
+        )
+    ) {
+        let i = 0;
+        while (Object.keys(servers).some((asyncServer) => asyncServer === i.toString())) {
+            i++;
+        }
+        servers[i.toString()] = new Server(newServerUri, newServerProtocol, newOptionalPara);
+    }
+}
+
+/**
+ * Check if form is relevant
+ * @param {object} form One form
+ */
+function scanPropForm(form, channels, propertyName, payload, servers, interactionInfo, security) {
+    const hasBase = servers.base !== undefined ? true : false;
+    const isRelative = form.href && form.href.search("://") === -1 ? true : false;
+
+    tryProtocols.forEach((tryProtocol) => {
+        if (form.href && (form.href.startsWith(tryProtocol.id + "://") || (hasBase && isRelative))) {
+            const opArray = typeof form.op === "string" ? [form.op] : form.op;
+            if (
+                opArray.some((op) => interactionInfo.ops.some((intOp) => op === intOp)) ||
+                tryProtocol.checkForm(form)
+            ) {
+                const { channel, server } = extractChannel(form.href);
+                let newOptionalPara = {
+                    security: security,
+                };
+                // add server
+                addServer(servers, server, tryProtocol.id, newOptionalPara);
+
+                // add channel
+                if (!channels[channel]) {
+                    Object.assign(
+                        channels,
+                        new Channel(channel, {
+                            subscribe: new Operation({
+                                tdOp: interactionInfo.tdOp,
+                                opName: propertyName,
+                                ixType: interactionInfo.interaction,
+                                message: new Message({
+                                    contentType: form.contentType,
+                                    payload,
+                                }),
+                                bindings: tryProtocol.addBinding(form),
+                            }),
+                        })
+                    );
+                }
+            }
+        }
+    });
+}
+
+/**
  * Maps TD interactions and their forms to AsyncAPI channels
  * by iterating over all TD properties & events forms
  * to find relevant ones
@@ -92,72 +159,5 @@ const tryProtocols = [
         },
     },
 ];
-
-/**
- * Check if form is relevant
- * @param {object} form One form
- */
-function scanPropForm(form, channels, propertyName, payload, servers, interactionInfo, security) {
-    const hasBase = servers.base !== undefined ? true : false;
-    const isRelative = form.href && form.href.search("://") === -1 ? true : false;
-
-    tryProtocols.forEach((tryProtocol) => {
-        if (form.href && (form.href.startsWith(tryProtocol.id + "://") || (hasBase && isRelative))) {
-            const opArray = typeof form.op === "string" ? [form.op] : form.op;
-            if (
-                opArray.some((op) => interactionInfo.ops.some((intOp) => op === intOp)) ||
-                tryProtocol.checkForm(form)
-            ) {
-                const { channel, server } = extractChannel(form.href);
-                let newOptionalPara = {
-                    security: security,
-                };
-                // add server
-                addServer(servers, server, tryProtocol.id, newOptionalPara);
-
-                // add channel
-                if (!channels[channel]) {
-                    Object.assign(
-                        channels,
-                        new Channel(channel, {
-                            subscribe: new Operation({
-                                tdOp: interactionInfo.tdOp,
-                                opName: propertyName,
-                                ixType: interactionInfo.interaction,
-                                message: new Message({
-                                    contentType: form.contentType,
-                                    payload,
-                                }),
-                                bindings: tryProtocol.addBinding(form),
-                            }),
-                        })
-                    );
-                }
-            }
-        }
-    });
-}
-
-/**
- * Add a new server if it doesn't already exist in the servers object
- * @param {[key:string]:Server} servers The AsyncAPI servers map
- * @param {string|undefined} newServerUri
- * @param {string} protocol
- */
-function addServer(servers, newServerUri, newServerProtocol, newOptionalPara) {
-    if (
-        newServerUri &&
-        Object.keys(servers).every(
-            (asyncServer) =>
-                servers[asyncServer].url !== newServerUri || servers[asyncServer].protocol !== newServerProtocol
-        )
-    ) {
-        let i = 0;
-        while (Object.keys(servers).some((asyncServer) => asyncServer === i.toString())) {
-            i++;
-        }
-        servers[i.toString()] = new Server(newServerUri, newServerProtocol, newOptionalPara);
-    }
-}
 
 module.exports = genChannels;
