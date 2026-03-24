@@ -35,7 +35,7 @@ export const detectProtocolSchemes = (td: string): ProtocolSchemeMap => {
 
     try {
         tdJson = JSON.parse(td);
-    } catch (err) {
+    } catch {
         console.error("Could not parse the TD string.");
         return protocolSchemes;
     }
@@ -57,7 +57,7 @@ export const detectProtocolSchemes = (td: string): ProtocolSchemeMap => {
  * @param {object} affordance That belongs to a TD
  * @returns List of protocol schemes
  */
-const detectProtocolInAffordance = (protocolSchemes: ProtocolSchemeMap, affordance?: AffordanceElement) => {
+function detectProtocolInAffordance(protocolSchemes: ProtocolSchemeMap, affordance?: AffordanceElement) {
     if (!affordance) {
         return;
     }
@@ -67,7 +67,7 @@ const detectProtocolInAffordance = (protocolSchemes: ProtocolSchemeMap, affordan
             detectProtocolInForms(protocolSchemes, affordance[key].forms);
         }
     }
-};
+}
 
 /**
  * Detect protocols in a TD forms or a TD affordance forms
@@ -75,7 +75,7 @@ const detectProtocolInAffordance = (protocolSchemes: ProtocolSchemeMap, affordan
  * @param {object} forms Forms field of a TD or a TD affordance
  * @returns List of protocol schemes
  */
-const detectProtocolInForms = (protocolSchemes: ProtocolSchemeMap, forms?: Form[]) => {
+function detectProtocolInForms(protocolSchemes: ProtocolSchemeMap, forms?: Form[]) {
     if (!forms) {
         return;
     }
@@ -85,14 +85,14 @@ const detectProtocolInForms = (protocolSchemes: ProtocolSchemeMap, forms?: Form[
 
         addProtocolScheme(protocolSchemes, hrefInfo, form.subprotocol);
     });
-};
+}
 
 /**
  * Get href data
  * @param {string} href URI string
  * @returns an object with protocol, hostname and port
  */
-const getHrefInfo = (href?: AnyUri): HrefInfo | undefined => {
+function getHrefInfo(href?: AnyUri): HrefInfo | undefined {
     if (!href) {
         return;
     }
@@ -105,7 +105,7 @@ const getHrefInfo = (href?: AnyUri): HrefInfo | undefined => {
         protocol,
         uri: protocol + "://" + uri,
     };
-};
+}
 
 /**
  *
@@ -113,7 +113,7 @@ const getHrefInfo = (href?: AnyUri): HrefInfo | undefined => {
  * @param hrefInfo Protocol scheme's information that is extracted from the href
  * @param subprotocol Subprotocol of the protocol scheme
  */
-const addProtocolScheme = (protocolSchemes: ProtocolSchemeMap, hrefInfo?: HrefInfo, subprotocol?: string) => {
+function addProtocolScheme(protocolSchemes: ProtocolSchemeMap, hrefInfo?: HrefInfo, subprotocol?: string) {
     if (hrefInfo) {
         const protocolScheme = {
             uri: hrefInfo.uri,
@@ -131,4 +131,4 @@ const addProtocolScheme = (protocolSchemes: ProtocolSchemeMap, hrefInfo?: HrefIn
             protocolSchemes[hrefInfo.protocol] = [protocolScheme];
         }
     }
-};
+}

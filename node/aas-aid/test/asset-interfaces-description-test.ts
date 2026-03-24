@@ -27,7 +27,7 @@ const aidSchema = AIDSchema;
 const ajv = new Ajv({ strict: false });
 
 @suite("tests to verify the Asset Interface Description Utils")
-class AssetInterfaceDescriptionTest {
+export class AssetInterfaceDescriptionTest {
     private assetInterfacesDescription = new AssetInterfacesDescription();
 
     aidValidator = ajv.compile(aidSchema) as ValidateFunction;

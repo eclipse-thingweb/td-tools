@@ -5,9 +5,42 @@
         "node": true,
         "jest": true
     },
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 8
     },
-    "extends": ["eslint:recommended", "prettier"],
-    "ignorePatterns": ["dist", "node_modules", "bin"]
+    "plugins": ["@typescript-eslint", "unused-imports"],
+    "extends": ["eslint:recommended", "prettier", "plugin:@typescript-eslint/recommended"],
+    "ignorePatterns": ["dist", "node_modules", "bin"],
+    "rules": {
+        // default rules are overriden by the plugins
+        "no-unused-vars": "off",
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+
+        "guard-for-in": "error",
+        "@typescript-eslint/no-use-before-define": [
+            "error",
+            {
+                "functions": false,
+                "classes": true,
+                "variables": true,
+                "enums": true,
+                "typedefs": true
+            }
+        ],
+        "@typescript-eslint/no-require-imports": "off",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+            "warn",
+            {
+                "vars": "all",
+                "varsIgnorePattern": "^_",
+                "args": "after-used",
+                "argsIgnorePattern": "^_",
+                "caughtErrors": "all",
+                "caughtErrorsIgnorePattern": "^_"
+            }
+        ]
+    }
 }
