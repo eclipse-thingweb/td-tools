@@ -26,7 +26,7 @@ describe("test examples", () => {
     });
 });
 
-function testTD(td: unknown, expected: ProtocolSchemeMap) {
+function testTD(td: unknown, expected: ProtocolSchemeMap[]) {
     const detectedProtocolSchemes = detectProtocolSchemes(JSON.stringify(td));
 
     expect(detectedProtocolSchemes).toMatchObject(expected);
