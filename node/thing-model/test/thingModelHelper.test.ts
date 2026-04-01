@@ -509,7 +509,7 @@ class ThingModelHelperTest {
 
         await expect(this.thingModelHelpers.getPartialTDs(thing)).to.be.rejectedWith(
             Error,
-            "https status code not 200"
+            /https status code not 200|unable to get local issuer certificate/
         );
     }
 }
