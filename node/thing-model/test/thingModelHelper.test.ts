@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions, @typescript-eslint/no-unused-expressions */
 /********************************************************************************
  * Copyright (c) 2022 Contributors to the Eclipse Foundation
  *
@@ -21,7 +21,7 @@ import { ThingModel } from "wot-thing-model-types";
 import { ThingModelHelpers, CompositionOptions, modelComposeInput } from "../src/tm-helpers";
 import { promises as fs } from "fs";
 @suite("tests to verify the Thing Model Helper")
-class ThingModelHelperTest {
+export class ThingModelHelperTest {
     private thingModelHelpers = new ThingModelHelpers();
 
     @test "should correctly validate tm schema with ThingModel in @type"() {

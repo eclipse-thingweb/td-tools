@@ -24,7 +24,7 @@ import { ExposedThingInit } from "wot-typescript-definitions";
 
 chai.use(chaiAsPromised);
 @suite("tests to verify the composition feature of Thing Model Helper")
-class ThingModelHelperCompositionTest {
+export class ThingModelHelperCompositionTest {
     private thingModelHelpers: ThingModelHelpers = new ThingModelHelpers();
 
     async fetch(uri: string): Promise<unknown> {

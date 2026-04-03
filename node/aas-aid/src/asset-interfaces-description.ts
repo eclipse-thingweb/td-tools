@@ -98,7 +98,7 @@ export class AssetInterfacesDescription {
             const submodelId = submodelObj.id;
 
             // configuration
-            const aasName = !!options.aasIdShort ? options.aasIdShort : "SampleAAS";
+            const aasName = options.aasIdShort ? options.aasIdShort : "SampleAAS";
             const aasId =
                 options.aasId?.length !== 0 ? options.aasId : "https://example.com/ids/aas/7474_9002_6022_1115";
 
@@ -325,19 +325,19 @@ export class AssetInterfacesDescription {
         const protocols: string[] = [];
 
         if (td.properties) {
-            for (const propertyKey in td.properties) {
+            for (const propertyKey of Object.keys(td.properties)) {
                 const property = td.properties[propertyKey];
                 this.updateProtocolPrefixes(property.forms, protocols);
             }
         }
         if (td.actions) {
-            for (const actionKey in td.actions) {
+            for (const actionKey of Object.keys(td.actions)) {
                 const action = td.actions[actionKey];
                 this.updateProtocolPrefixes(action.forms, protocols);
             }
         }
         if (td.events) {
-            for (const eventKey in td.events) {
+            for (const eventKey of Object.keys(td.events)) {
                 const event = td.events[eventKey];
                 this.updateProtocolPrefixes(event.forms, protocols);
             }
@@ -706,8 +706,7 @@ export class AssetInterfacesDescription {
             // update base, securityDefinitions, security, ...
             this.updateRootMetadata(thing, endpointMetadata);
             // iterate over securitySchemes
-            // eslint-disable-next-line unused-imports/no-unused-vars
-            for (const [key, value] of Object.entries(thing.securityDefinitions)) {
+            for (const key of Object.keys(thing.securityDefinitions)) {
                 // TODO we could change the name to avoid name collisions. Shall we do so?
                 secNames.push(key);
             }
@@ -727,7 +726,7 @@ export class AssetInterfacesDescription {
                 thing.properties[key].forms = [];
 
                 for (const vi of value) {
-                    for (const keyInteraction in vi.interaction) {
+                    for (const keyInteraction of Object.keys(vi.interaction)) {
                         if (keyInteraction === "description") {
                             const aasDescription = vi.interaction[keyInteraction];
                             // convert
@@ -887,7 +886,7 @@ export class AssetInterfacesDescription {
         let base = td.base ?? "NO_BASE";
         if (td.base == null && td.properties) {
             // do best effort if base is not specified by looking at property forms
-            for (const propertyKey in td.properties) {
+            for (const propertyKey of Object.keys(td.properties)) {
                 const property: PropertyElement = td.properties[propertyKey];
                 // check whether form exists for a given protocol (prefix)
                 const formElementPicked = this.getFormForProtocol(property, protocol);
@@ -964,7 +963,7 @@ export class AssetInterfacesDescription {
 
         // securityDefinitions
         const securityDefinitionsValues: Array<unknown> = [];
-        for (const secKey in td.securityDefinitions) {
+        for (const secKey of Object.keys(td.securityDefinitions)) {
             const secValue: SecurityScheme = td.securityDefinitions[secKey];
             const values = [];
             // scheme always
@@ -1210,7 +1209,7 @@ export class AssetInterfacesDescription {
         if (protocol) {
             // Properties
             if (td.properties) {
-                for (const propertyKey in td.properties) {
+                for (const propertyKey of Object.keys(td.properties)) {
                     const property: PropertyElement = td.properties[propertyKey];
 
                     // check whether form exists for a given protocol (prefix)
@@ -1385,7 +1384,7 @@ export class AssetInterfacesDescription {
                         this.addRequiredAidTermsForForm(formElementPicked, protocol);
 
                         // walk over string values like: "href", "contentType", "htv:methodName", ...
-                        for (let formTerm in formElementPicked) {
+                        for (let formTerm of Object.keys(formElementPicked)) {
                             let formValue = formElementPicked[formTerm];
 
                             // Note: node-wot uses absolute URIs *almost* everywhere but we want to use "base" in AID
@@ -1482,7 +1481,7 @@ export class AssetInterfacesDescription {
                     let description;
                     if (property.descriptions) {
                         description = [];
-                        for (const langKey in property.descriptions) {
+                        for (const langKey of Object.keys(property.descriptions)) {
                             const langValue = property.descriptions[langKey];
                             description.push({
                                 language: langKey,

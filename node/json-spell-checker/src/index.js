@@ -63,7 +63,7 @@ function checkTypos(json) {
 
     try {
         parsedJson = JSON.parse(json);
-    } catch (err) {
+    } catch {
         return typos;
     }
 
@@ -100,7 +100,7 @@ function searchTypos(typos, json, lookupTable, searchDepth, searchPath, realPath
         return;
     }
 
-    for (const key in json) {
+    for (const key of Object.keys(json)) {
         const pathMap = lookupTable.get(searchDepth);
         const wordSet = pathMap.get(searchPath);
 
