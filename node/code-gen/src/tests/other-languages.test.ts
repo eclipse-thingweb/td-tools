@@ -6,7 +6,7 @@ import { generatePhpCurlCode } from "../generators/php.js";
 import { generateRubyNetHttpCode } from "../generators/ruby.js";
 import { generateDartWotCode, generateDartHttpCode } from "../generators/dart.js";
 import { CodeGeneratorContext } from "../generators/helpers.js";
-import { HTTP_TD, STREAMING_TD } from "./fixtures.js";
+import { HTTP_TD } from "./fixtures.js";
 
 function makeCtx(overrides: Partial<CodeGeneratorContext>): CodeGeneratorContext {
     return {

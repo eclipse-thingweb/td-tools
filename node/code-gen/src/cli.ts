@@ -246,7 +246,8 @@ async function inputPathWithAutocomplete(message: string, options: { mode: PathM
     }
 
     let currentBase = "";
-    while (true) {
+    let selectedPath: string | undefined;
+    while (selectedPath === undefined) {
         const selected = await search<string>({
             message: currentBase ? `${message}[${currentBase}] ` : message,
             source: async (value) => getPathChoices(value ?? "", options.mode, currentBase),
@@ -274,8 +275,10 @@ async function inputPathWithAutocomplete(message: string, options: { mode: PathM
             continue;
         }
 
-        return expanded;
+        selectedPath = expanded;
     }
+
+    return selectedPath;
 }
 
 function expandHome(p: string): string {

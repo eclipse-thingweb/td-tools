@@ -16,7 +16,7 @@ import {
     getAvailableLibraries,
     splitLibrariesByProtocolSupport,
 } from "../generators/helpers.js";
-import { Form, Op } from "../types.js";
+import { Form, PROTOCOL } from "../types.js";
 import { HTTP_TD, MODBUS_TD, EMPTY_TD, WRITE_ONLY_TD } from "./fixtures.js";
 
 describe("getProtocolFromHref", () => {
@@ -250,24 +250,24 @@ describe("selectForm", () => {
     ];
 
     it("selects the HTTPS form for readproperty with HTTP/HTTPS support", () => {
-        const form = selectForm(forms, "readproperty", ["http", "https"] as any);
+        const form = selectForm(forms, "readproperty", [PROTOCOL.HTTP, PROTOCOL.HTTPS]);
         expect(form.href).toBe("https://example.com/prop");
     });
 
     it("selects the CoAP form for readproperty with CoAP support", () => {
-        const form = selectForm(forms, "readproperty", ["coap"] as any);
+        const form = selectForm(forms, "readproperty", [PROTOCOL.COAP]);
         expect(form.href).toBe("coap://example.com/prop");
     });
 
     it("throws when no form matches", () => {
-        expect(() => selectForm(forms, "invokeaction", ["http"] as any)).toThrow(
+        expect(() => selectForm(forms, "invokeaction", [PROTOCOL.HTTP])).toThrow(
             'No form found for operation "invokeaction"'
         );
     });
 
     it("selects based on default ops when form.op is undefined", () => {
         const formsNoOp: Form[] = [{ href: "https://example.com/prop" }];
-        const form = selectForm(formsNoOp, "readproperty", ["https"] as any, "properties");
+        const form = selectForm(formsNoOp, "readproperty", [PROTOCOL.HTTPS], "properties");
         expect(form.href).toBe("https://example.com/prop");
     });
 });

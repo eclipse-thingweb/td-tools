@@ -1,7 +1,6 @@
 import { Op, AFFORDANCE_TYPES } from "../types.js";
 import {
     CodeGenerator,
-    CodeGeneratorContext,
     getHttpMethod,
     getNodeWotBindings,
     isStreamingOperation,
