@@ -18,7 +18,7 @@ export interface GenerateCodeParams {
 export type Affordances = Record<AffordanceType, Record<string, Affordance>>;
 
 export const AFFORDANCE_TYPES = ["properties", "actions", "events"] as const;
-export type AffordanceType = (typeof AFFORDANCE_TYPES)[number];
+export type AffordanceType = typeof AFFORDANCE_TYPES[number];
 
 export interface Affordance {
     forms: Form[];
@@ -57,7 +57,7 @@ export const OPERATIONS = {
     action: ["invokeaction", "queryaction", "cancelaction", "queryallactions"],
     event: ["subscribeevent", "unsubscribeevent", "subscribeallevents", "unsubscribeallevents"],
 } as const;
-export type Op = (typeof OPERATIONS)[keyof typeof OPERATIONS][number];
+export type Op = typeof OPERATIONS[keyof typeof OPERATIONS][number];
 
 export enum PROTOCOL {
     COAP = "coap",
