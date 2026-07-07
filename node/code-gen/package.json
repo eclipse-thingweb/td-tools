@@ -2,9 +2,24 @@
     "name": "@thingweb/code-gen",
     "author": "Eclipse Thingweb <thingweb-dev@eclipse.org> (https://thingweb.io/)",
     "license": "EPL-2.0 OR W3C-20150513",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Generates code snippets for Thing Descriptions. Supports multiple programming languages. For unsupported languages generates a prompt for an llm to generate the code snippet.",
     "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "bin": {
+        "code-gen": "dist/cli.js"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
     "homepage": "https://thingweb.io",
     "bugs": {
         "url": "https://github.com/eclipse-thingweb/td-tools/issues"
@@ -19,7 +34,8 @@
     },
     "type": "module",
     "scripts": {
-        "build": "tsc --outDir dist",
+        "build": "tsc -p tsconfig.build.json",
+        "prepack": "npm run build",
         "cli": "tsx src/cli.ts ",
         "test": "vitest run"
     },
