@@ -25,6 +25,7 @@ Tools in this repository:
 
 -   [AAS AID Tooling](https://github.com/eclipse-thingweb/td-tools/tree/main/node/aas-aid): Converting TD to AAS AID and vice versa
 -   [AsyncAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter): Converting TDs to AsyncAPI documents when the TD uses MQTT binding
+-   [Code Generation Tool](https://github.com/eclipse-thingweb/td-tools/tree/main/node/code-gen): Generating code snippets for interacting with Thing Descriptions (TD) in multiple programming languages
 -   [JSON Spell Checker](https://github.com/eclipse-thingweb/td-tools/tree/main/node/json-spell-checker): Checking errors in JSON documents (e.g. TDs) when there is a JSON Schema available (e.g. TD JSON Schema). This is not limited to TDs only.
 -   [OpenAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/open-api-converter): Converting TDs to OpenAPI documents when the TD uses HTTP binding
 -   [Thing Model Tooling](https://github.com/eclipse-thingweb/td-tools/tree/main/node/thing-model): Tooling to use Thing Models, such as resolving dependencies and imports.
