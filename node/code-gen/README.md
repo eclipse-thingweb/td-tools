@@ -11,17 +11,17 @@ import { generateCode, isProtocolSupported } from "@thingweb/code-gen";
 
 const td = {
     "@context": "https://www.w3.org/2022/wot/td/v1.1",
-    "title": "MyTemperatureThing",
-    "securityDefinitions": {
-        "basic_sc": {"scheme": "basic", "in": "header"}
+    title: "MyTemperatureThing",
+    securityDefinitions: {
+        basic_sc: { scheme: "basic", in: "header" },
     },
-    "security": "basic_sc",
-    "properties": {
-        "status": {
-            "type": "integer",
-            "forms": [{"href": "https://mytemp.example.com/temperature"}]
-        }
-    }
+    security: "basic_sc",
+    properties: {
+        status: {
+            type: "integer",
+            forms: [{ href: "https://mytemp.example.com/temperature" }],
+        },
+    },
 };
 
 const result = generateCode({
