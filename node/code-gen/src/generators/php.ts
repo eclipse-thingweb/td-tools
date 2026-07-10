@@ -1,11 +1,12 @@
-import { CodeGenerator, getHttpMethod, operationHasPayload } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // cURL  –  PHP HTTP client
 // ---------------------------------------------------------------------------
 
 export const generatePhpCurlCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -21,7 +22,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);`
 // Auto-generated code using cURL
 // Operation: ${operation} on "${affordanceKey}"
 
-$url = "${form.href}";
+$url = "${href}";
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

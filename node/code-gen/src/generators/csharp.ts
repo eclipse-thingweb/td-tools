@@ -1,12 +1,13 @@
 import { Op } from "../types.js";
-import { CodeGenerator, getHttpMethod, operationHasPayload } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // System.Net.Http.HttpClient  –  C# built-in HTTP client
 // ---------------------------------------------------------------------------
 
 export const generateCSharpHttpClientCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -40,7 +41,7 @@ class Program
     {
         using var client = new HttpClient();
 
-        var url = "${form.href}";
+        var url = "${href}";
         var request = new HttpRequestMessage(${methodExpr}, url);
 ${payloadDecl}
 

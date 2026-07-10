@@ -1,5 +1,12 @@
 import { Op } from "../types.js";
-import { CodeGenerator, getHttpMethod, isStreamingOperation, operationHasPayload, parseModbusInfo } from "./helpers.js";
+import {
+    CodeGenerator,
+    getHttpMethod,
+    isStreamingOperation,
+    operationHasPayload,
+    parseModbusInfo,
+    resolveHref,
+} from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // requests  –  Python HTTP library
@@ -10,7 +17,8 @@ function pythonMethodCall(method: string): string {
 }
 
 export const generateRequestsCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
     const streaming = isStreamingOperation(operation);
@@ -34,7 +42,7 @@ export const generateRequestsCode: CodeGenerator = (ctx) => {
 # Auto-generated code using the requests library
 # Operation: ${operation} on "${affordanceKey}"
 ${payloadDef}
-url = "${form.href}"
+url = "${href}"
 
 response = requests.${pythonMethodCall(
         method
@@ -152,8 +160,8 @@ function getPyModbusCall(modbusFunction: string, address: number, quantity: numb
 }
 
 export const generatePyModbusCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
-    const info = parseModbusInfo(form);
+    const { td, affordanceKey, operation, form } = ctx;
+    const info = parseModbusInfo(form, td.base, operation);
     const isWrite = operationHasPayload(operation);
     const call = getPyModbusCall(info.modbusFunction, info.address, info.quantity, info.unitId);
 

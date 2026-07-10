@@ -1,11 +1,12 @@
-import { CodeGenerator, getHttpMethod, operationHasPayload } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // net/http  –  Go standard library HTTP client
 // ---------------------------------------------------------------------------
 
 export const generateGoNetHttpCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -43,7 +44,7 @@ import (
 )
 
 func main() {
-\turl := "${form.href}"
+\turl := "${href}"
 ${payloadBlock}
 
 \tclient := &http.Client{Timeout: 10 * time.Second}

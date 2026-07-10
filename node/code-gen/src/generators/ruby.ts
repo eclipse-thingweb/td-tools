@@ -1,11 +1,12 @@
-import { CodeGenerator, getHttpMethod, operationHasPayload } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // Net::HTTP  –  Ruby standard library HTTP client
 // ---------------------------------------------------------------------------
 
 export const generateRubyNetHttpCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -25,7 +26,7 @@ request.content_type = "application/json"
 request.body = JSON.generate({})`
         : "";
 
-    const sslLine = form.href.startsWith("https") ? `http.use_ssl = true` : `http.use_ssl = false`;
+    const sslLine = href.startsWith("https") ? `http.use_ssl = true` : `http.use_ssl = false`;
 
     return `require "net/http"
 require "uri"
@@ -34,7 +35,7 @@ require "json"
 # Auto-generated code using Net::HTTP
 # Operation: ${operation} on "${affordanceKey}"
 
-uri = URI.parse("${form.href}")
+uri = URI.parse("${href}")
 
 http = Net::HTTP.new(uri.host, uri.port)
 ${sslLine}

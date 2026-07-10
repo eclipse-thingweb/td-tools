@@ -11,7 +11,7 @@ import {
     LANGUAGES_SUPPORT,
 } from "./types.js";
 import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { basename, isAbsolute, join, resolve } from "node:path";
+import { basename, isAbsolute, join, relative, resolve } from "node:path";
 import { homedir } from "node:os";
 import { generateCode } from "./index.js";
 import {
@@ -288,8 +288,31 @@ function expandHome(p: string): string {
     return p;
 }
 
+/**
+ * Returns the parent of a directory path (which is expected to end with a separator),
+ * collapsing the last path segment rather than appending "..".
+ */
+function getParentDirectory(directory: string, sep: string): string {
+    const rooted = directory.startsWith("~") || isAbsolute(directory) || /^[\\/]/.test(directory);
+    const absoluteParent = resolve(expandHome(directory || "."), "..");
+
+    // Home-relative or absolute inputs resolve to a concrete absolute parent path.
+    if (rooted) {
+        const normalized = absoluteParent.split(/[\\/]/).join(sep);
+        return normalized.endsWith(sep) ? normalized : normalized + sep;
+    }
+
+    // Relative inputs keep a relative display.
+    const rel = relative(process.cwd(), absoluteParent);
+    if (rel === "") return `.${sep}`;
+    return rel.split(/[\\/]/).join(sep) + sep;
+}
+
 function getPathChoices(line: string, mode: PathMode, base: string): { name: string; value: string }[] {
-    const effective = line.length > 0 ? line : base;
+    // Typed input is resolved relative to the currently drilled-into base directory,
+    // unless the user types an absolute or home-relative (~) path, which overrides the base.
+    const typedIsRooted = line.startsWith("~") || isAbsolute(line) || /^[\\/]/.test(line);
+    const effective = line.length > 0 ? (typedIsRooted ? line : base + line) : base;
     const sep = effective.includes("/") || effective.startsWith("~") ? "/" : "\\";
     const hasTrailingSep = /[\\/]$/.test(effective);
     const lineBaseName = hasTrailingSep ? "" : basename(effective);
@@ -298,9 +321,18 @@ function getPathChoices(line: string, mode: PathMode, base: string): { name: str
 
     const typedChoice = {
         name:
-            line.length > 0 ? `Use typed path: ${line}` : base ? `Use directory: ${base}` : "Use current directory: ./",
-        value: line.length > 0 ? line : base || "./",
+            line.length > 0
+                ? `Use typed path: ${effective}`
+                : base
+                ? `Use directory: ${base}`
+                : "Use current directory: ./",
+        value: line.length > 0 ? effective : base || "./",
     };
+
+    // Step-back entry that navigates to the parent directory.
+    const parentDir = getParentDirectory(lineDirectory, sep);
+    const parentChoice = { name: parentDir, value: parentDir };
+    const showParentChoice = "..".startsWith(lineBaseName);
 
     try {
         const entries = readdirSync(searchDirectory, { withFileTypes: true })
@@ -317,9 +349,9 @@ function getPathChoices(line: string, mode: PathMode, base: string): { name: str
                 return { name: suggestedPath, value: suggestedPath };
             });
 
-        return [typedChoice, ...entries];
+        return [typedChoice, ...(showParentChoice ? [parentChoice] : []), ...entries];
     } catch {
-        return [typedChoice];
+        return [typedChoice, ...(showParentChoice ? [parentChoice] : [])];
     }
 }
 
@@ -335,7 +367,7 @@ async function getAffordanceFromUser(affordances: Affordances) {
             ...AFFORDANCE_TYPES.flatMap((affordanceType) => {
                 const separatorTitle = capitalizeFirstLetter(affordanceType) + ":";
 
-                const affordanceKeys = Object.keys(affordances[affordanceType as keyof Affordances]);
+                const affordanceKeys = Object.keys(affordances[affordanceType]);
 
                 return affordanceKeys.length > 0
                     ? [

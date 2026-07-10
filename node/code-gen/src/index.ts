@@ -53,7 +53,7 @@ export function generateCode(params: GenerateCodeParams): GenerateCodeResult {
 
         // Filter forms for the given protocol support
         const availableFormsForProtocol = availableFormsForOperation.filter((form) =>
-            isProtocolSupported(language, library, getProtocolFromForm(form))
+            isProtocolSupported(language, library, getProtocolFromForm(form, td.base))
         );
 
         if (availableFormsForProtocol.length > 0) {
@@ -65,7 +65,7 @@ export function generateCode(params: GenerateCodeParams): GenerateCodeResult {
 
             const forms = td[affordanceType][affordanceKey].forms;
             const supportedProtocols = LANGUAGES_SUPPORT[language].libraries[library];
-            const form = selectForm(forms, operation, supportedProtocols, affordanceType, affordance);
+            const form = selectForm(forms, operation, supportedProtocols, affordanceType, affordance, td.base);
 
             const code = generator({ td, affordanceType, affordanceKey, operation, form, affordance });
             return { code };
@@ -76,7 +76,7 @@ export function generateCode(params: GenerateCodeParams): GenerateCodeResult {
                 ].libraries[library].join(
                     ", "
                 )}. Available protocols for this affordance are: ${availableFormsForOperation
-                    .map((form) => getProtocolFromForm(form))
+                    .map((form) => getProtocolFromForm(form, td.base))
                     .join(", ")}.`
             );
         }

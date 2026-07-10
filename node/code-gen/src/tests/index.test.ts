@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { generateCode, isProtocolSupported, generatePrompt } from "../index.js";
-import { HTTP_TD, MODBUS_TD, WRITE_ONLY_TD, CUSTOM_METHOD_TD } from "./fixtures.js";
+import {
+    HTTP_TD,
+    MODBUS_TD,
+    WRITE_ONLY_TD,
+    CUSTOM_METHOD_TD,
+    RELATIVE_HTTP_TD,
+    RELATIVE_MODBUS_TD,
+} from "./fixtures.js";
 
 describe("generateCode", () => {
     describe("JavaScript / fetch", () => {
@@ -720,6 +727,54 @@ describe("generateCode", () => {
             expect("code" in result).toBe(true);
             if ("code" in result) {
                 expect(result.code).toContain("POST");
+            }
+        });
+    });
+
+    describe("Relative hrefs resolved against the TD base", () => {
+        it("resolves a relative HTTP href for fetch", () => {
+            const result = generateCode({
+                td: RELATIVE_HTTP_TD,
+                language: "javascript",
+                library: "fetch",
+                affordanceType: "properties",
+                affordanceKey: "temperature",
+                operation: "readproperty",
+            });
+            expect("code" in result).toBe(true);
+            if ("code" in result) {
+                expect(result.code).toContain('const url = "https://example.com/things/thing1/properties/temperature"');
+            }
+        });
+
+        it("resolves a relative HTTP href for python requests", () => {
+            const result = generateCode({
+                td: RELATIVE_HTTP_TD,
+                language: "python",
+                library: "requests",
+                affordanceType: "properties",
+                affordanceKey: "temperature",
+                operation: "readproperty",
+            });
+            expect("code" in result).toBe(true);
+            if ("code" in result) {
+                expect(result.code).toContain('url = "https://example.com/things/thing1/properties/temperature"');
+            }
+        });
+
+        it("resolves a relative Modbus href without throwing", () => {
+            const result = generateCode({
+                td: RELATIVE_MODBUS_TD,
+                language: "javascript",
+                library: "modbus-serial",
+                affordanceType: "properties",
+                affordanceKey: "coilStatus",
+                operation: "readproperty",
+            });
+            expect("code" in result).toBe(true);
+            if ("code" in result) {
+                expect(result.code).toContain('client.connectTCP("192.168.1.1", { port: 502 })');
+                expect(result.code).toContain("readCoils");
             }
         });
     });
