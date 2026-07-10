@@ -1,5 +1,8 @@
 import { Affordances } from "../types.js";
 
+/**
+ * A minimal HTTP-based Thing Description for testing code generators.
+ */
 export const HTTP_TD: Affordances = {
     properties: {
         temperature: {
