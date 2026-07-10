@@ -284,21 +284,14 @@ export interface ModbusInfo {
  */
 export function parseModbusInfo(form: Form): ModbusInfo {
     const sanitized = form.href.replace(/^modbus\+tcp/, "http");
-    // Use a base URL so relative hrefs (e.g. "/") don't throw an "Invalid URL" exception.
-    const url = new URL(sanitized, "http://localhost");
+    const url = new URL(sanitized);
     const pathParts = url.pathname.split("/").filter(Boolean);
-
-    // Parse a path segment as an integer, ignoring non-numeric segments (e.g. "/test").
-    const segmentAsInt = (segment: string | undefined, fallback: number): number => {
-        const value = segment !== undefined ? parseInt(segment, 10) : NaN;
-        return Number.isNaN(value) ? fallback : value;
-    };
 
     return {
         host: url.hostname,
         port: parseInt(url.port) || 502,
-        unitId: form["modv:unitID"] ?? segmentAsInt(pathParts[0], 1),
-        address: form["modv:address"] ?? segmentAsInt(pathParts[1], 0),
+        unitId: form["modv:unitID"] ?? (pathParts[0] ? parseInt(pathParts[0]) : 1),
+        address: form["modv:address"] ?? (pathParts[1] ? parseInt(pathParts[1]) : 0),
         quantity: form["modv:quantity"] ?? 1,
         modbusFunction: form["modv:function"] ?? "readCoil",
     };
