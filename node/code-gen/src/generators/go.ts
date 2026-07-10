@@ -44,7 +44,7 @@ import (
 )
 
 func main() {
-\turl := "${form.href}"
+\turl := "${href}"
 ${payloadBlock}
 
 \tclient := &http.Client{Timeout: 10 * time.Second}
