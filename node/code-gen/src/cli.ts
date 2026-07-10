@@ -367,7 +367,7 @@ async function getAffordanceFromUser(affordances: Affordances) {
             ...AFFORDANCE_TYPES.flatMap((affordanceType) => {
                 const separatorTitle = capitalizeFirstLetter(affordanceType) + ":";
 
-                const affordanceKeys = Object.keys(affordances[affordanceType as keyof Affordances]);
+                const affordanceKeys = Object.keys(affordances[affordanceType]);
 
                 return affordanceKeys.length > 0
                     ? [

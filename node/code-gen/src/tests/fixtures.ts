@@ -211,3 +211,47 @@ export const WRITE_ONLY_TD: Affordances = {
     actions: {},
     events: {},
 };
+
+/**
+ * An HTTP-based TD that uses relative hrefs resolved against a `base` URI.
+ */
+export const RELATIVE_HTTP_TD: Affordances = {
+    base: "https://example.com/things/thing1/",
+    properties: {
+        temperature: {
+            type: "number",
+            forms: [
+                {
+                    href: "properties/temperature",
+                    op: ["readproperty", "writeproperty"],
+                },
+            ],
+        },
+    },
+    actions: {},
+    events: {},
+};
+
+/**
+ * A Modbus TD that uses relative hrefs resolved against a `base` URI.
+ */
+export const RELATIVE_MODBUS_TD: Affordances = {
+    base: "modbus+tcp://192.168.1.1:502/",
+    properties: {
+        coilStatus: {
+            type: "boolean",
+            forms: [
+                {
+                    href: "1/100",
+                    op: ["readproperty"],
+                    "modv:function": "readCoil",
+                    "modv:unitID": 1,
+                    "modv:address": 100,
+                    "modv:quantity": 4,
+                },
+            ],
+        },
+    },
+    actions: {},
+    events: {},
+};

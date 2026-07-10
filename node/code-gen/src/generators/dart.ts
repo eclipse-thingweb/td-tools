@@ -1,5 +1,5 @@
 import { Op } from "../types.js";
-import { CodeGenerator, getHttpMethod, operationHasPayload } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // dart_wot  –  Dart WoT client library
@@ -86,7 +86,8 @@ Future<void> main() async {
 // ---------------------------------------------------------------------------
 
 export const generateDartHttpCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -108,7 +109,7 @@ import "package:http/http.dart" as http;
 // Operation: ${operation} on "${affordanceKey}"
 
 Future<void> main() async {
-    final url = Uri.parse("${form.href}");
+    final url = Uri.parse("${href}");
 ${payloadBlock}
     ${methodCall}
 

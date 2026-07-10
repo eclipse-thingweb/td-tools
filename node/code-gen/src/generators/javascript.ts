@@ -6,6 +6,7 @@ import {
     isStreamingOperation,
     operationHasPayload,
     parseModbusInfo,
+    resolveHref,
 } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
@@ -71,7 +72,7 @@ export const generateNodeWotCode: CodeGenerator = (ctx) => {
     const allForms = AFFORDANCE_TYPES.flatMap((type) => (td[type] ? Object.values(td[type]) : [])).flatMap(
         (affordance) => affordance.forms
     );
-    const bindings = getNodeWotBindings(allForms);
+    const bindings = getNodeWotBindings(allForms, td.base);
 
     const imports = [
         `import { Servient } from "@node-wot/core";`,
@@ -108,7 +109,8 @@ main();
 // ---------------------------------------------------------------------------
 
 export const generateFetchCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
     const streaming = isStreamingOperation(operation);
@@ -137,7 +139,7 @@ export const generateFetchCode: CodeGenerator = (ctx) => {
     return `// Auto-generated code using the Fetch API
 // Operation: ${operation} on "${affordanceKey}"
 ${payloadLine}
-const url = "${form.href}";
+const url = "${href}";
 
 const response = await fetch(url, {
     ${fetchOptions.join(",\n    ")},
@@ -156,10 +158,10 @@ ${responseHandling}
 // ---------------------------------------------------------------------------
 
 export const generateWebthingCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
 
     if (isStreamingOperation(operation)) {
-        const wsUrl = form.href.replace(/^http/, "ws");
+        const wsUrl = resolveHref(form.href, td.base).replace(/^http/, "ws");
         return `// Auto-generated code using WebSocket (webthing)
 // Operation: ${operation} on "${affordanceKey}"
 
@@ -217,8 +219,8 @@ function getModbusSerialCall(modbusFunction: string, address: number, quantity: 
 }
 
 export const generateModbusSerialCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
-    const info = parseModbusInfo(form);
+    const { td, affordanceKey, operation, form } = ctx;
+    const info = parseModbusInfo(form, td.base, operation);
     const isWrite = operationHasPayload(operation);
     const call = getModbusSerialCall(info.modbusFunction, info.address, info.quantity);
 

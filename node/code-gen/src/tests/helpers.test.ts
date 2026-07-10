@@ -8,6 +8,7 @@ import {
     isStreamingOperation,
     selectForm,
     parseModbusInfo,
+    resolveHref,
     getNodeWotBindings,
     extractAvailableAffordances,
     getAvailableOperations,
@@ -318,6 +319,104 @@ describe("parseModbusInfo", () => {
         const info = parseModbusInfo(form);
         expect(info.unitId).toBe(1);
         expect(info.address).toBe(0);
+    });
+
+    it("reads the legacy modbus: namespace and coerces string values", () => {
+        const form: Form = {
+            href: "/test",
+            "modbus:unitID": "1",
+            "modbus:quantity": 1,
+            "modbus:address": 2,
+            "modbus:entity": "HoldingRegister",
+        };
+        const info = parseModbusInfo(form, "modbus://localhost:62", "readproperty");
+        expect(info.host).toBe("localhost");
+        expect(info.port).toBe(62);
+        expect(info.unitId).toBe(1);
+        expect(info.address).toBe(2);
+        expect(info.quantity).toBe(1);
+        expect(info.modbusFunction).toBe("readHoldingRegisters");
+    });
+
+    it("does not fall back to a non-numeric path segment (no NaN unitId)", () => {
+        const form: Form = {
+            href: "/test",
+        };
+        const info = parseModbusInfo(form, "modbus://localhost:62");
+        expect(info.unitId).toBe(1);
+        expect(info.address).toBe(0);
+        expect(Number.isNaN(info.unitId)).toBe(false);
+    });
+
+    it("derives the write function from the entity for a write operation", () => {
+        const form: Form = {
+            href: "/",
+            "modbus:unitID": "3",
+            "modbus:address": 10,
+            "modbus:entity": "HoldingRegister",
+        };
+        const info = parseModbusInfo(form, "modbus://localhost:502", "writeproperty");
+        expect(info.unitId).toBe(3);
+        expect(info.modbusFunction).toBe("writeSingleRegister");
+    });
+
+    it("prefers an explicit function over the entity", () => {
+        const form: Form = {
+            href: "/",
+            "modv:function": "readInputRegisters",
+            "modbus:entity": "HoldingRegister",
+        };
+        const info = parseModbusInfo(form, "modbus://localhost:502", "readproperty");
+        expect(info.modbusFunction).toBe("readInputRegisters");
+    });
+
+    it("resolves a relative href against the TD base", () => {
+        const form: Form = {
+            href: "1/100",
+            "modv:function": "readCoil",
+        };
+        const info = parseModbusInfo(form, "modbus+tcp://192.168.1.1:502/");
+        expect(info.host).toBe("192.168.1.1");
+        expect(info.port).toBe(502);
+        expect(info.unitId).toBe(1);
+        expect(info.address).toBe(100);
+    });
+
+    it("resolves a root-relative href against the TD base", () => {
+        const form: Form = {
+            href: "/3/50",
+        };
+        const info = parseModbusInfo(form, "modbus+tcp://192.168.1.1:502");
+        expect(info.host).toBe("192.168.1.1");
+        expect(info.unitId).toBe(3);
+        expect(info.address).toBe(50);
+    });
+});
+
+describe("resolveHref", () => {
+    it("returns an absolute href unchanged", () => {
+        expect(resolveHref("https://example.com/foo", "https://other.com/")).toBe("https://example.com/foo");
+    });
+
+    it("resolves a relative href against the base", () => {
+        expect(resolveHref("properties/temp", "https://example.com/base/")).toBe(
+            "https://example.com/base/properties/temp"
+        );
+    });
+
+    it("resolves a root-relative href against the base", () => {
+        expect(resolveHref("/properties/temp", "https://example.com/base/")).toBe(
+            "https://example.com/properties/temp"
+        );
+    });
+
+    it("resolves a relative href against a modbus+tcp base", () => {
+        expect(resolveHref("1/100", "modbus+tcp://192.168.1.1:502/")).toBe("modbus+tcp://192.168.1.1:502/1/100");
+    });
+
+    it("returns the relative href unchanged when no base is provided", () => {
+        expect(resolveHref("/properties/temp")).toBe("/properties/temp");
+        expect(resolveHref("/properties/temp", undefined)).toBe("/properties/temp");
     });
 });
 

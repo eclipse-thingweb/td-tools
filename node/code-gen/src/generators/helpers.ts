@@ -38,15 +38,44 @@ export function getProtocolFromHref(href: string): string {
 }
 
 /**
+ * Resolves a (possibly relative) form href against the TD's `base` URI.
+ * - Absolute hrefs (those carrying a URI scheme) are returned unchanged.
+ * - Relative hrefs are resolved against `base` when it is provided.
+ * - When no base is available, the relative href is returned unchanged.
+ */
+export function resolveHref(href: string, base?: string): string {
+    // Already absolute: it carries a URI scheme, so there is nothing to resolve.
+    if (getProtocolFromHref(href)) {
+        return href;
+    }
+    if (!base) {
+        return href;
+    }
+    try {
+        return new URL(href, base).href;
+    } catch {
+        // Fallback for exotic schemes the WHATWG URL parser may reject.
+        return `${base.replace(/\/+$/, "")}/${href.replace(/^\/+/, "")}`;
+    }
+}
+
+/**
  * Determines the protocol used by a form.
  * Prefers the URI scheme from the href; if the href is relative (no scheme),
- * falls back to vendor-specific vocabulary prefixes on the form's keys
+ * falls back to the scheme of the TD `base` (when provided) and finally to
+ * vendor-specific vocabulary prefixes on the form's keys
  * (e.g. "modbus:address" → "modbus").
  */
-export function getProtocolFromForm(form: Form): string {
+export function getProtocolFromForm(form: Form, base?: string): string {
     const scheme = getProtocolFromHref(form.href);
     if (scheme) {
         return scheme;
+    }
+
+    // Relative href: infer the protocol from the TD base's scheme.
+    const baseScheme = base ? getProtocolFromHref(base) : "";
+    if (baseScheme) {
+        return baseScheme;
     }
 
     let httpFallback = "";
@@ -137,7 +166,8 @@ export function getAvailableOperations(affordance: Affordance | undefined, affor
 export function getAvailableProtocols(
     affordance: Affordance | undefined,
     affordanceType: AffordanceType,
-    operation?: Op
+    operation?: Op,
+    base?: string
 ): string[] {
     if (!affordance?.forms?.length) {
         return [];
@@ -145,7 +175,7 @@ export function getAvailableProtocols(
     const forms = operation
         ? affordance.forms.filter((form) => getEffectiveOps(form, affordanceType, affordance).includes(operation))
         : affordance.forms;
-    return Array.from(new Set(forms.map((form) => getProtocolFromForm(form)).filter(Boolean)));
+    return Array.from(new Set(forms.map((form) => getProtocolFromForm(form, base)).filter(Boolean)));
 }
 
 /**
@@ -255,12 +285,13 @@ export function selectForm(
     operation: Op,
     supportedProtocols: readonly PROTOCOL[],
     affordanceType?: AffordanceType,
-    affordance?: Affordance
+    affordance?: Affordance,
+    base?: string
 ): Form {
     const match = forms.find(
         (form) =>
             getEffectiveOps(form, affordanceType ?? "properties", affordance).includes(operation) &&
-            supportedProtocols.some((p) => getProtocolFromForm(form).includes(p))
+            supportedProtocols.some((p) => getProtocolFromForm(form, base).includes(p))
     );
     if (!match) {
         throw new Error(`No form found for operation "${operation}" with supported protocols`);
@@ -279,21 +310,72 @@ export interface ModbusInfo {
 }
 
 /**
- * Extracts Modbus connection parameters from a form,
- * using modv: extensions and falling back to the href path segments.
+ * Reads a Modbus extension value from a form, accepting both the official
+ * `modv:` namespace and the legacy/vendor `modbus:` namespace.
  */
-export function parseModbusInfo(form: Form): ModbusInfo {
-    const sanitized = form.href.replace(/^modbus\+tcp/, "http");
+function readModbusExtension(form: Form, field: string): number | string | undefined {
+    const record = form as unknown as Record<string, number | string | undefined>;
+    return record[`modv:${field}`] ?? record[`modbus:${field}`];
+}
+
+/** Coerces a Modbus extension value (which may be a numeric string) to a number. */
+function toModbusNumber(value: number | string | undefined): number | undefined {
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+    const parsed = typeof value === "number" ? value : parseInt(value, 10);
+    return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+/**
+ * Derives the Modbus function name from the `entity` extension and the
+ * operation kind (read vs. write) when no explicit function is provided.
+ */
+function modbusFunctionFromEntity(entity: string | undefined, isWrite: boolean, quantity: number): string {
+    switch ((entity ?? "").toLowerCase()) {
+        case "coil":
+            return isWrite ? (quantity > 1 ? "writeMultipleCoils" : "writeSingleCoil") : "readCoil";
+        case "discreteinput":
+            return "readDiscreteInput";
+        case "holdingregister":
+            return isWrite ? (quantity > 1 ? "writeMultipleRegisters" : "writeSingleRegister") : "readHoldingRegisters";
+        case "inputregister":
+            return "readInputRegisters";
+        default:
+            return isWrite ? "writeSingleCoil" : "readCoil";
+    }
+}
+
+/**
+ * Extracts Modbus connection parameters from a form, supporting both the
+ * `modv:` and `modbus:` extension namespaces (values may be numeric strings).
+ * Falls back to the href path segments for unit id / address, and derives the
+ * Modbus function from the `entity` extension when no function is specified.
+ * The href is resolved against the TD `base` when it is relative.
+ */
+export function parseModbusInfo(form: Form, base?: string, operation?: Op): ModbusInfo {
+    const resolved = resolveHref(form.href, base);
+    const sanitized = resolved.replace(/^modbus\+tcp/, "http");
     const url = new URL(sanitized);
     const pathParts = url.pathname.split("/").filter(Boolean);
+
+    const unitId = toModbusNumber(readModbusExtension(form, "unitID"));
+    const address = toModbusNumber(readModbusExtension(form, "address"));
+    const quantity = toModbusNumber(readModbusExtension(form, "quantity")) ?? 1;
+    const entity = readModbusExtension(form, "entity") as string | undefined;
+    const explicitFunction = readModbusExtension(form, "function") as string | undefined;
+    const isWrite = operation ? operationHasPayload(operation) : false;
+
+    const pathUnitId = toModbusNumber(pathParts[0]);
+    const pathAddress = toModbusNumber(pathParts[1]);
 
     return {
         host: url.hostname,
         port: parseInt(url.port) || 502,
-        unitId: form["modv:unitID"] ?? (pathParts[0] ? parseInt(pathParts[0]) : 1),
-        address: form["modv:address"] ?? (pathParts[1] ? parseInt(pathParts[1]) : 0),
-        quantity: form["modv:quantity"] ?? 1,
-        modbusFunction: form["modv:function"] ?? "readCoil",
+        unitId: unitId ?? pathUnitId ?? 1,
+        address: address ?? pathAddress ?? 0,
+        quantity,
+        modbusFunction: explicitFunction ?? modbusFunctionFromEntity(entity, isWrite, quantity),
     };
 }
 
@@ -320,11 +402,11 @@ export const NODE_WOT_BINDINGS: Record<string, BindingInfo> = {
  * Collects the unique node-wot binding imports needed for the protocols
  * used across the given forms.
  */
-export function getNodeWotBindings(forms: Form[]): BindingInfo[] {
+export function getNodeWotBindings(forms: Form[], base?: string): BindingInfo[] {
     const seen = new Set<string>();
     const bindings: BindingInfo[] = [];
     for (const form of forms) {
-        const protocol = getProtocolFromForm(form);
+        const protocol = getProtocolFromForm(form, base);
         const binding = NODE_WOT_BINDINGS[protocol];
         if (binding && !seen.has(binding.factoryName)) {
             seen.add(binding.factoryName);

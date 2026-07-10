@@ -1,12 +1,13 @@
 import { Op } from "../types.js";
-import { CodeGenerator, getHttpMethod, operationHasPayload, parseModbusInfo } from "./helpers.js";
+import { CodeGenerator, getHttpMethod, operationHasPayload, parseModbusInfo, resolveHref } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // java.net.http.HttpClient  –  Java built-in HTTP client (Java 11+)
 // ---------------------------------------------------------------------------
 
 export const generateJavaHttpClientCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
+    const { td, affordanceKey, operation, form } = ctx;
+    const href = resolveHref(form.href, td.base);
     const method = getHttpMethod(operation, form);
     const hasPayload = operationHasPayload(operation);
 
@@ -38,7 +39,7 @@ public class Main {
                 .connectTimeout(Duration.ofSeconds(10))
                 .build();
 
-            String url = "${form.href}";
+            String url = "${href}";
 ${payloadDecl}
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -193,8 +194,8 @@ function getDigitalpetriCall(modbusFunction: string, address: number, quantity: 
 }
 
 export const generateDigitalpetriModbusCode: CodeGenerator = (ctx) => {
-    const { affordanceKey, operation, form } = ctx;
-    const info = parseModbusInfo(form);
+    const { td, affordanceKey, operation, form } = ctx;
+    const info = parseModbusInfo(form, td.base, operation);
     const call = getDigitalpetriCall(info.modbusFunction, info.address, info.quantity);
 
     return `import com.digitalpetri.modbus.master.ModbusTcpMaster;

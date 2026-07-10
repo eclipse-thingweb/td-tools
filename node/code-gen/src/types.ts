@@ -15,10 +15,16 @@ export interface GenerateCodeParams {
     operation: Op;
     output?: string;
 }
-export type Affordances = Record<AffordanceType, Record<string, Affordance>>;
+export type Affordances = Record<AffordanceType, Record<string, Affordance>> & {
+    /**
+     * Base URI used to resolve relative form hrefs (WoT TD `base` field).
+     * Optional: when absent, hrefs are expected to be absolute.
+     */
+    base?: string;
+};
 
 export const AFFORDANCE_TYPES = ["properties", "actions", "events"] as const;
-export type AffordanceType = typeof AFFORDANCE_TYPES[number];
+export type AffordanceType = (typeof AFFORDANCE_TYPES)[number];
 
 export interface Affordance {
     forms: Form[];
@@ -35,10 +41,16 @@ export interface Form {
     op?: Op | Op[];
     "htv:methodName"?: string;
     subprotocol?: string;
-    "modv:unitID"?: number;
-    "modv:address"?: number;
+    "modv:unitID"?: number | string;
+    "modv:address"?: number | string;
     "modv:function"?: string;
-    "modv:quantity"?: number;
+    "modv:quantity"?: number | string;
+    "modv:entity"?: string;
+    "modbus:unitID"?: number | string;
+    "modbus:address"?: number | string;
+    "modbus:function"?: string;
+    "modbus:quantity"?: number | string;
+    "modbus:entity"?: string;
 }
 
 export const OPERATIONS = {
@@ -57,7 +69,7 @@ export const OPERATIONS = {
     action: ["invokeaction", "queryaction", "cancelaction", "queryallactions"],
     event: ["subscribeevent", "unsubscribeevent", "subscribeallevents", "unsubscribeallevents"],
 } as const;
-export type Op = typeof OPERATIONS[keyof typeof OPERATIONS][number];
+export type Op = (typeof OPERATIONS)[keyof typeof OPERATIONS][number];
 
 export enum PROTOCOL {
     COAP = "coap",
