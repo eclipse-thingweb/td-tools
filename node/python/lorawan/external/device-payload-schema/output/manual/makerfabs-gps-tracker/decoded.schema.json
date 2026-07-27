@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/makerfabs_gps_tracker",
+  "title": "makerfabs_gps_tracker Decoded Output",
+  "description": "JSON Schema for validating decoded output from makerfabs_gps_tracker sensor",
+  "type": "object",
+  "properties": {
+    "num": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "gSensorState": {
+      "type": "number"
+    },
+    "gpsStatus": {
+      "type": "number"
+    },
+    "year": {
+      "type": "number"
+    },
+    "month": {
+      "type": "number"
+    },
+    "date": {
+      "type": "number"
+    },
+    "hour": {
+      "type": "number"
+    },
+    "minute": {
+      "type": "number"
+    },
+    "second": {
+      "type": "number"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "nsHemi": {
+      "enum": {
+        "0": "N",
+        "1": "S"
+      }
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "ewHemi": {
+      "enum": {
+        "0": "E",
+        "1": "W"
+      }
+    },
+    "gsensor_onoff": {
+      "type": "number"
+    },
+    "gsensor_sensitivity": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

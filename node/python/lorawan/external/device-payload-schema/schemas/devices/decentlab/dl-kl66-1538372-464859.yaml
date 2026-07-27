@@ -1,0 +1,45 @@
+# https://www.decentlab.com/products/strain-/-weight-sensor-for-lorawan
+name: decentlab_dl_kl66_1538372_464859
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: counter_reading
+              type: u16
+            - name: measurement_interval
+              type: u16
+              div: 32768
+            - name: frequency
+              type: u16
+              unit: "Hz"
+              # formula: x[0] / x[1] * 32768
+            - name: weight
+              type: u16
+              unit: "g"
+              # formula: (Math.pow(x[0] / x[1] * 32768, 2) - Math.pow(this.PARAMETERS.f0, 2)) * this.PARAMETERS.k / 1000000
+            - name: elongation
+              type: u16
+              unit: "µm"
+              # formula: (Math.pow(x[0] / x[1] * 32768, 2) - Math.pow(this.PARAMETERS.f0, 2)) * this.PARAMETERS.k / 1000000 * (-1.5) / 1000 * 9.8067
+            - name: strain
+              type: u16
+              unit: "µm⋅m⁻¹"
+              # formula: (Math.pow(x[0] / x[1] * 32768, 2) - Math.pow(this.PARAMETERS.f0, 2)) * this.PARAMETERS.k / 1000000 * (-1.5) / 1000 * 9.8067 / 0.066
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

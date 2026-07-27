@@ -1,0 +1,67 @@
+# Distance/Level Sensor Library
+# Ultrasonic, radar, ToF sensors
+
+definitions:
+  # === DISTANCE ===
+  
+  distance_mm:
+    name: distance
+    type: u16
+    unit: "mm"
+    valid_range: [0, 65535]
+    resolution: 1
+    unece: "MMT"
+    description: "Distance measurement"
+    semantic:
+      ipso: 3330
+
+  distance_cm:
+    name: distance
+    type: u16
+    unit: "cm"
+    valid_range: [0, 65535]
+    resolution: 1
+    unece: "CMT"
+    description: "Distance measurement"
+
+  distance_m_div100:
+    name: distance
+    type: u16
+    div: 100
+    unit: "m"
+    valid_range: [0, 655]
+    resolution: 0.01
+    unece: "MTR"
+    description: "Distance in meters"
+    semantic:
+      ipso: 3330
+
+  # === LEVEL/DEPTH ===
+  
+  level_pct:
+    name: level
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    unece: "P1"
+    description: "Fill level percentage"
+
+  water_level_mm:
+    name: water_level
+    type: u16
+    unit: "mm"
+    valid_range: [0, 10000]
+    resolution: 1
+    unece: "MMT"
+    description: "Water level"
+
+  depth_m:
+    name: depth
+    type: u16
+    div: 100
+    unit: "m"
+    valid_range: [0, 100]
+    resolution: 0.01
+    unece: "MTR"
+    description: "Water depth"

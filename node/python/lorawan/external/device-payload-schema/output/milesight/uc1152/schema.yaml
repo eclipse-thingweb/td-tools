@@ -1,0 +1,19 @@
+# Milesight IoT UC11 series
+name: milesight_uc1152
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # MODBUS
+        "[255, 14]":
+          - name: channels
+            type: u8
+            # raw: []

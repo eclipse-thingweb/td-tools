@@ -1,0 +1,159 @@
+# Dragino LAQ4 Air Quality Sensor
+# Source: https://www.dragino.com/products/lora-lorawan-end-node/item/189-laq4.html
+# TTN codec: vendor/dragino/laq4.js
+
+name: dragino_laq4
+version: 1
+endian: big
+
+fields:
+  - name: battery
+    type: u16
+    div: 1000
+    unit: "V"
+    ipso: 3316
+    senml: {unit: "V"}
+    semantic: "battery.voltage"
+
+  - byte_group:
+      size: 1
+      fields:
+        - name: alarm_status
+          type: u8[0:0]
+          description: "Alarm triggered (1=TRUE, 0=FALSE)"
+        - name: _reserved
+          type: u8[1:1]
+        - name: mode
+          type: u8[2:6]
+          description: "Work mode: 1=CO2, 31=ALARM config"
+
+  - match:
+      field: $mode
+      cases:
+        1:
+          - name: tvoc
+            type: u16
+            unit: "ppb"
+            description: "Total Volatile Organic Compounds"
+            ipso: 3325
+            senml: {unit: "ppb"}
+            semantic: "air.tvoc"
+          - name: co2
+            type: u16
+            unit: "ppm"
+            description: "Carbon dioxide concentration"
+            ipso: 3325
+            senml: {unit: "ppm"}
+            semantic: "air.co2"
+          - name: temperature
+            type: s16
+            div: 10
+            unit: "°C"
+            description: "Ambient temperature from SHT sensor"
+            ipso: 3303
+            senml: {unit: "Cel"}
+            semantic: "temperature.ambient"
+          - name: humidity
+            type: u16
+            div: 10
+            unit: "%"
+            description: "Relative humidity from SHT sensor"
+            ipso: 3304
+            senml: {unit: "%RH"}
+            semantic: "humidity.relative"
+
+        31:
+          - name: temp_min
+            type: s8
+            unit: "°C"
+            description: "Temperature alarm minimum threshold"
+          - name: temp_max
+            type: s8
+            unit: "°C"
+            description: "Temperature alarm maximum threshold"
+          - name: humidity_min
+            type: u8
+            unit: "%"
+            description: "Humidity alarm minimum threshold"
+          - name: humidity_max
+            type: u8
+            unit: "%"
+            description: "Humidity alarm maximum threshold"
+          - name: co2_min
+            type: u16
+            unit: "ppm"
+            description: "CO2 alarm minimum threshold"
+          - name: co2_max
+            type: u16
+            unit: "ppm"
+            description: "CO2 alarm maximum threshold"
+
+test_vectors:
+  - name: co2_mode_normal
+    description: "Normal CO2 mode reading"
+    port: 2
+    payload: "0B B8 04 00 C8 03 E8 00 FA 02 58"
+    expected:
+      battery: 3.0
+      alarm_status: 0
+      mode: 1
+      tvoc: 200
+      co2: 1000
+      temperature: 25.0
+      humidity: 60.0
+
+  - name: co2_mode_alarm_active
+    description: "CO2 mode with alarm triggered"
+    port: 2
+    payload: "0D AC 05 01 90 05 DC 00 C8 01 F4"
+    expected:
+      battery: 3.5
+      alarm_status: 1
+      mode: 1
+      tvoc: 400
+      co2: 1500
+      temperature: 20.0
+      humidity: 50.0
+
+  - name: co2_mode_negative_temp
+    description: "CO2 mode with negative temperature"
+    port: 2
+    payload: "0B B8 04 00 64 01 F4 FF 9C 02 58"
+    expected:
+      battery: 3.0
+      alarm_status: 0
+      mode: 1
+      tvoc: 100
+      co2: 500
+      temperature: -10.0
+      humidity: 60.0
+
+  - name: alarm_config_mode
+    description: "Alarm configuration mode (mode=31)"
+    port: 2
+    payload: "0B B8 7C 0A 1E 14 50 01 F4 07 D0"
+    expected:
+      battery: 3.0
+      alarm_status: 0
+      mode: 31
+      temp_min: 10
+      temp_max: 30
+      humidity_min: 20
+      humidity_max: 80
+      co2_min: 500
+      co2_max: 2000
+
+  - name: alarm_config_negative_temp
+    description: "Alarm config with negative temperature thresholds"
+    port: 2
+    payload: "0C 1C 7C EC 28 0A 5A 00 C8 09 C4"
+    expected:
+      battery: 3.1
+      alarm_status: 0
+      mode: 31
+      temp_min: -20
+      temp_max: 40
+      humidity_min: 10
+      humidity_max: 90
+      co2_min: 200
+      co2_max: 2500

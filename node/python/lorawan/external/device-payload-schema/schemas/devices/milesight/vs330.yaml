@@ -1,0 +1,30 @@
+# Milesight IoT VS330
+name: milesight_vs330
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # DISTANCE
+        "[2, 130]":
+          - name: distance
+            type: u16
+        # OCCUPANCY
+        "[3, 142]":
+          - name: occupancy
+            type: u8
+        # CALIBRATION
+        "[4, 142]":
+          - name: calibration
+            type: u8

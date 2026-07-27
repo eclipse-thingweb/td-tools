@@ -1,0 +1,79 @@
+# Milesight IoT UC300 series
+name: milesight_uc300
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # Digital Input
+        "[3, 0]":
+          - name: digital_input_1
+            type: u8
+        "[4, 0]":
+          - name: digital_input_2
+            type: u8
+        "[5, 0]":
+          - name: digital_input_3
+            type: u8
+        "[6, 0]":
+          - name: digital_input_4
+            type: u8
+        # Digital Output
+        "[7, 1]":
+          - name: digital_output_1
+            type: u8
+        "[8, 1]":
+          - name: digital_output_2
+            type: u8
+        # Digital Input as Counter
+        "[3, 200]":
+          - name: pulse_count_1
+            type: u32
+        "[4, 200]":
+          - name: pulse_count_2
+            type: u32
+        "[5, 200]":
+          - name: pulse_count_3
+            type: u32
+        "[6, 200]":
+          - name: pulse_count_4
+            type: u32
+        # PT100
+        "[9, 103]":
+          - name: pt100_1
+            type: s16
+            div: 10
+        "[10, 103]":
+          - name: pt100_2
+            type: s16
+            div: 10
+        # ADC CHANNEL
+        "[11, 2]":
+          - name: analog_input_adc_1
+            type: u32
+            div: 100
+        "[12, 2]":
+          - name: analog_input_adc_2
+            type: u32
+            div: 100
+        # ADC CHANNEL for voltage
+        "[13, 2]":
+          - name: analog_input_adv_1
+            type: u32
+            div: 100
+        "[14, 2]":
+          - name: analog_input_adv_2
+            type: u32
+            div: 100
+        # MODBUS
+        "[255, 25]":
+          - name: modbus_channels
+            type: u8
+            # raw: []

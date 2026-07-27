@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_smtp",
+  "title": "decentlab_dl_smtp Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_smtp sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "soil_moisture_at_depth_0": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_0": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_1": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_1": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_2": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_2": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_3": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_3": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_4": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_4": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_5": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_5": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_6": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_6": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "soil_moisture_at_depth_7": {
+      "type": "number"
+    },
+    "soil_temperature_at_depth_7": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

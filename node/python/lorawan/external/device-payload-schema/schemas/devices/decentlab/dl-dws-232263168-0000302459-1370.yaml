@@ -1,0 +1,32 @@
+# https://www.decentlab.com/products/weighing-scale-for-lorawan
+name: decentlab_dl_dws_232263168_0000302459_1370
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: frequency
+              type: u16
+              unit: "Hz"
+              # formula: x[0] / x[1] * 32768
+            - name: weight
+              type: u16
+              unit: "g"
+              # formula: (Math.pow(x[0] / x[1] * 32768, 2) - this.PARAMETERS.f02) * this.PARAMETERS.s + this.PARAMETERS.m0
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

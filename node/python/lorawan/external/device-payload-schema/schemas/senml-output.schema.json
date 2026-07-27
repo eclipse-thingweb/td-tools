@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/output/senml/v1",
+  "title": "SenML Output Format (RFC 8428)",
+  "description": "Validates decoder output in SenML format per IETF RFC 8428",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/senmlRecord"
+  },
+  "definitions": {
+    "senmlRecord": {
+      "type": "object",
+      "properties": {
+        "bn": {
+          "type": "string",
+          "description": "Base Name - prefix for all names in pack"
+        },
+        "bt": {
+          "type": "number",
+          "description": "Base Time - added to all time values"
+        },
+        "bu": {
+          "type": "string",
+          "description": "Base Unit - default unit for pack"
+        },
+        "bv": {
+          "type": "number",
+          "description": "Base Value - added to all values"
+        },
+        "bs": {
+          "type": "number",
+          "description": "Base Sum - added to all sum values"
+        },
+        "bver": {
+          "type": "integer",
+          "description": "Base Version - SenML version (default 10)"
+        },
+        "n": {
+          "type": "string",
+          "description": "Name - sensor/measurement identifier"
+        },
+        "u": {
+          "type": "string",
+          "description": "Unit - SenML unit symbol"
+        },
+        "v": {
+          "type": "number",
+          "description": "Value - numeric measurement"
+        },
+        "vs": {
+          "type": "string",
+          "description": "String Value - for text data"
+        },
+        "vb": {
+          "type": "boolean",
+          "description": "Boolean Value - for binary states"
+        },
+        "vd": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "description": "Data Value - base64 encoded binary"
+        },
+        "s": {
+          "type": "number",
+          "description": "Sum - integrated value"
+        },
+        "t": {
+          "type": "number",
+          "description": "Time - seconds since epoch or relative"
+        },
+        "ut": {
+          "type": "number",
+          "description": "Update Time - max seconds between updates"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    [
+      {"n": "temperature", "v": 23.45, "u": "Cel"},
+      {"n": "humidity", "v": 65.0, "u": "%RH"},
+      {"n": "battery", "v": 3.3, "u": "V"}
+    ]
+  ]
+}

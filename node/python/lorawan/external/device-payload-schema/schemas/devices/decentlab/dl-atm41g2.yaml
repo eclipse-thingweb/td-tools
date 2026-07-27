@@ -1,0 +1,88 @@
+# https://www.decentlab.com/products/eleven-parameter-weather-station-for-lorawan
+name: decentlab_dl_atm41g2
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: solar_radiation
+              type: s16
+              div: 10
+              unit: "W⋅m⁻²"
+            - name: precipitation
+              type: u16
+              div: 1000
+              unit: "mm"
+            - name: lightning_strike_count
+              type: u16
+              add: -32768
+              unit: "None"
+            - name: lightning_average_distance
+              type: u16
+              add: -32768
+              unit: "km"
+            - name: wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+            - name: wind_direction
+              type: s16
+              div: 10
+              unit: "°"
+            - name: maximum_wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+            - name: air_temperature
+              type: s16
+              div: 10
+              unit: "°C"
+            - name: vapor_pressure
+              type: s16
+              div: 100
+              unit: "kPa"
+            - name: barometric_pressure
+              type: s16
+              div: 100
+              unit: "kPa"
+            - name: relative_humidity
+              type: s16
+              div: 10
+              unit: "%"
+            - name: internal_temperature
+              type: s16
+              div: 10
+              unit: "°C"
+            - name: tilt_angle_x_orientation
+              type: s16
+              div: 10
+              unit: "°"
+            - name: tilt_angle_y_orientation
+              type: s16
+              div: 10
+              unit: "°"
+            - name: precipitation_electrical_conductivity
+              type: u16
+              add: -32768
+              unit: "µS⋅cm⁻¹"
+            - name: cumulative_precipitation
+              type: u16
+              unit: "mm"
+              # formula: (x[15] + x[16] * 65536) / 1000
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

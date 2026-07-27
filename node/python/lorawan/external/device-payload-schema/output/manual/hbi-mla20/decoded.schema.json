@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/hbi_mla20",
+  "title": "hbi_mla20 Decoded Output",
+  "description": "JSON Schema for validating decoded output from hbi_mla20 sensor",
+  "type": "object",
+  "properties": {
+    "version_major": {
+      "type": "number"
+    },
+    "version_minor": {
+      "type": "number"
+    },
+    "version_patch": {
+      "type": "number"
+    },
+    "charger_status": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "radar_switch": {
+      "type": "number"
+    },
+    "daylight_switch": {
+      "type": "number"
+    },
+    "emergency_switch": {
+      "type": "number"
+    },
+    "intensity_switch": {
+      "type": "number"
+    },
+    "l2": {
+      "type": "number"
+    },
+    "l1": {
+      "type": "number"
+    },
+    "led_intensity": {
+      "type": "number"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "board_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "days_since_function_test": {
+      "type": "number"
+    },
+    "days_since_duration_test": {
+      "type": "number"
+    },
+    "latest_duration_test": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

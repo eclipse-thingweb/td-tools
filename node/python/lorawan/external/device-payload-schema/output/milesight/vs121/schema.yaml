@@ -1,0 +1,23 @@
+# Milesight IoT VS121
+name: milesight_vs121
+version: 1
+endian: big
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # PEOPLE COUNTER
+        "[4, 201]":
+          - name: people_counter_all
+            type: u8
+          - name: region_count
+            type: u8
+          - name: regions
+            type: u8
+            # raw: []

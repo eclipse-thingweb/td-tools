@@ -1,0 +1,129 @@
+# Utility Meter Commands
+# Category ID: 0x01
+# 
+# Commands for utility metering devices (electric, water, gas).
+# Uses 2-byte addressing: [Category:0x01][CID]
+
+category_id: 0x01
+category: utility_meter
+
+definitions:
+
+  set_tariff_req:
+    name: SetTariffReq
+    cid: 0x00
+    direction: downlink
+    description: "Set active tariff for meter"
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: tariff_id
+        type: u8
+        description: "Tariff identifier (0-255)"
+
+  set_tariff_ans:
+    name: SetTariffAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid tariff"
+
+  reset_counter_req:
+    name: ResetCounterReq
+    cid: 0x01
+    direction: downlink
+    description: "Reset meter counter/register"
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: register_id
+        type: u8
+        description: "Register to reset (0xFF=all resettable)"
+
+  reset_counter_ans:
+    name: ResetCounterAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid register, 2=not resettable"
+
+  set_ct_ratio_req:
+    name: SetCTRatioReq
+    cid: 0x02
+    direction: downlink
+    description: "Set current transformer ratio for power meter"
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: ct_ratio
+        type: u16
+        description: "CT ratio (e.g., 100 for 100:1)"
+        valid_range: [1, 10000]
+
+  set_ct_ratio_ans:
+    name: SetCTRatioAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x01
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid ratio"
+
+test_vectors:
+  - name: set_tariff
+    command: set_tariff_req
+    payload: "01 00 02"
+    expected:
+      category: 1
+      cid: 0
+      tariff_id: 2
+
+  - name: reset_all_counters
+    command: reset_counter_req
+    payload: "01 01 FF"
+    expected:
+      category: 1
+      cid: 1
+      register_id: 255
+
+  - name: set_ct_100_1
+    command: set_ct_ratio_req
+    payload: "01 02 0064"
+    expected:
+      category: 1
+      cid: 2
+      ct_ratio: 100

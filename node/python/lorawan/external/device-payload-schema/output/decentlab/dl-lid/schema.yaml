@@ -1,0 +1,57 @@
+# https://www.decentlab.com/products/laser-distance-level-sensor-for-lorawan
+name: decentlab_dl_lid
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: distance_average
+              type: u16
+              unit: "mm"
+            - name: distance_minimum
+              type: u16
+              unit: "mm"
+            - name: distance_maximum
+              type: u16
+              unit: "mm"
+            - name: distance_median
+              type: u16
+              unit: "mm"
+            - name: distance_10th_percentile
+              type: u16
+              unit: "mm"
+            - name: distance_25th_percentile
+              type: u16
+              unit: "mm"
+            - name: distance_75th_percentile
+              type: u16
+              unit: "mm"
+            - name: distance_90th_percentile
+              type: u16
+              unit: "mm"
+            - name: distance_most_frequent_value
+              type: u16
+              unit: "mm"
+            - name: number_of_samples
+              type: u16
+            - name: total_acquisition_time
+              type: u16
+              div: 1.024
+              unit: "ms"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

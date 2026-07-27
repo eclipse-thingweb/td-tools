@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_wrm",
+  "title": "decentlab_dl_wrm Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_wrm sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "air_humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "surface_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "head_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,18 @@
+# Makerfabs Pipe Pressure Sensor
+name: makerfabs_pipe_pressure
+version: 1
+endian: big
+
+fields:
+  - name: num
+    type: u16
+  - name: battery
+    type: u8
+    div: 10
+    unit: "V"
+  - name: volt_pressure
+    type: u16
+    div: 1000
+    unit: "V"
+  # Pipe_Pressure = (volt_pressure - 0.483) * 250 KPa
+  # Sensor-specific formula, depends on transducer calibration

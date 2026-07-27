@@ -1,0 +1,16 @@
+version: v1
+managed:
+  enabled: true
+  go_package_prefix:
+    default: github.com/lorawan-schema/payload-codec/gen/go
+plugins:
+  - plugin: go
+    out: gen/go
+    opt:
+      - paths=source_relative
+  - plugin: python
+    out: gen/python
+  - plugin: js
+    out: gen/typescript
+    opt:
+      - import_style=commonjs

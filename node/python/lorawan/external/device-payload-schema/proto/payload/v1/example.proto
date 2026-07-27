@@ -1,0 +1,42 @@
+// Example Protocol Buffer schema for LoRaWAN specification
+// Place your .proto files in this directory
+
+syntax = "proto3";
+
+package lorawan.example;
+
+option go_package = "github.com/lorawan-schema/payload-codec/example";
+
+// Example message demonstrating schema documentation
+// These comments are extracted into the specification document
+message ExampleMessage {
+  // Unique identifier for the message
+  uint64 id = 1;
+  
+  // Message payload (application data)
+  bytes payload = 2;
+  
+  // Timestamp when the message was created (Unix epoch seconds)
+  uint64 timestamp = 3;
+  
+  // Message type indicator
+  MessageType type = 4;
+}
+
+// Enumeration of message types
+enum MessageType {
+  // Default/unknown type
+  MESSAGE_TYPE_UNSPECIFIED = 0;
+  
+  // Uplink message from device to network
+  MESSAGE_TYPE_UPLINK = 1;
+  
+  // Downlink message from network to device
+  MESSAGE_TYPE_DOWNLINK = 2;
+  
+  // Join request message
+  MESSAGE_TYPE_JOIN_REQUEST = 3;
+  
+  // Join accept message
+  MESSAGE_TYPE_JOIN_ACCEPT = 4;
+}

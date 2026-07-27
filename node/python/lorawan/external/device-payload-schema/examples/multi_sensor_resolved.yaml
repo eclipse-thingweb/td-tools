@@ -1,0 +1,77 @@
+name: multi_temp_sensor
+version: 1
+endian: big
+description: Device with indoor and outdoor temperature sensors
+fields:
+- name: msg_type
+  type: u8
+  var: msg_type
+- name: indoor_temp
+  type: s16
+  div: 10
+  unit: °C
+  ipso:
+    object: 3303
+    resource: 5700
+  senml:
+    unit: Cel
+- name: outdoor_temp
+  type: s16
+  div: 10
+  unit: °C
+  ipso:
+    object: 3303
+    resource: 5700
+  senml:
+    unit: Cel
+- name: indoor_humidity
+  type: u8
+  mult: 0.5
+  unit: '%'
+  ipso:
+    object: 3304
+    resource: 5700
+  senml:
+    unit: '%RH'
+- name: outdoor_humidity
+  type: u8
+  mult: 0.5
+  unit: '%'
+  ipso:
+    object: 3304
+    resource: 5700
+  senml:
+    unit: '%RH'
+- name: battery_mv
+  type: u16
+  unit: mV
+  ipso:
+    object: 3316
+    resource: 5700
+  senml:
+    unit: mV
+- name: battery_percent
+  type: number
+  ref: $battery_mv
+  transform:
+  - add: -2000
+  - div: 12
+  - clamp:
+    - 0
+    - 100
+  unit: '%'
+  ipso:
+    object: 3316
+    resource: 5700
+test_vectors:
+- name: normal_reading
+  description: Indoor warm, outdoor cold
+  payload: 01 00E7 FF9C 32 46 0BB8
+  expected:
+    msg_type: 1
+    indoor_temp: 23.1
+    outdoor_temp: -10.0
+    indoor_humidity: 25.0
+    outdoor_humidity: 35.0
+    battery_mv: 3000
+    battery_percent: 83.33333333333334

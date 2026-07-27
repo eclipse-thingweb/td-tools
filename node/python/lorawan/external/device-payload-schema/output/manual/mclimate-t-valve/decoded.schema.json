@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/mclimate_t_valve",
+  "title": "mclimate_t_valve Decoded Output",
+  "description": "JSON Schema for validating decoded output from mclimate_t_valve sensor",
+  "type": "object",
+  "properties": {
+    "reason": {
+      "enum": {
+        "0": "keepalive",
+        "1": "testButtonPressed",
+        "2": "floodDetected",
+        "3": "controlButtonPressed",
+        "4": "fraudDetected"
+      }
+    },
+    "boxTamper": {
+      "type": "number"
+    },
+    "floodDetectionWireState": {
+      "type": "number"
+    },
+    "flood": {
+      "type": "number"
+    },
+    "magnet": {
+      "type": "number"
+    },
+    "alarmValidated": {
+      "type": "number"
+    },
+    "manualOpenIndicator": {
+      "type": "number"
+    },
+    "manualCloseIndicator": {
+      "type": "number"
+    },
+    "closeTime": {
+      "type": "number"
+    },
+    "openTime": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/output/ttn/v1",
+  "title": "TTN Normalized Output Format",
+  "description": "The Things Network v3 payload format with normalized_payload",
+  "type": "object",
+  "properties": {
+    "decoded_payload": {
+      "type": "object",
+      "description": "Raw decoded values (flat dictionary)",
+      "additionalProperties": {
+        "type": ["number", "string", "boolean", "integer", "null"]
+      }
+    },
+    "normalized_payload": {
+      "type": "array",
+      "description": "Array of normalized measurements",
+      "items": {
+        "$ref": "#/definitions/normalizedItem"
+      }
+    }
+  },
+  "required": ["decoded_payload", "normalized_payload"],
+  "definitions": {
+    "normalizedItem": {
+      "type": "object",
+      "description": "A single normalized measurement or metadata",
+      "properties": {
+        "measurement": {
+          "$ref": "#/definitions/measurementObject"
+        },
+        "air": {
+          "$ref": "#/definitions/measurementObject",
+          "description": "Air quality measurements"
+        },
+        "wind": {
+          "$ref": "#/definitions/measurementObject",
+          "description": "Wind measurements"
+        },
+        "soil": {
+          "$ref": "#/definitions/measurementObject",
+          "description": "Soil measurements"
+        },
+        "water": {
+          "$ref": "#/definitions/measurementObject",
+          "description": "Water measurements"
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 1
+    },
+    "measurementObject": {
+      "type": "object",
+      "description": "Object containing one or more measurement fields",
+      "additionalProperties": {
+        "$ref": "#/definitions/measurementValue"
+      }
+    },
+    "measurementValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": ["number", "string", "boolean", "integer"],
+          "description": "Measurement value"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit"
+        }
+      },
+      "required": ["value"]
+    }
+  },
+  "examples": [
+    {
+      "decoded_payload": {
+        "temperature": 23.45,
+        "humidity": 65.0,
+        "battery": 3.3
+      },
+      "normalized_payload": [
+        {
+          "measurement": {
+            "temperature": {"value": 23.45, "unit": "°C"}
+          }
+        },
+        {
+          "measurement": {
+            "humidity": {"value": 65.0, "unit": "%RH"}
+          }
+        },
+        {
+          "measurement": {
+            "battery": {"value": 3.3, "unit": "V"}
+          }
+        }
+      ]
+    }
+  ]
+}

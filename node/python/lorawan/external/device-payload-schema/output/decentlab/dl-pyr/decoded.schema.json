@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_pyr",
+  "title": "decentlab_dl_pyr Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_pyr sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "total_solar_radiation": {
+      "type": "number",
+      "description": "Unit: W\u22c5m\u207b\u00b2"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

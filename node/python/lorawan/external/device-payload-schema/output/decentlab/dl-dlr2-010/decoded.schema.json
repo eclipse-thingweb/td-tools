@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_dlr2_010",
+  "title": "decentlab_dl_dlr2_010 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_dlr2_010 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "ch0_pulse_count": {
+      "type": "number"
+    },
+    "ch0_pulse_interval": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "ch0_cumulative_pulse_count": {
+      "type": "number"
+    },
+    "ch1_pulse_count": {
+      "type": "number"
+    },
+    "ch1_pulse_interval": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "ch1_cumulative_pulse_count": {
+      "type": "number"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

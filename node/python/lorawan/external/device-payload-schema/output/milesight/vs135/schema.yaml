@@ -1,0 +1,67 @@
+# Milesight IoT VS133 / VS135
+name: milesight_vs135
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 31]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 4))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # REGION COUNT
+        "[15, 227]":
+          - name: region_1_count
+            type: u8
+            # raw: readUInt8(bytes[i])
+          - name: region_2_count
+            type: u8
+            # raw: readUInt8(bytes[i + 1])
+          - name: region_3_count
+            type: u8
+            # raw: readUInt8(bytes[i + 2])
+          - name: region_4_count
+            type: u8
+            # raw: readUInt8(bytes[i + 3])
+        # REGION COUNT (child)
+        "[29, 227]":
+          - name: region_1_child_count
+            type: u8
+            # raw: readUInt8(bytes[i])
+          - name: region_2_child_count
+            type: u8
+            # raw: readUInt8(bytes[i + 1])
+          - name: region_3_child_count
+            type: u8
+            # raw: readUInt8(bytes[i + 2])
+          - name: region_4_child_count
+            type: u8
+            # raw: readUInt8(bytes[i + 3])
+        # HISTORY (v1.0.9)
+        "[32, 206]":
+          - name: history
+            type: u8
+            # raw: decoded.history || []

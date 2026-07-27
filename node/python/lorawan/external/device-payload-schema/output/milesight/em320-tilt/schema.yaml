@@ -1,0 +1,38 @@
+# Milesight IoT EM320-TILT
+name: milesight_em320_tilt
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # ANGLE
+        "[3, 212]":
+          - name: angle_x
+            type: s16
+            div: 100
+          - name: angle_y
+            type: s16
+            div: 100
+          - name: angle_z
+            type: s16
+            div: 100
+          - name: threshold_x
+            type: u8
+            # raw: (bytes[i] & 0x01) === 0x01 ? "trigger" : "normal"
+          - name: threshold_y
+            type: u8
+            # raw: (bytes[i + 2] & 0x01) === 0x01 ? "trigger" : "normal"
+          - name: threshold_z
+            type: u8
+            # raw: (bytes[i + 4] & 0x01) === 0x01 ? "trigger" : "normal"

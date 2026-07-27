@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/makerfabs_pipe_pressure",
+  "title": "makerfabs_pipe_pressure Decoded Output",
+  "description": "JSON Schema for validating decoded output from makerfabs_pipe_pressure sensor",
+  "type": "object",
+  "properties": {
+    "num": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "volt_pressure": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

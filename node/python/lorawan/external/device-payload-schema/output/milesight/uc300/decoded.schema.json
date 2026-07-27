@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_uc300",
+  "title": "milesight_uc300 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_uc300 sensor",
+  "type": "object",
+  "properties": {
+    "digital_input_1": {
+      "type": "number"
+    },
+    "digital_input_2": {
+      "type": "number"
+    },
+    "digital_input_3": {
+      "type": "number"
+    },
+    "digital_input_4": {
+      "type": "number"
+    },
+    "digital_output_1": {
+      "type": "number"
+    },
+    "digital_output_2": {
+      "type": "number"
+    },
+    "pulse_count_1": {
+      "type": "number"
+    },
+    "pulse_count_2": {
+      "type": "number"
+    },
+    "pulse_count_3": {
+      "type": "number"
+    },
+    "pulse_count_4": {
+      "type": "number"
+    },
+    "pt100_1": {
+      "type": "number"
+    },
+    "pt100_2": {
+      "type": "number"
+    },
+    "analog_input_adc_1": {
+      "type": "number"
+    },
+    "analog_input_adc_2": {
+      "type": "number"
+    },
+    "analog_input_adv_1": {
+      "type": "number"
+    },
+    "analog_input_adv_2": {
+      "type": "number"
+    },
+    "modbus_channels": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

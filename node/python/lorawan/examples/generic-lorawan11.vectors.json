@@ -1,0 +1,22 @@
+{
+  "td": "generic-lorawan11.td.json",
+  "description": "Fixed-layout uplinks for the generic LoRaWAN 1.1 example.",
+  "vectors": [
+    {
+      "name": "nominal_reading",
+      "payload": "5500EB",
+      "expected": {
+        "battery": 85,
+        "temperature": 23.5
+      }
+    },
+    {
+      "name": "negative_temperature",
+      "payload": "14FFCE",
+      "expected": {
+        "battery": 20,
+        "temperature": -5.0
+      }
+    }
+  ]
+}

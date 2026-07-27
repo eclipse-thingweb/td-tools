@@ -1,0 +1,189 @@
+# GPS/Tracker Commands
+# Category ID: 0x02
+# 
+# Commands for GPS tracking and geofencing devices.
+# Uses 2-byte addressing: [Category:0x02][CID]
+
+category_id: 0x02
+category: gps_tracker
+
+definitions:
+
+  set_geofence_req:
+    name: SetGeofenceReq
+    cid: 0x00
+    direction: downlink
+    description: "Set geofence center and radius"
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: fence_id
+        type: u8
+        description: "Geofence identifier (0-15)"
+      - name: latitude
+        type: s32
+        div: 10000000
+        unit: "degrees"
+        description: "Latitude in degrees (7 decimal places)"
+      - name: longitude
+        type: s32
+        div: 10000000
+        unit: "degrees"
+        description: "Longitude in degrees (7 decimal places)"
+      - name: radius
+        type: u16
+        unit: "meters"
+        description: "Geofence radius in meters"
+
+  set_geofence_ans:
+    name: SetGeofenceAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid params, 2=too many fences"
+
+  clear_geofence_req:
+    name: ClearGeofenceReq
+    cid: 0x01
+    direction: downlink
+    description: "Clear geofence"
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: fence_id
+        type: u8
+        description: "Geofence to clear (0xFF=all)"
+
+  clear_geofence_ans:
+    name: ClearGeofenceAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid fence_id"
+
+  set_motion_mode_req:
+    name: SetMotionModeReq
+    cid: 0x02
+    direction: downlink
+    description: "Configure motion-based behavior"
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: mode
+        type: u8
+        description: "0=continuous, 1=motion-triggered, 2=stationary-optimized"
+      - name: motion_threshold
+        type: u8
+        description: "Motion detection sensitivity (device-specific)"
+
+  set_motion_mode_ans:
+    name: SetMotionModeAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid mode"
+
+  request_position_req:
+    name: RequestPositionReq
+    cid: 0x03
+    direction: downlink
+    description: "Force immediate GPS fix"
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: timeout_sec
+        type: u8
+        description: "Max time to wait for fix (0=device default)"
+
+  request_position_ans:
+    name: RequestPositionAns
+    cid: 0x03
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x02
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status
+        type: u8
+        description: "0=fix acquired, 1=no fix, 2=timeout"
+      - name: latitude
+        type: s32
+        div: 10000000
+        unit: "degrees"
+        description: "Latitude (only if status=0)"
+      - name: longitude
+        type: s32
+        div: 10000000
+        unit: "degrees"
+        description: "Longitude (only if status=0)"
+
+test_vectors:
+  - name: set_geofence
+    command: set_geofence_req
+    payload: "02 00 00 030A7A80 FF38E700 03E8"
+    expected:
+      category: 2
+      cid: 0
+      fence_id: 0
+      latitude: 51.0
+      longitude: -0.12
+      radius: 1000
+
+  - name: clear_all_geofences
+    command: clear_geofence_req
+    payload: "02 01 FF"
+    expected:
+      category: 2
+      cid: 1
+      fence_id: 255
+
+  - name: request_position
+    command: request_position_req
+    payload: "02 03 3C"
+    expected:
+      category: 2
+      cid: 3
+      timeout_sec: 60

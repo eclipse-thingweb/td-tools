@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ws101",
+  "title": "milesight_ws101 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ws101 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "button": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

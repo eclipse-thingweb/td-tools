@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_isd",
+  "title": "decentlab_dl_isd Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_isd sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "stem_size": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

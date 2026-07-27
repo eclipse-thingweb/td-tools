@@ -1,0 +1,20 @@
+# Makerfabs ATH20 Temperature & Humidity
+name: makerfabs_ath20
+version: 1
+endian: big
+
+fields:
+  - name: _num
+    type: u16
+  - name: battery
+    type: u8
+    div: 10
+    unit: "V"
+  - name: humidity
+    type: u16
+    div: 10
+    unit: "%"
+  - name: temperature
+    type: s16
+    div: 10
+    unit: "°C"

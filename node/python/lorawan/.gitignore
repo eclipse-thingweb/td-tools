@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.python-version
+
+# uv / virtualenv
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Editor
+.vscode/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Temporary local scratch scripts
+/_tmp_*.py
+
+# Generated codec artifacts (reproducible via `lorawan-wot convert` / generators)
+examples/generated/
+examples/devices/

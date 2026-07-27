@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_mbx",
+  "title": "decentlab_dl_mbx Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_mbx sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "distance": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "number_of_valid_samples": {
+      "type": "number"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

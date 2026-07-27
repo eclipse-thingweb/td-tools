@@ -1,0 +1,45 @@
+# RadioNode RN320BTH Temperature/Humidity Sensor
+# Two message types: check-in (head=11) and sensor data (head=12/13)
+name: radionode_rn320bth
+version: 1
+endian: little
+
+fields:
+  - name: head
+    type: u8
+    var: head
+  - name: model
+    type: u8
+  - match:
+      field: $head
+      cases:
+        11:
+          # Check-in frame
+          - name: timestamp
+            type: u32
+          - name: interval
+            type: u16
+          - name: battery
+            type: u8
+            unit: "%"
+          - name: millivolt
+            type: u16
+            unit: "mV"
+          - name: freqband
+            type: u8
+          - name: subband
+            type: u8
+        12:
+          # Sensor data frame
+          - name: tsmode
+            type: u8
+          - name: timestamp
+            type: u32
+          - name: splfmt
+            type: u8
+          - name: temperature
+            type: f32
+            unit: "°C"
+          - name: humidity
+            type: f32
+            unit: "%RH"

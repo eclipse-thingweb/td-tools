@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_em400_udl",
+  "title": "milesight_em400_udl Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_em400_udl sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "distance": {
+      "type": "number"
+    },
+    "position": {
+      "type": "number"
+    },
+    "temperature_abnormal": {
+      "type": "number"
+    },
+    "distance_alarming": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

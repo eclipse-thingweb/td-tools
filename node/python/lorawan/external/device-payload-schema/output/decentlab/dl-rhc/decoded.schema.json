@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_rhc",
+  "title": "decentlab_dl_rhc Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_rhc sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "sensor_id": {
+      "type": "number"
+    },
+    "air_humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

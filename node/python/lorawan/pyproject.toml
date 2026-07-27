@@ -1,0 +1,48 @@
+[project]
+name = "lorawan-wot"
+version = "0.1.0"
+description = "Convert W3C WoT Thing Descriptions with LoRaWAN payload bindings into LoRa-Alliance payload schemas and decode device uplinks."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Haoyu Ren" }]
+maintainers = [{ name = "lorawan-wot contributors" }]
+keywords = ["web of things", "lorawan", "thing description", "wot", "payload binding"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+license = { text = "MIT" }
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.0",
+]
+
+[project.scripts]
+lorawan-wot = "lorawan_wot.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.28,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# The MultiTech upstream code lives in a submodule; do not lint vendored code.
+extend-exclude = ["external"]
+
+[tool.ruff.lint]
+# Common best-practice rule sets: pyflakes, pycodestyle, isort, bugbear,
+# comprehensions, pyupgrade, and naming.
+select = ["E", "F", "I", "B", "C4", "UP", "N", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.urls]
+Source = "https://github.com/eclipse-thingweb/td-tools/tree/main/node/python/lorawan"

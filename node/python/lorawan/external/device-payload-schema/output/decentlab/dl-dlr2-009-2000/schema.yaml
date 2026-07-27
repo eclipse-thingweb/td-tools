@@ -1,0 +1,32 @@
+# https://www.decentlab.com/products/analog-or-digital-sensor-device-for-lorawan
+name: decentlab_dl_dlr2_009_2000
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: thermistor_resistance
+              type: u16
+              unit: "Ω"
+              # formula: ((x[0] + x[1]*65536) / 8388608 - 1) * 2000 / (1 - ((x[0] + x[1]*65536) / 8388608 - 1))
+            - name: temperature
+              type: u16
+              unit: "°C"
+              # formula: -245.18 + 0.23469 * (((x[0] + x[1]*65536) / 8388608 - 1) * 2000 / (1 - ((x[0] + x[1]*65536) / 8388608 - 1))) + 0.0000104876 * Math.pow(((x[0] + x[1]*65536) / 8388608 - 1) * 2000 / (1 - ((x[0] + x[1]*65536) / 8388608 - 1)), 2)
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

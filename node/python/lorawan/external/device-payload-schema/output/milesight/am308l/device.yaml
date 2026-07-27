@@ -1,0 +1,25 @@
+name: Milesight Am308L
+description: Milesight Milesight Am308L sensor
+hardwareVersions:
+- version: '1'
+  numeric: 1
+firmwareVersions:
+- version: 1.0.0
+  numeric: 100
+  hardwareVersions:
+  - '1'
+  profiles:
+    EU863-870:
+      id: profile-eu868
+      codec: am308l-codec
+    US902-928:
+      id: profile-us915
+      codec: am308l-codec
+    AS923:
+      id: profile-as923
+      codec: am308l-codec
+    AU915-928:
+      id: profile-au915
+      codec: am308l-codec
+sensors:
+- sensor

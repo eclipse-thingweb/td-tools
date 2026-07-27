@@ -1,0 +1,509 @@
+# Radio Bridge RBS30x Series LoRaWAN Payload Decoder
+# Source: radio_bridge_packet_decoder.js v1.4 from
+#   https://github.com/TheThingsNetwork/lorawan-devices/blob/master/vendor/radio-bridge/radio_bridge_packet_decoder.js
+# Covers: RBS301, RBS304, RBS305, RBS306 series (except VSHB & CMPS)
+# Protocol: big-endian, fPort 2, max 11 bytes uplink
+
+name: radio_bridge_rbs30x
+version: 1
+endian: big
+
+fields:
+  - byte_group:
+      size: 1
+      fields:
+        - name: protocol_version
+          type: u8[4:7]
+        - name: packet_counter
+          type: u8[0:3]
+
+  - name: event_type
+    type: u8
+    var: evt
+
+  - match:
+      field: $evt
+      cases:
+        # RESET (0x00)
+        0x00:
+          - name: device_type
+            type: u8
+            lookup:
+              0x01: "Door/Window Sensor"
+              0x02: "Door/Window High Security"
+              0x03: "Contact Sensor"
+              0x04: "No-Probe Temperature Sensor"
+              0x05: "External-Probe Temperature Sensor"
+              0x06: "Single Push Button"
+              0x07: "Dual Push Button"
+              0x08: "Acceleration-Based Movement Sensor"
+              0x09: "Tilt Sensor"
+              0x0A: "Water Sensor"
+              0x0B: "Tank Level Float Sensor"
+              0x0C: "Glass Break Sensor"
+              0x0D: "Ambient Light Sensor"
+              0x0E: "Air Temperature and Humidity Sensor"
+              0x0F: "High-Precision Tilt Sensor"
+              0x10: "Ultrasonic Level Sensor"
+              0x11: "4-20mA Current Loop Sensor"
+              0x12: "Ext-Probe Air Temp and Humidity Sensor"
+              0x13: "Thermocouple Temperature Sensor"
+              0x14: "Voltage Sensor"
+              0x19: "Internal-Probe Temperature Sensor"
+              0x1A: "Vibration Sensor - High Frequency"
+          - name: hardware_version
+            type: u8
+            description: "BCD: upper nibble = major, lower = minor"
+          - name: firmware_msb
+            type: u8
+          - name: firmware_lsb
+            type: u8
+
+        # SUPERVISORY (0x01)
+        # error_flags bits: [4]=tamper_since_reset [3]=tamper_state
+        #   [2]=error_last_downlink [1]=battery_low [0]=radio_comm_error
+        0x01:
+          - name: error_flags
+            type: u8
+          - name: sensor_state
+            type: u8
+          - name: battery_voltage
+            type: u8
+            description: "BCD: upper nibble.lower nibble volts"
+          - name: _reserved
+            type: skip
+            length: 4
+          - name: accumulation_count
+            type: u16
+
+        # TAMPER (0x02)
+        0x02:
+          - name: tamper_state
+            type: u8
+            lookup:
+              0: "Open"
+              1: "Closed"
+
+        # DOOR/WINDOW (0x03)
+        0x03:
+          - name: door_window_state
+            type: u8
+            lookup:
+              0: "Closed"
+              1: "Open"
+
+        # PUSH BUTTON (0x06)
+        0x06:
+          - name: button_id
+            type: u8
+            lookup:
+              0x01: "Button 1"
+              0x02: "Button 2"
+              0x03: "Button"
+              0x12: "Both Buttons"
+          - name: button_state
+            type: u8
+            lookup:
+              0: "Pressed"
+              1: "Released"
+              2: "Held"
+
+        # CONTACT (0x07)
+        0x07:
+          - name: contact_state
+            type: u8
+            lookup:
+              0: "Contacts Shorted"
+              1: "Contacts Opened"
+
+        # WATER (0x08)
+        0x08:
+          - name: water_state
+            type: u8
+            lookup:
+              0: "Water Present"
+              1: "Water Not Present"
+          - name: water_relative
+            type: u8
+
+        # EXTERNAL TEMPERATURE (0x09)
+        0x09:
+          - name: temperature_event
+            type: u8
+          - name: temperature
+            type: s8
+            unit: "°C"
+          - name: raw_measurement
+            type: s8
+
+        # TILT (0x0A)
+        0x0A:
+          - name: tilt_event
+            type: u8
+            lookup:
+              0: "Transitioned to Vertical"
+              1: "Transitioned to Horizontal"
+              2: "Report-on-Change Toward Vertical"
+              3: "Report-on-Change Toward Horizontal"
+          - name: tilt_angle
+            type: u8
+            unit: "°"
+
+        # AIR TEMPERATURE & HUMIDITY (0x0D)
+        # Temperature: whole in byte[0], tenths in upper nibble of byte[1]
+        # Humidity: whole in byte[2], tenths in upper nibble of byte[3]
+        # Signed via mode 1: if whole > 127 then -(whole - 128 + frac)
+        0x0D:
+          - name: ath_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Temperature has Risen Above Upper Threshold"
+              2: "Temperature has Fallen Below Lower Threshold"
+              3: "Temperature Report-on-Change Increase"
+              4: "Temperature Report-on-Change Decrease"
+              5: "Humidity has Risen Above Upper Threshold"
+              6: "Humidity has Fallen Below Lower Threshold"
+              7: "Humidity Report-on-Change Increase"
+              8: "Humidity Report-on-Change Decrease"
+          - name: temp_whole
+            type: u8
+          - name: temp_frac
+            type: u8
+          - name: humidity_whole
+            type: u8
+          - name: humidity_frac
+            type: u8
+
+        # ABM - ACCELERATION MOVEMENT (0x0E)
+        0x0E:
+          - name: movement_state
+            type: u8
+            lookup:
+              0: "Movement Started"
+              1: "Movement Stopped"
+
+        # HIGH-PRECISION TILT (0x0F)
+        # Angle: whole in byte[0], tenths in upper nibble of byte[1]
+        0x0F:
+          - name: tilt_hp_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Transitioned Toward 0-Degree Vertical Orientation"
+              2: "Transitioned Away From 0-Degree Vertical Orientation"
+              3: "Report-on-Change Toward 0-Degree Vertical Orientation"
+              4: "Report-on-Change Away From 0-Degree Vertical Orientation"
+          - name: tilt_hp_angle_whole
+            type: u8
+          - name: tilt_hp_angle_frac
+            type: u8
+          - name: temperature
+            type: s8
+            unit: "°C"
+
+        # ULTRASONIC LEVEL (0x10)
+        0x10:
+          - name: ultrasonic_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Distance has Risen Above Upper Threshold"
+              2: "Distance has Fallen Below Lower Threshold"
+              3: "Report-on-Change Increase"
+              4: "Report-on-Change Decrease"
+          - name: distance
+            type: u16
+            unit: "mm"
+
+        # 4-20mA ANALOG (0x11)
+        0x11:
+          - name: current_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Analog Value has Risen Above Upper Threshold"
+              2: "Analog Value has Fallen Below Lower Threshold"
+              3: "Report on Change Increase"
+              4: "Report on Change Decrease"
+          - name: current_ma
+            type: u16
+            div: 100
+            unit: "mA"
+
+        # THERMOCOUPLE (0x13)
+        0x13:
+          - name: thermocouple_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Analog Value has Risen Above Upper Threshold"
+              2: "Analog Value has Fallen Below Lower Threshold"
+              3: "Report on Change Increase"
+              4: "Report on Change Decrease"
+          - name: thermocouple_temperature
+            type: s16
+            div: 16
+            unit: "°C"
+          # faults bits: [7]=cold_outside_range [6]=hot_outside_range
+          #   [5]=cold_above_thresh [4]=cold_below_thresh [3]=tc_too_high
+          #   [2]=tc_too_low [1]=voltage_outside_range [0]=open_circuit
+          - name: faults
+            type: u8
+
+        # VOLTMETER (0x14)
+        0x14:
+          - name: voltmeter_event
+            type: u8
+            lookup:
+              0: "Periodic Report"
+              1: "Voltage has Risen Above Upper Threshold"
+              2: "Voltage has Fallen Below Lower Threshold"
+              3: "Report on Change Increase"
+              4: "Report on Change Decrease"
+          - name: voltage
+            type: u16
+            div: 100
+            unit: "V"
+
+        # INTERNAL TEMPERATURE (0x19)
+        # Signed via mode 1: if whole > 127 then -(whole - 128 + frac)
+        0x19:
+          - name: temp_int_event
+            type: u8
+          - name: temp_int_whole
+            type: u8
+          - name: temp_int_frac
+            type: u8
+
+        # DEVICE INFO (0xFA)
+        # info_header bits: [7:4]=current_packet [3:0]=total_packets
+        0xFA:
+          - name: info_header
+            type: u8
+          - name: stored_downlink
+            type: bytes
+            length: -1
+
+        # LINK QUALITY (0xFB)
+        0xFB:
+          - name: subband
+            type: u8
+          - name: rssi
+            type: u8
+            add: -256
+            unit: "dBm"
+          - name: snr
+            type: u8
+            unit: "dB"
+
+        # DOWNLINK ACK (0xFF)
+        0xFF:
+          - name: downlink_ack
+            type: u8
+            lookup:
+              1: "Message Invalid"
+              2: "Message Valid"
+
+test_vectors:
+  - name: "Reset - ATH sensor"
+    payload: "10 00 0E 12 01 05"
+    expected:
+      protocol_version: 1
+      packet_counter: 0
+      event_type: 0
+      device_type: "Air Temperature and Humidity Sensor"
+      hardware_version: 0x12
+      firmware_msb: 1
+      firmware_lsb: 5
+
+  - name: "Reset - DWS sensor"
+    payload: "10 00 01 20 02 03"
+    expected:
+      protocol_version: 1
+      packet_counter: 0
+      event_type: 0
+      device_type: "Door/Window Sensor"
+      hardware_version: 0x20
+
+  - name: "Supervisory - battery 2.9V, no errors"
+    payload: "21 01 00 00 29 00 00 00 00 00 03"
+    expected:
+      protocol_version: 2
+      packet_counter: 1
+      event_type: 1
+      error_flags: 0
+      battery_voltage: 0x29
+      accumulation_count: 3
+
+  - name: "Supervisory - low battery + tamper"
+    payload: "32 01 1A 00 25 00 00 00 00 00 0A"
+    expected:
+      protocol_version: 3
+      packet_counter: 2
+      event_type: 1
+      error_flags: 0x1A
+      accumulation_count: 10
+
+  - name: "Tamper opened"
+    payload: "10 02 00"
+    expected:
+      event_type: 2
+      tamper_state: "Open"
+
+  - name: "Tamper closed"
+    payload: "10 02 01"
+    expected:
+      event_type: 2
+      tamper_state: "Closed"
+
+  - name: "Door open"
+    payload: "10 03 01"
+    expected:
+      event_type: 3
+      door_window_state: "Open"
+
+  - name: "Door closed"
+    payload: "10 03 00"
+    expected:
+      event_type: 3
+      door_window_state: "Closed"
+
+  - name: "Button 1 pressed"
+    payload: "10 06 01 00"
+    expected:
+      event_type: 6
+      button_id: "Button 1"
+      button_state: "Pressed"
+
+  - name: "Both buttons held"
+    payload: "10 06 12 02"
+    expected:
+      event_type: 6
+      button_id: 18
+      button_state: "Held"
+
+  - name: "Contact shorted"
+    payload: "10 07 00"
+    expected:
+      event_type: 7
+      contact_state: "Contacts Shorted"
+
+  - name: "Contact opened"
+    payload: "10 07 01"
+    expected:
+      event_type: 7
+      contact_state: "Contacts Opened"
+
+  - name: "Water detected, level=80"
+    payload: "30 08 00 50"
+    expected:
+      protocol_version: 3
+      event_type: 8
+      water_state: "Water Present"
+      water_relative: 80
+
+  - name: "External temp periodic 25C"
+    payload: "10 09 00 19 B4"
+    expected:
+      event_type: 9
+      temperature_event: 0
+      temperature: 25
+
+  - name: "External temp negative -5C"
+    payload: "10 09 00 FB 00"
+    expected:
+      event_type: 9
+      temperature: -5
+
+  - name: "Tilt to horizontal 55deg"
+    payload: "10 0A 01 37"
+    expected:
+      event_type: 10
+      tilt_event: "Transitioned to Horizontal"
+      tilt_angle: 55
+
+  - name: "ATH periodic - raw bytes"
+    payload: "10 0D 00 16 30 2D 00"
+    expected:
+      event_type: 13
+      ath_event: "Periodic Report"
+      temp_whole: 22
+      temp_frac: 48
+      humidity_whole: 45
+      humidity_frac: 0
+
+  - name: "ABM movement started"
+    payload: "10 0E 00"
+    expected:
+      event_type: 14
+      movement_state: "Movement Started"
+
+  - name: "ABM movement stopped"
+    payload: "10 0E 01"
+    expected:
+      event_type: 14
+      movement_state: "Movement Stopped"
+
+  - name: "Ultrasonic periodic 1234mm"
+    payload: "10 10 00 04 D2"
+    expected:
+      event_type: 16
+      ultrasonic_event: "Periodic Report"
+      distance: 1234
+
+  - name: "4-20mA periodic 12.34mA"
+    payload: "10 11 00 04 D2"
+    expected:
+      event_type: 17
+      current_event: "Periodic Report"
+      current_ma: 12.34
+
+  - name: "Thermocouple periodic 112.0625C, no faults"
+    payload: "10 13 00 07 01 00"
+    expected:
+      event_type: 19
+      thermocouple_event: "Periodic Report"
+      thermocouple_temperature: 112.0625
+      faults: 0
+
+  - name: "Voltmeter periodic 12.34V"
+    payload: "10 14 00 04 D2"
+    expected:
+      event_type: 20
+      voltmeter_event: "Periodic Report"
+      voltage: 12.34
+
+  - name: "Internal temp periodic - raw bytes"
+    payload: "10 19 00 18 50"
+    expected:
+      event_type: 25
+      temp_int_event: 0
+      temp_int_whole: 24
+      temp_int_frac: 80
+
+  - name: "Link quality RSSI=-56 SNR=10"
+    payload: "10 FB 00 C8 0A"
+    expected:
+      event_type: 251
+      subband: 0
+      rssi: -56
+      snr: 10
+
+  - name: "Downlink ACK valid"
+    payload: "10 FF 02"
+    expected:
+      event_type: 255
+      downlink_ack: 2
+
+  - name: "Downlink ACK invalid"
+    payload: "10 FF 01"
+    expected:
+      event_type: 255
+      downlink_ack: "Message Invalid"
+
+  - name: "Device info packet"
+    payload: "10 FA 23 01 00 09"
+    expected:
+      event_type: 250
+      info_header: 0x23

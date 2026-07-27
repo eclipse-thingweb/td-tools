@@ -1,0 +1,79 @@
+# Digital I/O Sensor Library
+# Binary inputs, counters, pulse meters
+
+definitions:
+  # === DIGITAL INPUTS ===
+  
+  digital_input:
+    name: digital_input
+    type: bool
+    description: "Digital input state"
+    semantic:
+      ipso: 3200
+
+  gpio_state:
+    name: gpio
+    type: u8
+    description: "GPIO pin states as bitmask"
+
+  door_open:
+    name: door_open
+    type: bool
+    description: "Door/window open state"
+    semantic:
+      ipso: 3302
+
+  water_leak:
+    name: water_leak
+    type: bool
+    description: "Water leak detected"
+    semantic:
+      ipso: 3302
+
+  tamper:
+    name: tamper
+    type: bool
+    description: "Tamper switch activated"
+
+  # === COUNTERS ===
+  
+  pulse_count:
+    name: pulse_count
+    type: u32
+    description: "Cumulative pulse count"
+    semantic:
+      ipso: 3200
+
+  pulse_count_16:
+    name: pulse_count
+    type: u16
+    description: "Pulse count (16-bit)"
+
+  event_count:
+    name: event_count
+    type: u16
+    description: "Event counter"
+
+  # === ALARMS ===
+  
+  alarm:
+    name: alarm
+    type: bool
+    description: "Alarm state"
+    semantic:
+      ipso: 3200
+
+  temperature_alarm:
+    name: temperature_alarm
+    type: bool
+    description: "Temperature threshold alarm"
+
+  humidity_alarm:
+    name: humidity_alarm
+    type: bool
+    description: "Humidity threshold alarm"
+
+  low_battery_alarm:
+    name: low_battery_alarm
+    type: bool
+    description: "Low battery warning"

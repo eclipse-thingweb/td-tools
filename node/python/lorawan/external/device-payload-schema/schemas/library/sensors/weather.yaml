@@ -1,0 +1,136 @@
+# Weather Sensor Library
+# Wind, rain, solar radiation, atmospheric conditions
+
+definitions:
+  # === WIND ===
+  
+  wind_speed_ms:
+    name: wind_speed
+    type: u16
+    div: 100
+    unit: "m/s"
+    valid_range: [0, 100]
+    resolution: 0.01
+    unece: "MTS"
+    description: "Wind speed"
+    semantic:
+      ipso: 3314
+
+  wind_speed_kmh:
+    name: wind_speed
+    type: u16
+    div: 10
+    unit: "km/h"
+    valid_range: [0, 300]
+    resolution: 0.1
+    unece: "KMH"
+    description: "Wind speed"
+
+  wind_direction:
+    name: wind_direction
+    type: u16
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 1
+    description: "Wind direction (0=N, 90=E, 180=S, 270=W)"
+    semantic:
+      ipso: 3314
+
+  wind_gust_ms:
+    name: wind_gust
+    type: u16
+    div: 100
+    unit: "m/s"
+    valid_range: [0, 150]
+    resolution: 0.01
+    unece: "MTS"
+    description: "Wind gust speed"
+
+  # === PRECIPITATION ===
+  
+  rainfall_mm:
+    name: rainfall
+    type: u16
+    div: 10
+    unit: "mm"
+    valid_range: [0, 500]
+    resolution: 0.1
+    unece: "MMT"
+    description: "Rainfall amount"
+
+  cumulative_rainfall_mm:
+    name: cumulative_rainfall
+    type: u32
+    div: 10
+    unit: "mm"
+    valid_range: [0, 100000]
+    resolution: 0.1
+    unece: "MMT"
+    description: "Cumulative rainfall"
+
+  rain_rate_mmh:
+    name: rain_rate
+    type: u16
+    div: 10
+    unit: "mm/h"
+    valid_range: [0, 500]
+    resolution: 0.1
+    description: "Rainfall rate"
+
+  # === SOLAR RADIATION ===
+  
+  solar_radiation_wm2:
+    name: solar_radiation
+    type: u16
+    unit: "W/m²"
+    valid_range: [0, 1500]
+    resolution: 1
+    description: "Global solar radiation"
+    semantic:
+      ipso: 3301
+
+  par_umol:
+    name: par
+    type: u16
+    unit: "µmol/m²/s"
+    valid_range: [0, 3000]
+    resolution: 1
+    description: "Photosynthetically Active Radiation"
+
+  uv_index:
+    name: uv_index
+    type: u8
+    div: 10
+    valid_range: [0, 15]
+    resolution: 0.1
+    description: "UV index"
+
+  albedo:
+    name: albedo
+    type: u16
+    div: 1000
+    valid_range: [0, 1]
+    resolution: 0.001
+    description: "Surface albedo (reflectivity)"
+
+  # === DEW POINT ===
+  
+  dew_point_c:
+    name: dew_point
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-40, 60]
+    resolution: 0.1
+    unece: "CEL"
+    description: "Dew point temperature"
+
+  wet_bulb_c:
+    name: wet_bulb
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-40, 60]
+    resolution: 0.1
+    unece: "CEL"
+    description: "Wet bulb temperature"

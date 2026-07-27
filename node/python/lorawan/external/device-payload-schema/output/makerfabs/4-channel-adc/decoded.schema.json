@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/makerfabs_4ch_adc",
+  "title": "makerfabs_4ch_adc Decoded Output",
+  "description": "JSON Schema for validating decoded output from makerfabs_4ch_adc sensor",
+  "type": "object",
+  "properties": {
+    "num": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "adc1": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "adc2": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "adc3": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "adc4": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "differential": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "time_interval": {
+      "type": "number",
+      "description": "Unit: s"
+    }
+  },
+  "additionalProperties": true
+}

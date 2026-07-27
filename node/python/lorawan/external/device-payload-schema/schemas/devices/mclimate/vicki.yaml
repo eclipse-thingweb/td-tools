@@ -1,0 +1,507 @@
+# MClimate Vicki - Smart Radiator Thermostat
+# Full protocol support for 9-byte keepalive messages
+#
+# Message Structure:
+# - Pure keepalive (9 bytes): reason + 8 data bytes
+# - Command response: [cmd1][cmd2]...[cmdN] + 9-byte keepalive suffix
+#   (Command responses require separate schema or TLV parsing)
+#
+# NOTE: The original TTN codec has a bug where reason=0x51 (alternate temp formula)
+# never actually applies the formula. We replicate this bug for compatibility.
+# The intended formula for 0x51 was: (raw - 28.33) / 5.67
+
+name: mclimate_vicki
+version: 2
+endian: big
+description: MClimate Vicki Smart Radiator Thermostat
+
+fields:
+  - name: reason
+    type: u8
+
+  - name: targetTemperature
+    type: u8
+    unit: "°C"
+    ipso: 3308
+    senml: {unit: "Cel"}
+    semantic: "thermostat.setpoint"
+    valid_range: [5, 30]
+    description: "User-set target temperature"
+
+  - name: sensorTemperatureRaw
+    type: u8
+    description: "Raw temperature sensor value (before formula)"
+    ipso: 3303
+    senml: {unit: "Cel"}
+    semantic: "temperature.raw"
+
+  # Temperature formula depends on reason byte (firmware version):
+  # - 0x01: (raw * 165) / 256 - 40 = raw * 0.64453125 - 40  (standard)
+  # - 0x81: (raw - 28.33333) / 5.66666                       (firmware 3.5+)
+  # Per MClimate documentation: https://docs.mclimate.eu
+  
+  # Formula 1: Standard (reason != 129)
+  - name: _tempStandard
+    type: number
+    ref: $sensorTemperatureRaw
+    mult: 0.64453125
+    add: -40
+    guard:
+      when:
+        - field: $reason
+          ne: 129
+      else: 0
+
+  # Formula 2: Firmware 3.5+ (reason == 129 aka 0x81)
+  - name: _tempFw35
+    type: number
+    ref: $sensorTemperatureRaw
+    add: -28.33333
+    div: 5.66666
+    guard:
+      when:
+        - field: $reason
+          eq: 129
+      else: 0
+
+  # Combined: one will be 0, the other has the value
+  - name: sensorTemperature
+    type: number
+    compute:
+      op: add
+      a: $_tempStandard
+      b: $_tempFw35
+    transform:
+      - op: round
+        decimals: 2
+    unit: "°C"
+    ipso: 3303
+    senml: {unit: "Cel"}
+    semantic: "temperature.ambient"
+    valid_range: [-40, 85]
+
+  - name: relativeHumidityRaw
+    type: u8
+    description: "Raw humidity sensor value (before scaling)"
+    ipso: 3304
+    senml: {unit: "%RH"}
+    semantic: "humidity.raw"
+
+  # Humidity: (raw * 100) / 256 = raw * 0.390625
+  # Rounded to 2 decimal places to match original codec
+  - name: relativeHumidity
+    type: number
+    ref: $relativeHumidityRaw
+    mult: 0.390625
+    transform:
+      - op: round
+        decimals: 2
+    unit: "%"
+    ipso: 3304
+    senml: {unit: "%RH"}
+    semantic: "humidity.relative"
+    valid_range: [0, 100]
+
+  - name: motorPositionLow
+    type: u8
+
+  - name: motorRangeLow
+    type: u8
+
+  # Byte 6: shared nibbles
+  - byte_group:
+      size: 1
+      fields:
+        - name: motorPositionHigh
+          type: u8[4:7]
+        - name: motorRangeHigh
+          type: u8[0:3]
+
+  # Byte 7: Battery level and flags
+  - byte_group:
+      size: 1
+      fields:
+        - name: batteryLevel
+          type: u8[4:7]
+          description: "Battery level (0-15, maps to 2.0V-3.5V)"
+        - name: openWindow
+          type: u8[3:3]
+          description: "Open window detection flag"
+        - name: highMotorConsumption
+          type: u8[2:2]
+          description: "Motor consuming more power than expected"
+        - name: lowMotorConsumption
+          type: u8[1:1]
+          description: "Motor consuming less power than expected"
+        - name: brokenSensor
+          type: u8[0:0]
+          description: "Temperature sensor failure flag"
+
+  # Byte 8: Status flags
+  - byte_group:
+      size: 1
+      fields:
+        - name: childLock
+          type: u8[7:7]
+          description: "Child lock enabled"
+        - name: calibrationFailed
+          type: u8[6:6]
+          description: "Valve calibration failed"
+        - name: attachedBackplate
+          type: u8[5:5]
+          description: "Device attached to backplate"
+        - name: perceiveAsOnline
+          type: u8[4:4]
+          description: "Device perceives itself as online"
+        - name: antiFreezeProtection
+          type: u8[3:3]
+          description: "Anti-freeze protection active"
+
+  # Computed fields
+  - name: batteryVoltage
+    type: number
+    ref: $batteryLevel
+    mult: 0.1
+    add: 2
+    transform:
+      - op: round
+        decimals: 2
+    unit: "V"
+    ipso: 3316
+    senml: {unit: "V"}
+    semantic: "battery.voltage"
+    valid_range: [2.0, 3.6]
+    description: "Battery voltage (2.0V to 3.5V range)"
+
+  - name: _motorRangeHigh256
+    type: number
+    compute:
+      op: mul
+      a: $motorRangeHigh
+      b: 256
+
+  - name: motorRange
+    type: number
+    compute:
+      op: add
+      a: $_motorRangeHigh256
+      b: $motorRangeLow
+    description: "Motor full range (steps)"
+
+  - name: _motorPositionHigh256
+    type: number
+    compute:
+      op: mul
+      a: $motorPositionHigh
+      b: 256
+
+  - name: motorPosition
+    type: number
+    compute:
+      op: add
+      a: $_motorPositionHigh256
+      b: $motorPositionLow
+    description: "Current motor position (steps)"
+
+  # valveOpenness = (1 - motorPosition/motorRange) * 100
+  # Returns 0 when motorRange=0 (matching original codec behavior)
+  - name: _motorPosPercent
+    type: number
+    compute:
+      op: mul
+      a: $motorPosition
+      b: 100
+
+  - name: _motorPosRatio
+    type: number
+    compute:
+      op: div
+      a: $_motorPosPercent
+      b: $motorRange
+    guard:
+      when:
+        - field: $motorRange
+          gt: 0
+      else: 100
+
+  - name: valveOpenness
+    type: number
+    ref: $_motorPosRatio
+    mult: -1
+    add: 100
+    transform:
+      - op: round
+    unit: "%"
+    senml: {unit: "%"}
+    ipso: 3337
+    semantic: "valve.position"
+    valid_range: [0, 100]
+    description: "Valve openness percentage (0=closed, 100=open)"
+
+  # targetTemperatureFloat defaults to targetTemperature
+  - name: targetTemperatureFloat
+    type: number
+    ref: $targetTemperature
+    unit: "°C"
+    ipso: 3308
+    senml: {unit: "Cel"}
+    semantic: "thermostat.setpoint.precise"
+    description: "Target temperature with decimal precision"
+
+test_vectors:
+  # ============================================
+  # KEEPALIVE MESSAGES - Validated against interpreter output
+  # ============================================
+  
+  - name: keepalive_standard
+    description: "Standard keepalive with reason=0x01"
+    payload: "01 15 60 80 20 00 14 A4 90"
+    expected:
+      reason: 1
+      targetTemperature: 21
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 1024.0
+      motorPosition: 288.0
+      batteryVoltage: 3.0
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 0
+      valveOpenness: 72
+      targetTemperatureFloat: 21.0
+
+  - name: keepalive_extended
+    description: "Extended keepalive (reason=0x81) with firmware 3.5+ temperature formula"
+    payload: "81 17 70 90 30 10 24 B4 A0"
+    expected:
+      reason: 129
+      targetTemperature: 23
+      sensorTemperature: 14.76
+      relativeHumidity: 56.25
+      motorRange: 1040.0
+      motorPosition: 560.0
+      batteryVoltage: 3.1
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 1
+      perceiveAsOnline: 0
+      antiFreezeProtection: 0
+      valveOpenness: 46
+      targetTemperatureFloat: 23.0
+
+  - name: keepalive_min_values
+    description: "Keepalive with minimum values"
+    payload: "01 00 00 00 00 00 00 00 00"
+    expected:
+      reason: 1
+      targetTemperature: 0
+      sensorTemperature: -40.0
+      relativeHumidity: 0.0
+      motorRange: 0.0
+      motorPosition: 0.0
+      batteryVoltage: 2.0
+      openWindow: 0
+      highMotorConsumption: 0
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 0
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 0
+      antiFreezeProtection: 0
+      valveOpenness: 0
+      targetTemperatureFloat: 0.0
+
+  - name: keepalive_max_values
+    description: "Keepalive with maximum values (0xFF)"
+    payload: "01 FF FF FF FF FF FF FF FF"
+    expected:
+      reason: 1
+      targetTemperature: 255
+      sensorTemperature: 124.36
+      relativeHumidity: 99.61
+      motorRange: 4095.0
+      motorPosition: 4095.0
+      batteryVoltage: 3.5
+      openWindow: 1
+      highMotorConsumption: 1
+      lowMotorConsumption: 1
+      brokenSensor: 1
+      childLock: 1
+      calibrationFailed: 1
+      attachedBackplate: 1
+      perceiveAsOnline: 1
+      antiFreezeProtection: 1
+      valveOpenness: 0
+      targetTemperatureFloat: 255.0
+
+  - name: keepalive_motor_range_zero
+    description: "Keepalive with motorRange=0 (valve openness edge case)"
+    payload: "01 15 60 80 FF 00 F0 A4 90"
+    expected:
+      reason: 1
+      targetTemperature: 21
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 0.0
+      motorPosition: 4095.0
+      batteryVoltage: 3.0
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 0
+      valveOpenness: 0
+      targetTemperatureFloat: 21.0
+
+  - name: keepalive_all_flags_set
+    description: "Keepalive with all warning flags active"
+    payload: "01 16 60 80 20 00 14 AF 98"
+    expected:
+      reason: 1
+      targetTemperature: 22
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 1024.0
+      motorPosition: 288.0
+      batteryVoltage: 3.0
+      openWindow: 1
+      highMotorConsumption: 1
+      lowMotorConsumption: 1
+      brokenSensor: 1
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 1
+      valveOpenness: 72
+      targetTemperatureFloat: 22.0
+
+  - name: keepalive_valve_fully_open
+    description: "Valve fully open (position is zero)"
+    payload: "01 05 50 C8 00 00 04 A0 00"
+    expected:
+      reason: 1
+      targetTemperature: 5
+      sensorTemperature: 11.56
+      relativeHumidity: 78.12
+      motorRange: 1024.0
+      motorPosition: 0.0
+      batteryVoltage: 3.0
+      openWindow: 0
+      highMotorConsumption: 0
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 0
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 0
+      antiFreezeProtection: 0
+      valveOpenness: 100
+      targetTemperatureFloat: 5.0
+
+  - name: keepalive_low_battery
+    description: "Low battery condition (level=0)"
+    payload: "01 14 60 80 20 00 14 04 90"
+    expected:
+      reason: 1
+      targetTemperature: 20
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 1024.0
+      motorPosition: 288.0
+      batteryVoltage: 2.0
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 0
+      valveOpenness: 72
+      targetTemperatureFloat: 20.0
+
+  - name: keepalive_high_battery
+    description: "Full battery condition (level=15)"
+    payload: "01 14 60 80 20 00 14 F4 90"
+    expected:
+      reason: 1
+      targetTemperature: 20
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 1024.0
+      motorPosition: 288.0
+      batteryVoltage: 3.5
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 1
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 0
+      valveOpenness: 72
+      targetTemperatureFloat: 20.0
+
+  - name: keepalive_negative_temp
+    description: "Negative temperature reading"
+    payload: "01 10 10 40 00 00 04 80 00"
+    expected:
+      reason: 1
+      targetTemperature: 16
+      sensorTemperature: -29.69
+      relativeHumidity: 25.0
+      motorRange: 1024.0
+      motorPosition: 0.0
+      batteryVoltage: 2.8
+      openWindow: 0
+      highMotorConsumption: 0
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 0
+      calibrationFailed: 0
+      attachedBackplate: 0
+      perceiveAsOnline: 0
+      antiFreezeProtection: 0
+      valveOpenness: 100
+      targetTemperatureFloat: 16.0
+
+  - name: keepalive_calibration_failed
+    description: "Calibration failure flag set"
+    payload: "01 15 60 80 20 00 14 A4 50"
+    expected:
+      reason: 1
+      targetTemperature: 21
+      sensorTemperature: 21.88
+      relativeHumidity: 50.0
+      motorRange: 1024.0
+      motorPosition: 288.0
+      batteryVoltage: 3.0
+      openWindow: 0
+      highMotorConsumption: 1
+      lowMotorConsumption: 0
+      brokenSensor: 0
+      childLock: 0
+      calibrationFailed: 1
+      attachedBackplate: 0
+      perceiveAsOnline: 1
+      antiFreezeProtection: 0
+      valveOpenness: 72
+      targetTemperatureFloat: 21.0

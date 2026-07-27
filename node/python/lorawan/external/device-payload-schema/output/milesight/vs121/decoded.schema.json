@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_vs121",
+  "title": "milesight_vs121 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_vs121 sensor",
+  "type": "object",
+  "properties": {
+    "people_counter_all": {
+      "type": "number"
+    },
+    "region_count": {
+      "type": "number"
+    },
+    "regions": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

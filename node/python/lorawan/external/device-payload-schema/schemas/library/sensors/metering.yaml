@@ -1,0 +1,158 @@
+# Utility Metering Sensor Library
+# Energy, water, gas meters, optical pulse
+
+definitions:
+  # === ELECTRICITY METERING ===
+  
+  energy_kwh:
+    name: energy
+    type: u32
+    div: 1000
+    unit: "kWh"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    unece: "KWH"
+    description: "Cumulative energy consumption"
+    semantic:
+      ipso: 3331
+
+  energy_wh:
+    name: energy
+    type: u32
+    unit: "Wh"
+    valid_range: [0, 4294967295]
+    resolution: 1
+    unece: "WHR"
+    description: "Cumulative energy consumption"
+
+  active_power_w:
+    name: active_power
+    type: u32
+    div: 10
+    unit: "W"
+    valid_range: [0, 100000]
+    resolution: 0.1
+    unece: "WTT"
+    description: "Active power"
+    semantic:
+      ipso: 3328
+
+  reactive_power_var:
+    name: reactive_power
+    type: s32
+    div: 10
+    unit: "VAR"
+    valid_range: [-100000, 100000]
+    resolution: 0.1
+    description: "Reactive power"
+
+  apparent_power_va:
+    name: apparent_power
+    type: u32
+    div: 10
+    unit: "VA"
+    valid_range: [0, 100000]
+    resolution: 0.1
+    description: "Apparent power"
+
+  power_factor:
+    name: power_factor
+    type: s16
+    div: 1000
+    valid_range: [-1, 1]
+    resolution: 0.001
+    description: "Power factor"
+
+  line_frequency_hz:
+    name: line_frequency
+    type: u16
+    div: 100
+    unit: "Hz"
+    valid_range: [45, 65]
+    resolution: 0.01
+    unece: "HTZ"
+    description: "AC line frequency"
+
+  # === WATER METERING ===
+  
+  water_volume_liters:
+    name: water_volume
+    type: u32
+    unit: "L"
+    valid_range: [0, 4294967295]
+    resolution: 1
+    unece: "LTR"
+    description: "Cumulative water volume"
+
+  water_volume_m3:
+    name: water_volume
+    type: u32
+    div: 1000
+    unit: "m³"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    unece: "MTQ"
+    description: "Cumulative water volume"
+
+  water_flow_lpm:
+    name: water_flow
+    type: u16
+    div: 10
+    unit: "L/min"
+    valid_range: [0, 6553]
+    resolution: 0.1
+    description: "Water flow rate"
+
+  # === GAS METERING ===
+  
+  gas_volume_m3:
+    name: gas_volume
+    type: u32
+    div: 1000
+    unit: "m³"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    unece: "MTQ"
+    description: "Cumulative gas volume"
+
+  gas_volume_ft3:
+    name: gas_volume
+    type: u32
+    div: 100
+    unit: "ft³"
+    valid_range: [0, 42949672]
+    resolution: 0.01
+    description: "Cumulative gas volume"
+
+  # === HEAT METERING ===
+  
+  heat_energy_kwh:
+    name: heat_energy
+    type: u32
+    div: 100
+    unit: "kWh"
+    valid_range: [0, 42949672]
+    resolution: 0.01
+    unece: "KWH"
+    description: "Cumulative heat energy"
+
+  heat_energy_gj:
+    name: heat_energy
+    type: u32
+    div: 1000
+    unit: "GJ"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    description: "Cumulative heat energy"
+
+  # === OPTICAL METER READING ===
+  
+  optical_pulse_count:
+    name: optical_count
+    type: u32
+    description: "Optical pulse counter reading"
+
+  optical_meter_reading:
+    name: meter_reading
+    type: u32
+    description: "Optical meter display reading"

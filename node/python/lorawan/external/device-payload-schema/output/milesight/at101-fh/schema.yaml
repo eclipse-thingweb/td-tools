@@ -1,0 +1,102 @@
+# Milesight IoT AT101
+name: milesight_at101_fh
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # DEVICE POSITION
+        "[5, 0]":
+          - name: position
+            type: u8
+            # raw: readDevicePosition(bytes[i])
+        # TAMPER STATUS
+        "[7, 0]":
+          - name: tamper_status
+            type: u8
+            # raw: readTamperStatus(bytes[i])
+        # ANGLE
+        "[8, 155]":
+          - name: initial_angle_x
+            type: u8
+            # raw: readInt8(bytes[i])
+          - name: initial_angle_y
+            type: u8
+            # raw: readInt8(bytes[i + 1])
+          - name: initial_angle_z
+            type: u8
+            # raw: readInt8(bytes[i + 2])
+          - name: inclination_angle_x
+            type: u8
+            # raw: readInt8(bytes[i + 3])
+          - name: inclination_angle_y
+            type: u8
+            # raw: readInt8(bytes[i + 4])
+          - name: inclination_angle_z
+            type: u8
+            # raw: readInt8(bytes[i + 5])
+        # TEMPERATURE WITH ABNORMAL
+        "[131, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+          - name: temperature_alarm
+            type: u8
+            # raw: readTemperatureAlarm(bytes[i + 2])

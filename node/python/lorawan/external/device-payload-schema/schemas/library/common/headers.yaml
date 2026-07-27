@@ -1,0 +1,24 @@
+# Common Header Definitions
+# Reusable message header patterns for LoRaWAN payloads
+
+definitions:
+  msg_type_header:
+    name: msg_type
+    type: u8
+    description: "Message type identifier"
+    lookup:
+      0: "heartbeat"
+      1: "data"
+      2: "alarm"
+      3: "config"
+      255: "diagnostic"
+
+  msg_version_header:
+    name: msg_version
+    type: u8
+    description: "Protocol version"
+
+  sequence_header:
+    name: sequence
+    type: u16
+    description: "Message sequence number"

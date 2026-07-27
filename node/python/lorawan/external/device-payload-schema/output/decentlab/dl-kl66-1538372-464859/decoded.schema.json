@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_kl66_1538372_464859",
+  "title": "decentlab_dl_kl66_1538372_464859 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_kl66_1538372_464859 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "counter_reading": {
+      "type": "number"
+    },
+    "measurement_interval": {
+      "type": "number"
+    },
+    "frequency": {
+      "type": "number",
+      "description": "Unit: Hz"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Unit: g"
+    },
+    "elongation": {
+      "type": "number",
+      "description": "Unit: \u00b5m"
+    },
+    "strain": {
+      "type": "number",
+      "description": "Unit: \u00b5m\u22c5m\u207b\u00b9"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

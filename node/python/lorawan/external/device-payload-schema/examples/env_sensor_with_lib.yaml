@@ -1,0 +1,51 @@
+# Example: Environmental Sensor using Library
+# 
+# This schema demonstrates using the sensor library for common definitions.
+# Run through preprocessor before using with interpreter:
+#
+#   python tools/schema_preprocessor.py examples/env_sensor_with_lib.yaml -o examples/env_sensor_resolved.yaml
+
+name: env_sensor_example
+version: 1
+endian: big
+description: Environmental sensor using library definitions
+
+fields:
+  # Message type header from library
+  - $ref: "schemas/library/common/headers.yaml#/definitions/msg_type_header"
+  
+  # Temperature and humidity from profile
+  - $ref: "schemas/library/profiles/env-sensor.yaml#/definitions/temp_humidity"
+  
+  # Battery from individual sensor definitions
+  - $ref: "schemas/library/sensors/power.yaml#/definitions/battery_mv"
+  - $ref: "schemas/library/sensors/power.yaml#/definitions/battery_pct_from_mv"
+  
+  # Device-specific field (not from library)
+  - name: report_interval
+    type: u16
+    unit: "s"
+    description: "Reporting interval in seconds"
+
+test_vectors:
+  - name: normal_reading
+    description: "Typical indoor reading"
+    payload: "01 00E7 32 0BB8 003C"
+    expected:
+      msg_type: "data"        # lookup transforms 1 -> "data"
+      temperature: 23.1
+      humidity: 25.0
+      battery_mv: 3000
+      battery_percent: 100.0  # (3000-1800)/12 = 100%
+      report_interval: 60
+
+  - name: cold_low_battery
+    description: "Cold temperature, low battery"
+    payload: "01 FF9C 5A 0898 0078"
+    expected:
+      msg_type: "data"
+      temperature: -10.0
+      humidity: 45.0
+      battery_mv: 2200
+      battery_percent: 33.333333333333336  # (2200-1800)/12 = 33.33%
+      report_interval: 120

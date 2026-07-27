@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_gmm",
+  "title": "decentlab_dl_gmm Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_gmm sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "photosynthetically_active_radiation": {
+      "type": "number",
+      "description": "Unit: \u00b5mol\u22c5m\u207b\u00b2\u22c5s\u207b\u00b9"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "air_humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "co2_concentration": {
+      "type": "number",
+      "description": "Unit: ppm"
+    },
+    "atmospheric_pressure": {
+      "type": "number",
+      "description": "Unit: kPa"
+    },
+    "vapor_pressure_deficit": {
+      "type": "number",
+      "description": "Unit: kPa"
+    },
+    "dew_point": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

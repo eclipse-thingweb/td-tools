@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_gs301",
+  "title": "milesight_gs301 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_gs301 sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "nh3_sensor_status": {
+      "type": "number"
+    },
+    "nh3": {
+      "type": "number"
+    },
+    "h2s_sensor_status": {
+      "type": "number"
+    },
+    "h2s": {
+      "type": "number"
+    },
+    "nh3_calibration_result": {
+      "type": "number"
+    },
+    "sensor_id": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

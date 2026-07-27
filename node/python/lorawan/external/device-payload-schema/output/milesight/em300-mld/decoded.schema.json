@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_em300_mld",
+  "title": "milesight_em300_mld Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_em300_mld sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "leakage_status": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_am308",
+  "title": "milesight_am308 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_am308 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "pir": {
+      "type": "number"
+    },
+    "light_level": {
+      "type": "number"
+    },
+    "co2": {
+      "type": "number"
+    },
+    "tvoc": {
+      "type": "number"
+    },
+    "pressure": {
+      "type": "number"
+    },
+    "hcho": {
+      "type": "number"
+    },
+    "pm2_5": {
+      "type": "number"
+    },
+    "pm10": {
+      "type": "number"
+    },
+    "o3": {
+      "type": "number"
+    },
+    "beep": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

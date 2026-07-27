@@ -1,0 +1,106 @@
+# Milesight IoT VS350
+name: milesight_vs350
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # TOTAL IN / OUT
+        "[4, 204]":
+          - name: total_in
+            type: u16
+          - name: total_out
+            type: u16
+        # PERIOD IN / OUT
+        "[5, 204]":
+          - name: period_in
+            type: u16
+          - name: period_out
+            type: u16
+        # TIMESTAMP
+        "[10, 239]":
+          - name: timestamp
+            type: u32
+        # TEMPERATURE ALARM
+        "[131, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+          - name: temperature_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 2])
+        # TOTAL IN / OUT ALARM
+        "[132, 204]":
+          - name: total_in
+            type: u16
+          - name: total_out
+            type: u16
+          - name: total_count_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 4])
+        # PERIOD IN / OUT ALARM
+        "[133, 204]":
+          - name: period_in
+            type: u16
+          - name: period_out
+            type: u16
+          - name: period_count_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 4])

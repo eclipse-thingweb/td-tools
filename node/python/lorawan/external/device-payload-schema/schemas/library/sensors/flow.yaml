@@ -1,0 +1,118 @@
+# Flow/Fluid Sensor Library
+# Water meters, gas meters, flow sensors
+
+definitions:
+  # === VOLUME ===
+  
+  volume_liters:
+    name: volume
+    type: u32
+    unit: "L"
+    valid_range: [0, 4294967295]
+    resolution: 1
+    unece: "LTR"
+    description: "Cumulative volume in liters"
+
+  volume_m3:
+    name: volume
+    type: u32
+    div: 1000
+    unit: "m³"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    unece: "MTQ"
+    description: "Cumulative volume in cubic meters"
+
+  volume_gallons:
+    name: volume
+    type: u32
+    unit: "gal"
+    valid_range: [0, 4294967295]
+    resolution: 1
+    unece: "GLL"
+    description: "Cumulative volume in gallons"
+
+  # === FLOW RATE ===
+  
+  flow_lpm:
+    name: flow_rate
+    type: u16
+    div: 10
+    unit: "L/min"
+    valid_range: [0, 6553]
+    resolution: 0.1
+    description: "Flow rate in liters per minute"
+
+  flow_m3h:
+    name: flow_rate
+    type: u16
+    div: 100
+    unit: "m³/h"
+    valid_range: [0, 655]
+    resolution: 0.01
+    description: "Flow rate in cubic meters per hour"
+
+  # === WATER QUALITY ===
+  
+  ph:
+    name: ph
+    type: u16
+    div: 100
+    unit: "pH"
+    valid_range: [0, 14]
+    resolution: 0.01
+    description: "pH level"
+
+  ec_uscm:
+    name: electrical_conductivity
+    type: u16
+    unit: "µS/cm"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Electrical conductivity"
+
+  turbidity_ntu:
+    name: turbidity
+    type: u16
+    div: 10
+    unit: "NTU"
+    valid_range: [0, 1000]
+    resolution: 0.1
+    description: "Turbidity"
+
+  dissolved_oxygen:
+    name: dissolved_oxygen
+    type: u16
+    div: 100
+    unit: "mg/L"
+    valid_range: [0, 20]
+    resolution: 0.01
+    description: "Dissolved oxygen"
+
+  # === SALINITY ===
+  
+  salinity_ppt:
+    name: salinity
+    type: u16
+    div: 100
+    unit: "ppt"
+    valid_range: [0, 50]
+    resolution: 0.01
+    description: "Salinity (parts per thousand)"
+
+  salinity_psu:
+    name: salinity
+    type: u16
+    div: 100
+    unit: "PSU"
+    valid_range: [0, 50]
+    resolution: 0.01
+    description: "Practical salinity units"
+
+  tds_ppm:
+    name: tds
+    type: u16
+    unit: "ppm"
+    valid_range: [0, 50000]
+    resolution: 1
+    description: "Total dissolved solids"

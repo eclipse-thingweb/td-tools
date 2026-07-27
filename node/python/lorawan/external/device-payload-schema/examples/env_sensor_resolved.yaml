@@ -1,0 +1,68 @@
+name: env_sensor_example
+version: 1
+endian: big
+description: Environmental sensor using library definitions
+fields:
+- name: msg_type
+  type: u8
+  var: msg_type
+- name: temperature
+  type: s16
+  div: 10
+  unit: °C
+  ipso:
+    object: 3303
+    resource: 5700
+- name: humidity
+  type: u8
+  mult: 0.5
+  unit: '%'
+  ipso:
+    object: 3304
+    resource: 5700
+- name: battery_mv
+  type: u16
+  unit: mV
+  ipso:
+    object: 3316
+    resource: 5700
+  senml:
+    unit: mV
+- name: battery_percent
+  type: number
+  ref: $battery_mv
+  transform:
+  - add: -2000
+  - div: 12
+  - clamp:
+    - 0
+    - 100
+  unit: '%'
+  ipso:
+    object: 3316
+    resource: 5700
+- name: report_interval
+  type: u16
+  unit: s
+  description: Reporting interval in seconds
+test_vectors:
+- name: normal_reading
+  description: Typical indoor reading
+  payload: 01 00E7 32 0BB8 003C
+  expected:
+    msg_type: 1
+    temperature: 23.1
+    humidity: 25.0
+    battery_mv: 3000
+    battery_percent: 83.33333333333334
+    report_interval: 60
+- name: cold_low_battery
+  description: Cold temperature, low battery
+  payload: 01 FF9C 5A 0898 0078
+  expected:
+    msg_type: 1
+    temperature: -10.0
+    humidity: 45.0
+    battery_mv: 2200
+    battery_percent: 16.666666666666668
+    report_interval: 120

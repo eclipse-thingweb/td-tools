@@ -1,0 +1,35 @@
+# https://www.decentlab.com/products/black-globe-temperature-sensor-for-lorawan
+name: decentlab_dl_blg
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: voltage_ratio
+              type: u16
+              # formula: ((x[0] + x[1]*65536) / 8388608 - 1) / 2
+            - name: thermistor_resistance
+              type: u16
+              unit: "Ω"
+              # formula: 1000 / (((x[0] + x[1]*65536) / 8388608 - 1) / 2) - 41000
+            - name: temperature
+              type: u16
+              unit: "°C"
+              # formula: (1 / (0.0008271111 + 0.000208802 * Math.log(1000 / (((x[0] + x[1]*65536) / 8388608 - 1) / 2) - 41000) + 0.000000080592 * Math.pow(Math.log(1000 / (((x[0] + x[1]*65536) / 8388608 - 1) / 2) - 41000), 3) )) - 273.15
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

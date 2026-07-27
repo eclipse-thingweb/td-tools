@@ -1,0 +1,22 @@
+# Milesight IoT UC11 series
+name: milesight_uc1114
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # Pulse Counter 1
+        "[1, 200]":
+          - name: pulse_count_1
+            type: u32
+        # Pulse Counter 1
+        "[2, 200]":
+          - name: pulse_count_2
+            type: u32

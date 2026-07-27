@@ -1,0 +1,3 @@
+[submodule "external/device-payload-schema"]
+	path = external/device-payload-schema
+	url = https://github.com/MultiTechSystems/device-payload-schema.git

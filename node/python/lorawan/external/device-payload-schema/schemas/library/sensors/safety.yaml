@@ -1,0 +1,103 @@
+# Safety & Detection Sensor Library
+# Smoke, gas, fire, lightning, proximity
+
+definitions:
+  # === SMOKE/FIRE ===
+  
+  smoke_detected:
+    name: smoke
+    type: bool
+    description: "Smoke detection alarm"
+    semantic:
+      ipso: 3202
+
+  smoke_density:
+    name: smoke_density
+    type: u8
+    unit: "%/ft"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Smoke density"
+
+  fire_alarm:
+    name: fire_alarm
+    type: bool
+    description: "Fire alarm state"
+
+  heat_alarm:
+    name: heat_alarm
+    type: bool
+    description: "Heat alarm (rate of rise)"
+
+  # === LIGHTNING ===
+  
+  lightning_distance_km:
+    name: lightning_distance
+    type: u8
+    unit: "km"
+    valid_range: [0, 63]
+    resolution: 1
+    description: "Distance to lightning strike"
+
+  lightning_count:
+    name: lightning_count
+    type: u16
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Lightning strike count"
+
+  lightning_energy:
+    name: lightning_energy
+    type: u32
+    description: "Lightning strike energy (unitless)"
+
+  # === PROXIMITY ===
+  
+  proximity_mm:
+    name: proximity
+    type: u16
+    unit: "mm"
+    valid_range: [0, 2000]
+    resolution: 1
+    unece: "MMT"
+    description: "Proximity distance"
+
+  proximity_detected:
+    name: proximity_detected
+    type: bool
+    description: "Object proximity detected"
+
+  # === RADAR ===
+  
+  radar_presence:
+    name: radar_presence
+    type: bool
+    description: "Radar presence detection"
+
+  radar_distance_cm:
+    name: radar_distance
+    type: u16
+    unit: "cm"
+    valid_range: [0, 1000]
+    resolution: 1
+    description: "Radar detected distance"
+
+  radar_motion_energy:
+    name: radar_motion_energy
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Radar motion energy level"
+
+  # === GLASS BREAK / IMPACT ===
+  
+  glass_break:
+    name: glass_break
+    type: bool
+    description: "Glass break detection"
+
+  impact_detected:
+    name: impact
+    type: bool
+    description: "Impact/shock detected"

@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_ntu",
+  "title": "decentlab_dl_ntu Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_ntu sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "status": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "turbidity_in_ntu": {
+      "type": "number",
+      "description": "Unit: NTU"
+    },
+    "turbidity_in_fnu": {
+      "type": "number",
+      "description": "Unit: FNU"
+    },
+    "turbidity_in_mg_l": {
+      "type": "number",
+      "description": "Unit: mg\u22c5L\u207b\u00b9"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

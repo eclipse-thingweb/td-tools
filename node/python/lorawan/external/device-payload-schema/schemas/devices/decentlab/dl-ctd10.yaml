@@ -1,0 +1,37 @@
+# https://www.decentlab.com/products/pressure-/-liquid-level-temperature-and-electrical-conductivity-sensor-for-lorawan
+name: decentlab_dl_ctd10
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: water_depth
+              type: u16
+              add: -32768
+              unit: "mm"
+            - name: temperature
+              type: s16
+              div: 10
+              unit: "°C"
+            - name: electrical_conductivity
+              type: u16
+              unit: "µS⋅cm⁻¹"
+            - name: freezing_flag
+              type: u16
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

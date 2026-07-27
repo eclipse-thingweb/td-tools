@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_tp",
+  "title": "decentlab_dl_tp Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_tp sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "temperature_at_level_0": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_1": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_2": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_3": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_4": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_5": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_6": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_7": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_8": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_9": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_10": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_11": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_12": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_13": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_14": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "temperature_at_level_15": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,47 @@
+# Milesight IoT TS101
+name: milesight_ts101
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # battery
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # temperature
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # temperature threshold alert
+        "[131, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+          - name: temperature_alert
+            type: u8
+            # raw: readAlertType(bytes[i + 2])
+        # temperature mutation alert
+        "[147, 215]":
+          - name: temperature
+            type: s16
+            div: 10
+          - name: temperature_change
+            type: s16
+            div: 100
+          - name: temperature_alert
+            type: u8
+            # raw: readAlertType(bytes[i + 4])
+        # temperature history
+        "[32, 206]":
+          - name: history
+            type: u8
+            # raw: = undefined) {

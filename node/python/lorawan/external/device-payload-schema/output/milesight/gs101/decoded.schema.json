@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_gs101",
+  "title": "milesight_gs101 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_gs101 sensor",
+  "type": "object",
+  "properties": {
+    "state": {
+      "type": "number"
+    },
+    "valve": {
+      "type": "number"
+    },
+    "relay": {
+      "type": "number"
+    },
+    "life_remain": {
+      "type": "number"
+    },
+    "alarm": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

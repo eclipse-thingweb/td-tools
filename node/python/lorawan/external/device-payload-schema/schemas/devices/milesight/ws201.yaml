@@ -1,0 +1,26 @@
+# Milesight IoT WS201
+name: milesight_ws201
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # DISTANCE
+        "[3, 130]":
+          - name: distance
+            type: u16
+        # REMAINING AMOUNT
+        "[4, 214]":
+          - name: remaining
+            type: u8

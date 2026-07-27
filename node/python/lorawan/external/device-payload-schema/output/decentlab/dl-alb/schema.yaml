@@ -1,0 +1,145 @@
+# https://www.decentlab.com/products/albedometer-sensor-for-lorawan
+name: decentlab_dl_alb
+version: 3
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: incoming_radiation
+              type: s16
+              div: 10
+              unit: "W/m²"
+              ipso: {object: 3301, instance: 0, resource: 5700}
+              senml: {name: "solar_in", unit: "W/m2"}
+              semantic: "solar.irradiance.incoming"
+            - name: reflected_radiation
+              type: s16
+              div: 10
+              unit: "W/m²"
+              ipso: {object: 3301, instance: 1, resource: 5700}
+              senml: {name: "solar_ref", unit: "W/m2"}
+              semantic: "solar.irradiance.reflected"
+            - name: albedo
+              type: number
+              compute:
+                op: div
+                a: $reflected_radiation
+                b: $incoming_radiation
+              guard:
+                when:
+                  - field: $incoming_radiation
+                    gt: 0
+                  - field: $reflected_radiation
+                    gte: 0
+                else: 0
+              senml: {name: "albedo", unit: "/"}
+              semantic: "solar.albedo"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"
+              ipso: {object: 3316, instance: 0, resource: 5700}
+              senml: {name: "vbat", unit: "V"}
+              semantic: "battery.voltage"
+
+test_vectors:
+  - name: typical_albedo
+    description: "Typical albedo measurement (reflected/incoming)"
+    payload: "02 1234 0003 03E8 01F4 0C5E"
+    expected:
+      protocol_version: 2
+      device_id: 0x1234
+      flags: 3
+      incoming_radiation: 100.0
+      reflected_radiation: 50.0
+      albedo: 0.5
+      battery_voltage: 3.166
+
+  - name: zero_incoming
+    description: "Zero incoming radiation (guard returns 0)"
+    payload: "02 ABCD 0003 0000 0064 0BB8"
+    expected:
+      protocol_version: 2
+      device_id: 0xABCD
+      flags: 3
+      incoming_radiation: 0.0
+      reflected_radiation: 10.0
+      albedo: 0
+      battery_voltage: 3.0
+
+  - name: high_albedo
+    description: "High albedo (snow/ice)"
+    payload: "02 0001 0003 01F4 0190 0FA0"
+    expected:
+      protocol_version: 2
+      device_id: 1
+      flags: 3
+      incoming_radiation: 50.0
+      reflected_radiation: 40.0
+      albedo: 0.8
+      battery_voltage: 4.0
+
+  - name: negative_reflected
+    description: "Negative reflected radiation (guard returns 0)"
+    payload: "02 5678 0003 03E8 FF9C 0BB8"
+    expected:
+      protocol_version: 2
+      device_id: 0x5678
+      flags: 3
+      incoming_radiation: 100.0
+      reflected_radiation: -10.0
+      albedo: 0
+      battery_voltage: 3.0
+
+  - name: battery_only
+    description: "Only battery group present (bit 1)"
+    payload: "02 1111 0002 0FA0"
+    expected:
+      protocol_version: 2
+      device_id: 0x1111
+      flags: 2
+      battery_voltage: 4.0
+
+  - name: sensor_only
+    description: "Only sensor group present (bit 0)"
+    payload: "02 2222 0001 07D0 03E8"
+    expected:
+      protocol_version: 2
+      device_id: 0x2222
+      flags: 1
+      incoming_radiation: 200.0
+      reflected_radiation: 100.0
+      albedo: 0.5
+
+  - name: max_values
+    description: "Maximum positive values"
+    payload: "02 FFFF 0003 7FFF 7FFF FFFF"
+    expected:
+      protocol_version: 2
+      device_id: 0xFFFF
+      flags: 3
+      incoming_radiation: 3276.7
+      reflected_radiation: 3276.7
+      albedo: 1.0
+      battery_voltage: 65.535
+
+  - name: minimum_payload
+    description: "Minimum valid payload (no groups)"
+    payload: "02 0000 0000"
+    expected:
+      protocol_version: 2
+      device_id: 0
+      flags: 0

@@ -1,0 +1,27 @@
+# MClimate Flood Sensor
+name: mclimate_flood_sensor
+version: 1
+endian: big
+
+fields:
+  - byte_group:
+      size: 1
+      fields:
+        - name: reason
+          type: u8[5:7]
+          lookup:
+            0: "keepalive"
+            1: "testButtonPressed"
+            2: "floodDetected"
+            3: "fraudDetected"
+        - name: boxTamper
+          type: u8[3:3]
+        - name: flood
+          type: u8[1:1]
+  - name: battery
+    type: u8
+    mult: 0.016
+    unit: "V"
+  - name: temperature
+    type: u8
+    unit: "°C"

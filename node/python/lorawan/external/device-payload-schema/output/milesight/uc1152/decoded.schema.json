@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_uc1152",
+  "title": "milesight_uc1152 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_uc1152 sensor",
+  "type": "object",
+  "properties": {
+    "channels": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

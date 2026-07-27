@@ -1,0 +1,442 @@
+# Semtech UDP Packet Forwarder Protocol
+#
+# Legacy gateway-to-server protocol using JSON over UDP.
+# Reference: https://github.com/Lora-net/packet_forwarder/blob/master/PROTOCOL.TXT
+#
+# Ports:
+#   - Uplink (GW→NS): typically 1700
+#   - Downlink (NS→GW): typically 1700
+#
+# All multi-byte integers are big-endian in the binary header.
+
+protocol: UDP Packet Forwarder
+version: "2.0"
+transport: UDP
+encoding: JSON (with binary header)
+
+# =============================================================================
+# PACKET TYPES
+# =============================================================================
+
+packet_types:
+  PUSH_DATA: 0x00    # GW → NS: Uplink data + status
+  PUSH_ACK: 0x01     # NS → GW: Acknowledge PUSH_DATA
+  PULL_DATA: 0x02    # GW → NS: Keepalive / request downlink
+  PULL_RESP: 0x03    # NS → GW: Downlink data
+  PULL_ACK: 0x04     # NS → GW: Acknowledge PULL_DATA
+  TX_ACK: 0x05       # GW → NS: Downlink transmission result
+
+definitions:
+
+  # ===========================================================================
+  # BINARY HEADER (all packets)
+  # ===========================================================================
+
+  packet_header:
+    name: PacketHeader
+    description: "4-byte header for all UDP packets (12 bytes for PUSH_DATA/PULL_DATA)"
+    fields:
+      - name: protocol_version
+        type: u8
+        value: 0x02
+        description: "Protocol version (always 2)"
+      - name: random_token
+        type: u16
+        description: "Random token for request/response matching"
+      - name: packet_type
+        type: u8
+        description: "Packet type identifier"
+
+  push_data_header:
+    name: PushDataHeader
+    description: "12-byte header for PUSH_DATA"
+    fields:
+      - name: protocol_version
+        type: u8
+        value: 0x02
+      - name: random_token
+        type: u16
+      - name: packet_type
+        type: u8
+        value: 0x00
+      - name: gateway_eui
+        type: bytes
+        length: 8
+        description: "Gateway EUI (big-endian)"
+
+  pull_data_header:
+    name: PullDataHeader
+    description: "12-byte header for PULL_DATA"
+    fields:
+      - name: protocol_version
+        type: u8
+        value: 0x02
+      - name: random_token
+        type: u16
+      - name: packet_type
+        type: u8
+        value: 0x02
+      - name: gateway_eui
+        type: bytes
+        length: 8
+        description: "Gateway EUI (big-endian)"
+
+  # ===========================================================================
+  # PUSH_DATA (GW → NS) - Uplinks and Gateway Status
+  # ===========================================================================
+
+  push_data_payload:
+    name: PushDataPayload
+    description: "JSON payload for PUSH_DATA"
+    fields:
+      - name: rxpk
+        type: array
+        description: "Array of received packets"
+        optional: true
+        items:
+          $ref: "#/definitions/rx_packet"
+      - name: stat
+        type: object
+        description: "Gateway status"
+        optional: true
+        $ref: "#/definitions/gateway_status"
+
+  rx_packet:
+    name: RxPacket
+    description: "Received LoRaWAN packet (uplink)"
+    fields:
+      - name: time
+        type: string
+        description: "UTC time of pkt RX (ISO 8601 expanded)"
+        example: "2024-01-15T12:34:56.789Z"
+        optional: true
+      - name: tmms
+        type: u64
+        description: "GPS time of pkt RX (ms since GPS epoch)"
+        optional: true
+      - name: tmst
+        type: u32
+        description: "Internal timestamp of RX (32-bit counter, us)"
+      - name: freq
+        type: f64
+        description: "RX central frequency (MHz)"
+        example: 868.1
+      - name: chan
+        type: u8
+        description: "Concentrator IF channel"
+      - name: rfch
+        type: u8
+        description: "Concentrator RF chain"
+      - name: stat
+        type: s8
+        description: "CRC status: 1=OK, -1=fail, 0=no CRC"
+      - name: modu
+        type: string
+        description: "Modulation: 'LORA' or 'FSK'"
+        enum: ["LORA", "FSK"]
+      - name: datr
+        type: string
+        description: "Data rate (LoRa: 'SFxxBWyyy', FSK: bitrate)"
+        example: "SF7BW125"
+      - name: codr
+        type: string
+        description: "LoRa coding rate"
+        example: "4/5"
+        optional: true
+      - name: rssi
+        type: s16
+        description: "RSSI (dBm)"
+      - name: lsnr
+        type: f32
+        description: "LoRa SNR (dB)"
+        optional: true
+      - name: size
+        type: u16
+        description: "RF packet payload size (bytes)"
+      - name: data
+        type: string
+        description: "Base64 encoded RF packet payload"
+
+  gateway_status:
+    name: GatewayStatus
+    description: "Gateway status report"
+    fields:
+      - name: time
+        type: string
+        description: "UTC time of status (ISO 8601)"
+        optional: true
+      - name: lati
+        type: f64
+        description: "GPS latitude (degrees)"
+        optional: true
+      - name: long
+        type: f64
+        description: "GPS longitude (degrees)"
+        optional: true
+      - name: alti
+        type: s32
+        description: "GPS altitude (meters)"
+        optional: true
+      - name: rxnb
+        type: u32
+        description: "Number of radio packets received"
+      - name: rxok
+        type: u32
+        description: "Number of radio packets with valid CRC"
+      - name: rxfw
+        type: u32
+        description: "Number of radio packets forwarded"
+      - name: ackr
+        type: f32
+        description: "Percentage of upstream datagrams ACKed"
+      - name: dwnb
+        type: u32
+        description: "Number of downlink datagrams received"
+      - name: txnb
+        type: u32
+        description: "Number of packets emitted"
+      - name: pfrm
+        type: string
+        description: "Platform description"
+        optional: true
+      - name: mail
+        type: string
+        description: "Contact email"
+        optional: true
+      - name: desc
+        type: string
+        description: "Station description"
+        optional: true
+
+  # ===========================================================================
+  # PULL_RESP (NS → GW) - Downlinks
+  # ===========================================================================
+
+  pull_resp_payload:
+    name: PullRespPayload
+    description: "JSON payload for PULL_RESP (downlink)"
+    fields:
+      - name: txpk
+        type: object
+        description: "Transmit packet"
+        $ref: "#/definitions/tx_packet"
+
+  tx_packet:
+    name: TxPacket
+    description: "Downlink packet to transmit"
+    fields:
+      - name: imme
+        type: bool
+        description: "Send immediately (ignore tmst/tmms)"
+        optional: true
+      - name: tmst
+        type: u32
+        description: "Transmit at this timestamp (us)"
+        optional: true
+      - name: tmms
+        type: u64
+        description: "Transmit at this GPS time (ms)"
+        optional: true
+      - name: freq
+        type: f64
+        description: "TX central frequency (MHz)"
+      - name: rfch
+        type: u8
+        description: "Concentrator RF chain"
+      - name: powe
+        type: u8
+        description: "TX output power (dBm)"
+      - name: modu
+        type: string
+        description: "Modulation: 'LORA' or 'FSK'"
+        enum: ["LORA", "FSK"]
+      - name: datr
+        type: string
+        description: "Data rate"
+        example: "SF7BW125"
+      - name: codr
+        type: string
+        description: "LoRa coding rate"
+        example: "4/5"
+        optional: true
+      - name: fdev
+        type: u32
+        description: "FSK frequency deviation (Hz)"
+        optional: true
+      - name: ipol
+        type: bool
+        description: "LoRa inverted polarity"
+        optional: true
+      - name: prea
+        type: u16
+        description: "RF preamble size"
+        optional: true
+      - name: size
+        type: u16
+        description: "RF packet payload size (bytes)"
+      - name: data
+        type: string
+        description: "Base64 encoded RF packet payload"
+      - name: ncrc
+        type: bool
+        description: "No CRC (for beacon)"
+        optional: true
+
+  # ===========================================================================
+  # TX_ACK (GW → NS) - Downlink Result
+  # ===========================================================================
+
+  tx_ack_payload:
+    name: TxAckPayload
+    description: "JSON payload for TX_ACK"
+    fields:
+      - name: txpk_ack
+        type: object
+        description: "Transmission result"
+        fields:
+          - name: error
+            type: string
+            description: "Error code if transmission failed"
+            optional: true
+            enum:
+              - "NONE"           # Packet transmitted OK
+              - "TOO_LATE"       # Rejected - too late for timestamp
+              - "TOO_EARLY"      # Rejected - too early for timestamp
+              - "COLLISION_PACKET"  # Rejected - collision with another packet
+              - "COLLISION_BEACON"  # Rejected - collision with beacon
+              - "TX_FREQ"        # Rejected - invalid TX frequency
+              - "TX_POWER"       # Rejected - invalid TX power
+              - "GPS_UNLOCKED"   # Rejected - GPS unlocked for Class B
+
+# =============================================================================
+# DATA RATE ENCODING
+# =============================================================================
+
+data_rates:
+  lora_format: "SF{sf}BW{bw}"
+  examples:
+    - datr: "SF12BW125"
+      sf: 12
+      bw: 125
+    - datr: "SF7BW125"
+      sf: 7
+      bw: 125
+    - datr: "SF7BW250"
+      sf: 7
+      bw: 250
+    - datr: "SF7BW500"
+      sf: 7
+      bw: 500
+  fsk_format: "{bitrate}"
+  fsk_example:
+    datr: "50000"
+    bitrate: 50000
+
+# =============================================================================
+# PROTOCOL FLOW
+# =============================================================================
+
+protocol_flow:
+  uplink:
+    description: "Gateway sends uplink, server acknowledges"
+    steps:
+      - "GW → NS: PUSH_DATA (header + JSON with rxpk[])"
+      - "NS → GW: PUSH_ACK (header only, same token)"
+
+  keepalive:
+    description: "Gateway maintains connection for downlinks"
+    steps:
+      - "GW → NS: PULL_DATA (header with GW EUI)"
+      - "NS → GW: PULL_ACK (header only, same token)"
+    interval: "5-30 seconds typical"
+
+  downlink:
+    description: "Server sends downlink, gateway confirms"
+    steps:
+      - "NS → GW: PULL_RESP (header + JSON with txpk)"
+      - "GW → NS: TX_ACK (header + JSON with result)"
+
+  status:
+    description: "Gateway sends periodic status"
+    steps:
+      - "GW → NS: PUSH_DATA (header + JSON with stat)"
+      - "NS → GW: PUSH_ACK (header only)"
+    interval: "30 seconds typical"
+
+# =============================================================================
+# TEST VECTORS
+# =============================================================================
+
+test_vectors:
+  - name: push_data_header
+    description: "PUSH_DATA header with token 0x1234"
+    hex: "02 1234 00 0102030405060708"
+    expected:
+      protocol_version: 2
+      random_token: 0x1234
+      packet_type: 0
+      gateway_eui: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]
+
+  - name: push_ack
+    description: "PUSH_ACK response"
+    hex: "02 1234 01"
+    expected:
+      protocol_version: 2
+      random_token: 0x1234
+      packet_type: 1
+
+  - name: rxpk_example
+    description: "Example uplink packet JSON"
+    json: |
+      {
+        "rxpk": [{
+          "tmst": 1234567890,
+          "freq": 868.1,
+          "chan": 0,
+          "rfch": 0,
+          "stat": 1,
+          "modu": "LORA",
+          "datr": "SF7BW125",
+          "codr": "4/5",
+          "rssi": -65,
+          "lsnr": 7.5,
+          "size": 23,
+          "data": "QDYAACcAAgABdRvH+hI="
+        }]
+      }
+
+  - name: txpk_example
+    description: "Example downlink packet JSON"
+    json: |
+      {
+        "txpk": {
+          "tmst": 1234568890,
+          "freq": 868.1,
+          "rfch": 0,
+          "powe": 14,
+          "modu": "LORA",
+          "datr": "SF7BW125",
+          "codr": "4/5",
+          "ipol": true,
+          "size": 17,
+          "data": "YDYAACcAAAABJfMS"
+        }
+      }
+
+  - name: stat_example
+    description: "Example gateway status JSON"
+    json: |
+      {
+        "stat": {
+          "time": "2024-01-15 12:34:56 GMT",
+          "lati": 51.5074,
+          "long": -0.1278,
+          "alti": 10,
+          "rxnb": 100,
+          "rxok": 98,
+          "rxfw": 98,
+          "ackr": 100.0,
+          "dwnb": 10,
+          "txnb": 10
+        }
+      }

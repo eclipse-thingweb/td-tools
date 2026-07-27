@@ -1,0 +1,228 @@
+# TS006 Firmware Management Protocol
+# FPort 203
+# Package ID: 4, Version: 1
+
+fport: 203
+package_id: 4
+package_version: 1
+spec: TS006
+
+definitions:
+  # === PACKAGE VERSION (CID 0x00) ===
+
+  package_version_req:
+    name: PackageVersionReq
+    cid: 0x00
+    direction: downlink
+    description: "Request package version from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+
+  package_version_ans:
+    name: PackageVersionAns
+    cid: 0x00
+    direction: uplink
+    description: "Package version response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: package_identifier
+        type: u8
+        value: 4
+        description: "Firmware management package ID"
+      - name: package_version
+        type: u8
+        description: "Package version (1 for TS006 v1.0.0)"
+
+  # === DEV VERSION (CID 0x01) ===
+
+  dev_version_req:
+    name: DevVersionReq
+    cid: 0x01
+    direction: downlink
+    description: "Query device firmware and hardware version"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+
+  dev_version_ans:
+    name: DevVersionAns
+    cid: 0x01
+    direction: uplink
+    description: "Device version response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: fw_version
+        type: u32
+        description: "Firmware version (vendor-specific encoding)"
+      - name: hw_version
+        type: u32
+        description: "Hardware version (vendor-specific encoding)"
+
+  # === DEV REBOOT TIME (CID 0x02) ===
+
+  dev_reboot_time_req:
+    name: DevRebootTimeReq
+    cid: 0x02
+    direction: downlink
+    description: "Schedule device reboot at specific time"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: reboot_time
+        type: u32
+        description: "GPS epoch time (0=immediate, 0xFFFFFFFF=cancel)"
+
+  dev_reboot_time_ans:
+    name: DevRebootTimeAns
+    cid: 0x02
+    direction: uplink
+    description: "Reboot time response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: reboot_time
+        type: u32
+        description: "Scheduled reboot time (0 if cancelled)"
+
+  # === DEV REBOOT COUNTDOWN (CID 0x03) ===
+
+  dev_reboot_countdown_req:
+    name: DevRebootCountdownReq
+    cid: 0x03
+    direction: downlink
+    description: "Schedule device reboot after delay"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: countdown
+        type: u32
+        unit: "s"
+        description: "Seconds until reboot (0=cancel)"
+
+  dev_reboot_countdown_ans:
+    name: DevRebootCountdownAns
+    cid: 0x03
+    direction: uplink
+    description: "Reboot countdown response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: countdown
+        type: u32
+        unit: "s"
+        description: "Remaining seconds (0 if cancelled)"
+
+  # === DEV UPGRADE IMAGE (CID 0x04) ===
+
+  dev_upgrade_image_req:
+    name: DevUpgradeImageReq
+    cid: 0x04
+    direction: downlink
+    description: "Query upgrade image status"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+
+  dev_upgrade_image_ans:
+    name: DevUpgradeImageAns
+    cid: 0x04
+    direction: uplink
+    description: "Upgrade image status response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: up_image_status
+        type: u8
+        description: "0=none, 1=corrupted, 2=wrong HW, 3=valid"
+      - name: up_image_version
+        type: u32
+        description: "Upgrade image version (if present)"
+        conditional: "up_image_status != 0"
+
+  # === DEV DELETE IMAGE (CID 0x05) ===
+
+  dev_delete_image_req:
+    name: DevDeleteImageReq
+    cid: 0x05
+    direction: downlink
+    description: "Delete upgrade image from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: firmware_to_delete_version
+        type: u32
+        description: "Version to delete (0xFFFFFFFF=any)"
+
+  dev_delete_image_ans:
+    name: DevDeleteImageAns
+    cid: 0x05
+    direction: uplink
+    description: "Delete image response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: status
+        type: u8
+        description: "0=success, 1=no matching image, 2=delete error"
+
+test_vectors:
+  - name: package_version_req
+    command: package_version_req
+    payload: "00"
+    expected:
+      cid: 0
+
+  - name: dev_version_req
+    command: dev_version_req
+    payload: "01"
+    expected:
+      cid: 1
+
+  - name: reboot_immediate
+    command: dev_reboot_time_req
+    payload: "02 00000000"
+    expected:
+      cid: 2
+      reboot_time: 0
+
+  - name: reboot_cancel
+    command: dev_reboot_time_req
+    payload: "02 FFFFFFFF"
+    expected:
+      cid: 2
+      reboot_time: 0xFFFFFFFF
+
+  - name: reboot_countdown_5min
+    command: dev_reboot_countdown_req
+    payload: "03 0000012C"
+    expected:
+      cid: 3
+      countdown: 300
+
+  - name: upgrade_image_query
+    command: dev_upgrade_image_req
+    payload: "04"
+    expected:
+      cid: 4
+
+  - name: delete_any_image
+    command: dev_delete_image_req
+    payload: "05 FFFFFFFF"
+    expected:
+      cid: 5
+      firmware_to_delete_version: 0xFFFFFFFF

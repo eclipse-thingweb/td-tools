@@ -1,0 +1,70 @@
+# https://www.decentlab.com/products/co2-temperature-humidity-and-barometric-pressure-sensor-for-lorawan
+name: decentlab_dl_lp8p
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: air_temperature
+              type: u16
+              unit: "°C"
+              # formula: 175.72 * x[0] / 65536 - 46.85
+            - name: air_humidity
+              type: u16
+              unit: "%"
+              # formula: 125 * x[1] / 65536 - 6
+        - bit: 1
+          fields:
+            - name: barometer_temperature
+              type: u16
+              unit: "°C"
+              # formula: (x[0] - 5000) / 100
+            - name: barometric_pressure
+              type: u16
+              mult: 2
+              unit: "Pa"
+        - bit: 2
+          fields:
+            - name: co2_concentration
+              type: u16
+              add: -32768
+              unit: "ppm"
+            - name: co2_concentration_lpf
+              type: u16
+              add: -32768
+              unit: "ppm"
+            - name: co2_sensor_temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: capacitor_voltage_1
+              type: u16
+              div: 1000
+              unit: "V"
+            - name: capacitor_voltage_2
+              type: u16
+              div: 1000
+              unit: "V"
+            - name: co2_sensor_status
+              type: u16
+            - name: raw_ir_reading
+              type: u16
+            - name: raw_ir_reading_lpf
+              type: u16
+        - bit: 3
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

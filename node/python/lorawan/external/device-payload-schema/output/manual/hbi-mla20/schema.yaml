@@ -1,0 +1,57 @@
+# HBI MLA20 Emergency Light
+# Protocol: version (3 bytes) + reserved (1 byte) + TLV packets (tag: 1B, length: 1B)
+name: hbi_mla20
+version: 1
+endian: big
+
+fields:
+  - name: version_major
+    type: u8
+  - name: version_minor
+    type: u8
+  - name: version_patch
+    type: u8
+  - name: _reserved
+    type: u8
+  - tlv:
+      tag_size: 1
+      length_size: 1
+      cases:
+        # STATUS (0x20)
+        0x20:
+          - byte_group:
+              size: 1
+              fields:
+                - name: charger_status
+                  type: u8[0:1]
+                - name: device_status
+                  type: u8[4:7]
+          - byte_group:
+              size: 1
+              fields:
+                - name: radar_switch
+                  type: u8[0:0]
+                - name: daylight_switch
+                  type: u8[1:1]
+                - name: emergency_switch
+                  type: u8[2:2]
+                - name: intensity_switch
+                  type: u8[3:3]
+                - name: l2
+                  type: u8[6:6]
+                - name: l1
+                  type: u8[7:7]
+          - name: led_intensity
+            type: u8
+          - name: battery_voltage
+            type: u16
+            unit: "mV"
+          - name: board_temperature
+            type: u8
+            unit: "°C"
+          - name: days_since_function_test
+            type: u8
+          - name: days_since_duration_test
+            type: u16
+          - name: latest_duration_test
+            type: u8

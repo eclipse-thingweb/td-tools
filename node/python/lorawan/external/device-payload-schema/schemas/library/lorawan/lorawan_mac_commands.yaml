@@ -1,0 +1,572 @@
+# LoRaWAN MAC Commands (TS001)
+#
+# MAC commands are sent on FPort 0 or piggybacked in FOpts field.
+# Little-endian byte order for multi-byte fields.
+#
+# Version coverage:
+#   - 1.0.0 - 1.0.4: CID 0x02-0x08
+#   - 1.0.2+: CID 0x09-0x0A added
+#   - 1.1.0: CID 0x0B-0x0F added
+#
+# Reference: TS001 LoRaWAN L2 Specification
+
+fport: 0
+spec: TS001
+
+definitions:
+
+  # ===========================================================================
+  # LINK CHECK (CID 0x02) - All versions
+  # ===========================================================================
+
+  link_check_req:
+    name: LinkCheckReq
+    cid: 0x02
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device requests link check from network"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+
+  link_check_ans:
+    name: LinkCheckAns
+    cid: 0x02
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network responds with link margin and gateway count"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: margin
+        type: u8
+        unit: "dB"
+        description: "Link margin (0-254 dB, 255=reserved)"
+      - name: gw_cnt
+        type: u8
+        description: "Number of gateways that received the uplink"
+
+  # ===========================================================================
+  # LINK ADR (CID 0x03) - All versions
+  # ===========================================================================
+
+  link_adr_req:
+    name: LinkADRReq
+    cid: 0x03
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network requests data rate and TX power change"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: data_rate_tx_power
+        type: u8
+        description: "DataRate[7:4] | TXPower[3:0]"
+      - name: ch_mask
+        type: u16
+        description: "Channel mask (1=enabled)"
+      - name: redundancy
+        type: u8
+        description: "ChMaskCntl[6:4] | NbTrans[3:0]"
+
+  link_adr_ans:
+    name: LinkADRAns
+    cid: 0x03
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device acknowledges ADR request"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status
+        type: u8
+        description: "PowerACK[2] | DataRateACK[1] | ChannelMaskACK[0]"
+
+  # ===========================================================================
+  # DUTY CYCLE (CID 0x04) - All versions
+  # ===========================================================================
+
+  duty_cycle_req:
+    name: DutyCycleReq
+    cid: 0x04
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network sets maximum aggregated duty cycle"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: duty_cycle_pl
+        type: u8
+        description: "MaxDCycle[3:0] - duty cycle = 1/(2^MaxDCycle)"
+
+  duty_cycle_ans:
+    name: DutyCycleAns
+    cid: 0x04
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device acknowledges duty cycle setting"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+
+  # ===========================================================================
+  # RX PARAM SETUP (CID 0x05) - All versions
+  # ===========================================================================
+
+  rx_param_setup_req:
+    name: RXParamSetupReq
+    cid: 0x05
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network configures RX2 window parameters"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: dl_settings
+        type: u8
+        description: "RX1DRoffset[6:4] | RX2DataRate[3:0]"
+      - name: frequency
+        type: u24
+        description: "RX2 frequency (Hz = value * 100)"
+
+  rx_param_setup_ans:
+    name: RXParamSetupAns
+    cid: 0x05
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device acknowledges RX param setup"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: status
+        type: u8
+        description: "RX1DRoffsetACK[2] | RX2DataRateACK[1] | ChannelACK[0]"
+
+  # ===========================================================================
+  # DEV STATUS (CID 0x06) - All versions
+  # ===========================================================================
+
+  dev_status_req:
+    name: DevStatusReq
+    cid: 0x06
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network requests device status"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x06
+
+  dev_status_ans:
+    name: DevStatusAns
+    cid: 0x06
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device reports battery and margin"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x06
+      - name: battery
+        type: u8
+        description: "0=external, 1-254=level, 255=unable to measure"
+      - name: margin
+        type: u8
+        description: "SNR margin [5:0] signed (-32 to +31 dB)"
+
+  # ===========================================================================
+  # NEW CHANNEL (CID 0x07) - All versions
+  # ===========================================================================
+
+  new_channel_req:
+    name: NewChannelReq
+    cid: 0x07
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network creates or modifies a channel"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x07
+      - name: ch_index
+        type: u8
+        description: "Channel index to create/modify"
+      - name: frequency
+        type: u24
+        description: "Channel frequency (Hz = value * 100, 0=disable)"
+      - name: dr_range
+        type: u8
+        description: "MaxDR[7:4] | MinDR[3:0]"
+
+  new_channel_ans:
+    name: NewChannelAns
+    cid: 0x07
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device acknowledges channel change"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x07
+      - name: status
+        type: u8
+        description: "DataRateRangeOK[1] | ChannelFreqOK[0]"
+
+  # ===========================================================================
+  # RX TIMING SETUP (CID 0x08) - All versions
+  # ===========================================================================
+
+  rx_timing_setup_req:
+    name: RXTimingSetupReq
+    cid: 0x08
+    direction: downlink
+    version: "1.0.0+"
+    description: "Network sets RX1 delay"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x08
+      - name: settings
+        type: u8
+        description: "Del[3:0] - RX1 delay = Del seconds (0=1s)"
+
+  rx_timing_setup_ans:
+    name: RXTimingSetupAns
+    cid: 0x08
+    direction: uplink
+    version: "1.0.0+"
+    description: "End-device acknowledges RX timing"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x08
+
+  # ===========================================================================
+  # TX PARAM SETUP (CID 0x09) - 1.0.2+
+  # ===========================================================================
+
+  tx_param_setup_req:
+    name: TxParamSetupReq
+    cid: 0x09
+    direction: downlink
+    version: "1.0.2+"
+    description: "Network sets max EIRP and dwell time limits"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x09
+      - name: eirp_dwell_time
+        type: u8
+        description: "DownlinkDwellTime[5] | UplinkDwellTime[4] | MaxEIRP[3:0]"
+
+  tx_param_setup_ans:
+    name: TxParamSetupAns
+    cid: 0x09
+    direction: uplink
+    version: "1.0.2+"
+    description: "End-device acknowledges TX param setup"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x09
+
+  # ===========================================================================
+  # DL CHANNEL (CID 0x0A) - 1.0.2+
+  # ===========================================================================
+
+  dl_channel_req:
+    name: DlChannelReq
+    cid: 0x0A
+    direction: downlink
+    version: "1.0.2+"
+    description: "Network sets downlink channel frequency"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0A
+      - name: ch_index
+        type: u8
+        description: "Channel index"
+      - name: frequency
+        type: u24
+        description: "Downlink frequency (Hz = value * 100)"
+
+  dl_channel_ans:
+    name: DlChannelAns
+    cid: 0x0A
+    direction: uplink
+    version: "1.0.2+"
+    description: "End-device acknowledges DL channel"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0A
+      - name: status
+        type: u8
+        description: "UplinkFreqExists[1] | ChannelFreqOK[0]"
+
+  # ===========================================================================
+  # REKEY (CID 0x0B) - 1.1.0+
+  # ===========================================================================
+
+  rekey_ind:
+    name: RekeyInd
+    cid: 0x0B
+    direction: uplink
+    version: "1.1.0+"
+    description: "End-device indicates rekey complete"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0B
+      - name: minor_version
+        type: u8
+        description: "LoRaWAN minor version (1 for 1.1)"
+
+  rekey_conf:
+    name: RekeyConf
+    cid: 0x0B
+    direction: downlink
+    version: "1.1.0+"
+    description: "Network confirms rekey"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0B
+      - name: serv_lorawan_version
+        type: u8
+        description: "Server LoRaWAN minor version"
+
+  # ===========================================================================
+  # ADR PARAM SETUP (CID 0x0C) - 1.1.0+
+  # ===========================================================================
+
+  adr_param_setup_req:
+    name: ADRParamSetupReq
+    cid: 0x0C
+    direction: downlink
+    version: "1.1.0+"
+    description: "Network configures ADR parameters"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0C
+      - name: adr_param
+        type: u8
+        description: "Limit_exp[7:4] | Delay_exp[3:0]"
+
+  adr_param_setup_ans:
+    name: ADRParamSetupAns
+    cid: 0x0C
+    direction: uplink
+    version: "1.1.0+"
+    description: "End-device acknowledges ADR param setup"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0C
+
+  # ===========================================================================
+  # DEVICE TIME (CID 0x0D) - 1.1.0+
+  # ===========================================================================
+
+  device_time_req:
+    name: DeviceTimeReq
+    cid: 0x0D
+    direction: uplink
+    version: "1.1.0+"
+    description: "End-device requests current time"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0D
+
+  device_time_ans:
+    name: DeviceTimeAns
+    cid: 0x0D
+    direction: downlink
+    version: "1.1.0+"
+    description: "Network provides GPS epoch time"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0D
+      - name: seconds
+        type: u32
+        description: "Seconds since GPS epoch (Jan 6, 1980)"
+      - name: fractional_second
+        type: u8
+        description: "Fractional second (1/256 s resolution)"
+
+  # ===========================================================================
+  # FORCE REJOIN (CID 0x0E) - 1.1.0+
+  # ===========================================================================
+
+  force_rejoin_req:
+    name: ForceRejoinReq
+    cid: 0x0E
+    direction: downlink
+    version: "1.1.0+"
+    description: "Network forces device to rejoin"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0E
+      - name: rejoin_param
+        type: u16
+        description: "Period[13:10] | Max_Retries[9:7] | RejoinType[6:4] | DR[3:0]"
+
+  # ===========================================================================
+  # REJOIN PARAM SETUP (CID 0x0F) - 1.1.0+
+  # ===========================================================================
+
+  rejoin_param_setup_req:
+    name: RejoinParamSetupReq
+    cid: 0x0F
+    direction: downlink
+    version: "1.1.0+"
+    description: "Network configures rejoin parameters"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0F
+      - name: rejoin_param
+        type: u8
+        description: "MaxTimeN[7:4] | MaxCountN[3:0]"
+
+  rejoin_param_setup_ans:
+    name: RejoinParamSetupAns
+    cid: 0x0F
+    direction: uplink
+    version: "1.1.0+"
+    description: "End-device acknowledges rejoin param setup"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x0F
+      - name: status
+        type: u8
+        description: "TimeOK[0]"
+
+# =============================================================================
+# MAC Command Summary
+# =============================================================================
+command_summary:
+  - cid: 0x02
+    name: LinkCheck
+    versions: "1.0.0+"
+    req_dir: uplink
+    ans_dir: downlink
+  - cid: 0x03
+    name: LinkADR
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x04
+    name: DutyCycle
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x05
+    name: RXParamSetup
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x06
+    name: DevStatus
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x07
+    name: NewChannel
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x08
+    name: RXTimingSetup
+    versions: "1.0.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x09
+    name: TxParamSetup
+    versions: "1.0.2+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x0A
+    name: DlChannel
+    versions: "1.0.2+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x0B
+    name: Rekey
+    versions: "1.1.0+"
+    req_dir: uplink
+    ans_dir: downlink
+  - cid: 0x0C
+    name: ADRParamSetup
+    versions: "1.1.0+"
+    req_dir: downlink
+    ans_dir: uplink
+  - cid: 0x0D
+    name: DeviceTime
+    versions: "1.1.0+"
+    req_dir: uplink
+    ans_dir: downlink
+  - cid: 0x0E
+    name: ForceRejoin
+    versions: "1.1.0+"
+    req_dir: downlink
+    ans_dir: null
+  - cid: 0x0F
+    name: RejoinParamSetup
+    versions: "1.1.0+"
+    req_dir: downlink
+    ans_dir: uplink
+
+test_vectors:
+  - name: link_check_req
+    command: link_check_req
+    payload: "02"
+    expected:
+      cid: 2
+
+  - name: link_check_ans
+    command: link_check_ans
+    payload: "02 14 03"
+    expected:
+      cid: 2
+      margin: 20
+      gw_cnt: 3
+
+  - name: link_adr_req_dr5_pwr2
+    command: link_adr_req
+    payload: "03 52 FF00 01"
+    expected:
+      cid: 3
+      data_rate_tx_power: 0x52
+      ch_mask: 0x00FF
+      redundancy: 1
+
+  - name: dev_status_ans
+    command: dev_status_ans
+    payload: "06 C8 0C"
+    expected:
+      cid: 6
+      battery: 200
+      margin: 12
+
+  - name: device_time_ans
+    command: device_time_ans
+    payload: "0D 00A8F865 80"
+    expected:
+      cid: 13
+      seconds: 1705570304
+      fractional_second: 128

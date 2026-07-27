@@ -1,0 +1,74 @@
+# Milesight IoT EM300-MCS
+name: milesight_em300_mcs
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # HUMIDITY
+        "[4, 104]":
+          - name: humidity
+            type: u8
+            # raw: readUInt8(bytes[i]) / 2
+        # MAGNET STATUS
+        "[6, 0]":
+          - name: magnet_status
+            type: u8
+            # raw: readMagnetStatus(bytes[i])

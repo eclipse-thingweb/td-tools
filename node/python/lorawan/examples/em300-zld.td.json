@@ -1,0 +1,130 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:milesight_em300_zld",
+  "title": "milesight em300 zld",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime by the Servient; never stored in this TD."
+    }
+  },
+  "security": "otaa_sc",
+  "base": "lorawan://0000000000000000/{appKey}/device",
+  "lorav:endDeviceId": "milesight-em300-zld-01",
+  "lorav:devEUI": "0000000000000000",
+  "lorav:joinEUI": "0000000000000000",
+  "lorav:macVersion": "1.0.2",
+  "lorav:brand": "Milesight",
+  "lorav:model": "EM300-ZLD",
+  "lorav:hardwareVersion": "1",
+  "lorav:softwareVersion": "1",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870_TTN",
+  "lorav:payloadLayout": "tlv",
+  "properties": {
+    "battery": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:tag": [
+            1,
+            117
+          ],
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": false
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:tag": [
+            3,
+            103
+          ],
+          "lorav:type": "s16",
+          "lorav:mostSignificantByte": false,
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "humidity": {
+      "type": "number",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:tag": [
+            4,
+            104
+          ],
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": false,
+          "lorav:divisor": 2
+        }
+      ]
+    },
+    "leakage_status": {
+      "type": "string",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:tag": [
+            5,
+            0
+          ],
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": false,
+          "lorav:enum": {
+            "0": "normal",
+            "1": "leak"
+          }
+        }
+      ]
+    }
+  },
+  "lorav:tagFields": [
+    {
+      "name": "channel_id",
+      "type": "u8"
+    },
+    {
+      "name": "channel_type",
+      "type": "u8"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+# Alarm/Threshold Configuration Commands
+# Category ID: 0x03
+# 
+# Commands for configuring sensor alarms and change thresholds.
+# Uses 2-byte addressing: [Category:0x03][CID]
+
+category_id: 0x03
+category: alarm_config
+
+definitions:
+
+  set_threshold_req:
+    name: SetThresholdReq
+    cid: 0x00
+    direction: downlink
+    description: "Set change-on-delta threshold for a field"
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: field_id
+        type: u8
+        description: "Field identifier (device-specific)"
+      - name: delta
+        type: s16
+        description: "Minimum change to trigger report (in field units)"
+
+  set_threshold_ans:
+    name: SetThresholdAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid field, 2=invalid value"
+
+  set_alarm_req:
+    name: SetAlarmReq
+    cid: 0x01
+    direction: downlink
+    description: "Set alarm thresholds for a sensor field"
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: field_id
+        type: u8
+        description: "Field identifier"
+      - name: low_threshold
+        type: s16
+        description: "Low alarm threshold (in field units)"
+      - name: high_threshold
+        type: s16
+        description: "High alarm threshold (in field units)"
+
+  set_alarm_ans:
+    name: SetAlarmAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid field, 2=invalid thresholds"
+
+  clear_alarm_req:
+    name: ClearAlarmReq
+    cid: 0x02
+    direction: downlink
+    description: "Clear alarm configuration for a field"
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: field_id
+        type: u8
+        description: "Field identifier (0xFF=all)"
+
+  clear_alarm_ans:
+    name: ClearAlarmAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid field"
+
+  get_alarm_status_req:
+    name: GetAlarmStatusReq
+    cid: 0x03
+    direction: downlink
+    description: "Query current alarm state"
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x03
+
+  get_alarm_status_ans:
+    name: GetAlarmStatusAns
+    cid: 0x03
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x03
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: active_alarms
+        type: u16
+        description: "Bitmask of fields with active alarms"
+
+test_vectors:
+  - name: set_temp_alarm
+    command: set_alarm_req
+    payload: "03 01 01 0000 01F4"
+    expected:
+      category: 3
+      cid: 1
+      field_id: 1
+      low_threshold: 0
+      high_threshold: 500
+
+  - name: set_delta_threshold
+    command: set_threshold_req
+    payload: "03 00 02 000A"
+    expected:
+      category: 3
+      cid: 0
+      field_id: 2
+      delta: 10

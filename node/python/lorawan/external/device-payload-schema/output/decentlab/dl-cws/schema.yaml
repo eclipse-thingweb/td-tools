@@ -1,0 +1,48 @@
+# https://www.decentlab.com/products/high-precision-winter-road-maintenance-sensor-for-lorawan
+name: decentlab_dl_cws
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: surface_temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: air_temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: air_humidity
+              type: s16
+              div: 100
+              unit: "%"
+            - name: dew_point
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: angle
+              type: u16
+              unit: "°"
+              # formula: (x[4] - 32768)
+            - name: sensor_temperature
+              type: s16
+              div: 100
+              unit: "°C"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_uc1114",
+  "title": "milesight_uc1114 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_uc1114 sensor",
+  "type": "object",
+  "properties": {
+    "pulse_count_1": {
+      "type": "number"
+    },
+    "pulse_count_2": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

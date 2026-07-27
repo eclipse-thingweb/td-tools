@@ -1,0 +1,88 @@
+# https://www.decentlab.com/products/temperature-profile-for-lorawan
+name: decentlab_dl_tp
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: temperature_at_level_0
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_1
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_2
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_3
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_4
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_5
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_6
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_7
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_8
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_9
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_10
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_11
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_12
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_13
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_14
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: temperature_at_level_15
+              type: s16
+              div: 100
+              unit: "°C"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

@@ -1,0 +1,117 @@
+# Milesight IoT TS302
+name: milesight_ts30x
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE(CHANNEL 1 SENSOR)
+        "[3, 103]":
+          - name: temperature_chn1
+            type: s16
+            div: 10
+        # MAGNET STATUS(CHANNEL 1 SENSOR)
+        "[3, 0]":
+          - name: magnet_chn1
+            type: u8
+            # raw: readMagnetStatus(bytes[i])
+        # TEMPERATURE(CHANNEL 2 SENSOR)
+        "[4, 103]":
+          - name: temperature_chn2
+            type: s16
+            div: 10
+        # MAGNET STATUS(CHANNEL 2 SENSOR)
+        "[4, 0]":
+          - name: magnet_chn2
+            type: u8
+            # raw: readMagnetStatus(bytes[i])
+        # TEMPERATURE(CHANNEL 1 SENSOR) ALARM
+        "[131, 103]":
+          - name: temperature_chn1
+            type: s16
+            div: 10
+          - name: temperature_chn1_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 2])
+        # TEMPERATURE(CHANNEL 1 SENSOR) ALARM
+        "[147, 215]":
+          - name: temperature_chn1
+            type: s16
+            div: 10
+          - name: temperature_chn1_mutation
+            type: s16
+            div: 100
+          - name: temperature_chn1_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 4])
+        # TEMPERATURE(CHANNEL 2 SENSOR) ALARM
+        "[132, 103]":
+          - name: temperature_chn2
+            type: s16
+            div: 10
+          - name: temperature_chn2_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 2])
+        # TEMPERATURE(CHANNEL 2 SENSOR) ALARM
+        "[148, 215]":
+          - name: temperature_chn2
+            type: s16
+            div: 10
+          - name: temperature_chn2_mutation
+            type: s16
+            div: 100
+          - name: temperature_chn2_alarm
+            type: u8
+            # raw: readAlarmType(bytes[i + 4])

@@ -1,0 +1,42 @@
+# https://www.decentlab.com/products/winter-road-maintenance-sensor-for-lorawan
+name: decentlab_dl_wrm
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: air_temperature
+              type: u16
+              unit: "°C"
+              # formula: 175 * x[0] / 65535 - 45
+            - name: air_humidity
+              type: u16
+              unit: "%"
+              # formula: 100 * x[1] / 65535
+        - bit: 1
+          fields:
+            - name: surface_temperature
+              type: u16
+              unit: "°C"
+              # formula: (x[0] - 1000) / 10
+            - name: head_temperature
+              type: u16
+              unit: "°C"
+              # formula: (x[1] - 1000) / 10
+        - bit: 2
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

@@ -1,0 +1,175 @@
+# Data Logging Commands
+# Category ID: 0x11
+# 
+# Commands for on-device data logging and retrieval.
+# Uses 2-byte addressing: [Category:0x11][CID]
+
+category_id: 0x11
+category: data_logging
+
+definitions:
+
+  set_config_req:
+    name: SetConfigReq
+    cid: 0x00
+    direction: downlink
+    description: "Configure on-device data logging"
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: enable
+        type: u8
+        description: "0=disable, 1=enable logging"
+        valid_range: [0, 1]
+      - name: max_records
+        type: u16
+        description: "Maximum records to store (0=device default)"
+
+  set_config_ans:
+    name: SetConfigAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid param, 2=not supported"
+
+  fetch_req:
+    name: FetchReq
+    cid: 0x01
+    direction: downlink
+    description: "Request historical data from device"
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: start_time
+        type: u32
+        description: "Unix timestamp - start of range (0=oldest)"
+      - name: end_time
+        type: u32
+        description: "Unix timestamp - end of range (0=newest)"
+
+  fetch_ans:
+    name: FetchAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: status
+        type: u8
+        description: "0=success, 1=no data, 2=busy, 3=error"
+      - name: record_count
+        type: u16
+        description: "Number of records to be sent"
+
+  clear_req:
+    name: ClearReq
+    cid: 0x02
+    direction: downlink
+    description: "Clear stored data log"
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: confirm
+        type: u8
+        value: 0xAA
+        description: "Confirmation byte (must be 0xAA)"
+
+  clear_ans:
+    name: ClearAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid confirm, 2=error"
+
+  get_status_req:
+    name: GetStatusReq
+    cid: 0x03
+    direction: downlink
+    description: "Query data log storage status"
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x03
+
+  get_status_ans:
+    name: GetStatusAns
+    cid: 0x03
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x11
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: record_count
+        type: u16
+        description: "Number of stored records"
+      - name: oldest_timestamp
+        type: u32
+        description: "Unix timestamp of oldest record"
+      - name: newest_timestamp
+        type: u32
+        description: "Unix timestamp of newest record"
+
+test_vectors:
+  - name: enable_logging
+    command: set_config_req
+    payload: "11 00 01 0100"
+    expected:
+      category: 17
+      cid: 0
+      enable: 1
+      max_records: 256
+
+  - name: fetch_all
+    command: fetch_req
+    payload: "11 01 00000000 00000000"
+    expected:
+      category: 17
+      cid: 1
+      start_time: 0
+      end_time: 0
+
+  - name: clear_log
+    command: clear_req
+    payload: "11 02 AA"
+    expected:
+      category: 17
+      cid: 2
+      confirm: 170

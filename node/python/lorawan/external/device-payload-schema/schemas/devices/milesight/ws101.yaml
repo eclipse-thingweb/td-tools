@@ -1,0 +1,23 @@
+# Milesight IoT WS101
+name: milesight_ws101
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # PRESS STATE
+        "[255, 46]":
+          - name: button
+            type: u8
+            # raw: "short"

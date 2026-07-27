@@ -1,0 +1,131 @@
+# Milesight IoT WT201 v2
+name: milesight_wt201v2
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # TARGET TEMPERATURE
+        "[4, 103]":
+          - name: target_temperature
+            type: s16
+            div: 10
+        # TARGET TEMPERATURE 2
+        "[11, 103]":
+          - name: target_temperature_2
+            type: s16
+            div: 10
+        # TEMPERATURE CONTROL
+        "[5, 231]":
+          - name: temperature_control_mode
+            type: u8
+            # raw: readTemperatureControlMode((value >>> 0) & 0x03)
+          - name: temperature_control_status
+            type: u8
+            # raw: readTemperatureControlStatus((value >>> 4) & 0x0f)
+        # FAN CONTROL
+        "[6, 232]":
+          - name: fan_mode
+            type: u8
+            # raw: readFanMode((fan_data >>> 0) & 0x03)
+          - name: fan_status
+            type: u8
+            # raw: readFanStatus((fan_data >>> 2) & 0x03)
+        # PLAN EVENT
+        "[7, 188]":
+          - name: plan_type
+            type: u8
+            # raw: readExecutePlanType((plan_type_data >>> 0) & 0x0f)
+        # SYSTEM STATUS
+        "[8, 142]":
+          - name: system_status
+            type: u8
+            # raw: readOnOffStatus(bytes[i])
+        # HUMIDITY
+        "[9, 104]":
+          - name: humidity
+            type: u8
+            # raw: readUInt8(bytes[i]) / 2
+        # RELAY STATUS
+        "[10, 110]":
+          - name: wires_relay
+            type: u8
+            # raw: readWiresRelay(bytes[i])
+        # TEMPERATURE MODE SUPPORT
+        "[255, 203]":
+          - name: temperature_control_support_mode
+            type: u8
+            # raw: readTemperatureControlSupportMode(bytes[i])
+          - name: temperature_control_support_status
+            type: u8
+            # raw: readTemperatureControlSupportStatus(bytes[i + 1], bytes[i + 2])
+        # TEMPERATURE ALARM
+        "[131, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+          - name: temperature_alarm
+            type: u8
+            # raw: readTemperatureAlarm(bytes[i + 2])
+        # TEMPERATURE EXCEPTION
+        "[179, 103]":
+          - name: temperature_sensor_status
+            type: u8
+            # raw: readSensorStatus(bytes[i])
+        # HUMIDITY EXCEPTION
+        "[185, 104]":
+          - name: humidity_sensor_status
+            type: u8
+            # raw: readSensorStatus(bytes[i])

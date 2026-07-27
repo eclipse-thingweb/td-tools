@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_vs341",
+  "title": "milesight_vs341 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_vs341 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "occupancy": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ts101",
+  "title": "milesight_ts101 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ts101 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "temperature_alert": {
+      "type": "number"
+    },
+    "temperature_change": {
+      "type": "number"
+    },
+    "history": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

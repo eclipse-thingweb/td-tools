@@ -1,0 +1,45 @@
+# Environmental Sensor Profile
+# Common field groupings for environmental monitoring
+
+definitions:
+  # Inline fields (no wrapping object) - fields merge into parent
+  temp_humidity:
+    - name: temperature
+      type: s16
+      div: 10
+      unit: "°C"
+      valid_range: [-40, 85]
+      resolution: 0.1
+      unece: "CEL"
+      semantic:
+        ipso: 3303
+
+    - name: humidity
+      type: u8
+      mult: 0.5
+      unit: "%RH"
+      valid_range: [0, 100]
+      resolution: 0.5
+      unece: "P1"
+      semantic:
+        ipso: 3304
+
+  temp_only:
+    name: temperature
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-40, 125]
+    resolution: 0.1
+    unece: "CEL"
+
+  pressure:
+    name: pressure
+    type: u16
+    mult: 10
+    unit: "Pa"
+    valid_range: [30000, 110000]
+    resolution: 10
+    unece: "PAL"
+    semantic:
+      ipso: 3323

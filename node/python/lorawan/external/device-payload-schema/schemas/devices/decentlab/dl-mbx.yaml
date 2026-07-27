@@ -1,0 +1,29 @@
+# https://www.decentlab.com/products/ultrasonic-distance-/-level-sensor-for-lorawan
+name: decentlab_dl_mbx
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: distance
+              type: u16
+              unit: "mm"
+            - name: number_of_valid_samples
+              type: u16
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

@@ -1,0 +1,139 @@
+# Elsys sensor payload decoder
+# https://elsys.se/public/documents/Sensor_payload.pdf
+name: elsys_ers
+version: 1
+endian: big
+
+fields:
+  - tlv:
+      tag_size: 1
+      length_size: 0
+      cases:
+        0x01:
+          - name: temperature
+            type: s16
+            div: 10
+            unit: "°C"
+        0x02:
+          - name: humidity
+            type: u8
+            unit: "%"
+        0x03:
+          - name: x
+            type: s8
+          - name: y
+            type: s8
+          - name: z
+            type: s8
+        0x04:
+          - name: light
+            type: u16
+            unit: "lux"
+        0x05:
+          - name: motion
+            type: u8
+        0x06:
+          - name: co2
+            type: u16
+            unit: "ppm"
+        0x07:
+          - name: vdd
+            type: u16
+            unit: "mV"
+        0x08:
+          - name: analog1
+            type: u16
+            unit: "mV"
+        0x09:
+          - name: lat
+            type: s24
+            div: 10000
+            unit: "°"
+          - name: long
+            type: s24
+            div: 10000
+            unit: "°"
+        0x0A:
+          - name: pulse1
+            type: u16
+        0x0B:
+          - name: pulseAbs
+            type: u32
+        0x0C:
+          - name: externalTemperature
+            type: s16
+            div: 10
+            unit: "°C"
+        0x0D:
+          - name: digital
+            type: u8
+        0x0E:
+          - name: distance
+            type: u16
+            unit: "mm"
+        0x0F:
+          - name: accMotion
+            type: u8
+        0x10:
+          - name: irInternalTemperature
+            type: s16
+            div: 10
+            unit: "°C"
+          - name: irExternalTemperature
+            type: s16
+            div: 10
+            unit: "°C"
+        0x11:
+          - name: occupancy
+            type: u8
+        0x12:
+          - name: waterleak
+            type: u8
+        0x14:
+          - name: pressure
+            type: u32
+            div: 1000
+            unit: "hPa"
+        0x15:
+          - name: soundPeak
+            type: u8
+          - name: soundAvg
+            type: u8
+        0x16:
+          - name: pulse2
+            type: u16
+        0x17:
+          - name: pulse2Abs
+            type: u32
+        0x18:
+          - name: analog2
+            type: u16
+            unit: "mV"
+        0x19:
+          - name: externalTemperature2
+            type: s16
+            div: 10
+            unit: "°C"
+        0x1A:
+          - name: digital2
+            type: u8
+        0x1B:
+          - name: analogUv
+            type: s32
+            unit: "µV"
+        0x1C:
+          - name: tvoc
+            type: u16
+            unit: "ppb"
+
+test_vectors:
+  - name: temp_humidity
+    payload: "01 00 FF 02 41"
+    expected:
+      temperature: 25.5
+      humidity: 65
+  - name: co2_battery
+    payload: "06 01 F4 07 0D 48"
+    expected:
+      co2: 500
+      vdd: 3400

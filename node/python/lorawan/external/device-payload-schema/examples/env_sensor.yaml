@@ -1,0 +1,69 @@
+# Simple Environmental Sensor Schema
+# For C code generation example
+
+name: env_sensor
+version: 1
+description: "Temperature, humidity, and battery sensor"
+endian: big
+
+fields:
+  - name: temperature
+    type: s16
+    mult: 0.01
+    unit: "Cel"
+    semantic:
+      ipso: 3303
+    
+  - name: humidity
+    type: u8
+    mult: 0.5
+    unit: "%RH"
+    semantic:
+      ipso: 3304
+    
+  - name: battery_mv
+    type: u16
+    unit: "mV"
+    semantic:
+      ipso: 3316
+    
+  - name: status
+    type: u8
+    
+# Test vectors for automatic test generation
+test_vectors:
+  - name: normal_room
+    description: "Normal room conditions"
+    payload: "09 29 82 0C E4 00"  # temp=23.45, hum=65, batt=3300, status=0
+    expected:
+      temperature: 23.45
+      humidity: 65.0
+      battery_mv: 3300
+      status: 0
+
+  - name: cold_dry
+    description: "Cold and dry conditions"
+    payload: "FE 0C 14 0B B8 01"  # temp=-5.0, hum=10, batt=3000, status=1
+    expected:
+      temperature: -5.0
+      humidity: 10.0
+      battery_mv: 3000
+      status: 1
+
+  - name: hot_humid
+    description: "Hot and humid conditions"
+    payload: "0D AC C8 0D 48 02"  # temp=35.0, hum=100, batt=3400, status=2
+    expected:
+      temperature: 35.0
+      humidity: 100.0
+      battery_mv: 3400
+      status: 2
+
+  - name: low_battery
+    description: "Low battery warning"
+    payload: "08 98 78 09 C4 04"  # temp=22.0, hum=60, batt=2500, status=4 (low batt)
+    expected:
+      temperature: 22.0
+      humidity: 60.0
+      battery_mv: 2500
+      status: 4

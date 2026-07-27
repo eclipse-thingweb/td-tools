@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_pheht",
+  "title": "decentlab_dl_pheht Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_pheht sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "status": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "ph": {
+      "type": "number"
+    },
+    "redox": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "ph_mv": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

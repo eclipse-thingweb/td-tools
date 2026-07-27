@@ -1,0 +1,52 @@
+# https://www.decentlab.com/products/greenhouse-multi-monitor-for-lorawan
+name: decentlab_dl_gmm
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: photosynthetically_active_radiation
+              type: s16
+              div: 10
+              unit: "µmol⋅m⁻²⋅s⁻¹"
+            - name: air_temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: air_humidity
+              type: s16
+              div: 10
+              unit: "%"
+            - name: co2_concentration
+              type: s16
+              div: 1
+              unit: "ppm"
+            - name: atmospheric_pressure
+              type: s16
+              div: 100
+              unit: "kPa"
+            - name: vapor_pressure_deficit
+              type: s16
+              div: 100
+              unit: "kPa"
+            - name: dew_point
+              type: s16
+              div: 100
+              unit: "°C"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

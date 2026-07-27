@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/output/ipso/v1",
+  "title": "IPSO Smart Objects Output Format",
+  "description": "Validates decoder output in IPSO/LwM2M format",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/ipsoObject"
+  },
+  "definitions": {
+    "ipsoObject": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "description": "Sensor value",
+          "type": ["number", "string", "boolean", "integer"]
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum measured value"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum measured value"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Measurement timestamp (ISO 8601)"
+        }
+      },
+      "required": ["value"]
+    }
+  },
+  "examples": [
+    {
+      "3303": {"value": 23.45, "unit": "Cel"},
+      "3304": {"value": 65.0, "unit": "%RH"},
+      "3316": {"value": 3.3, "unit": "V"}
+    }
+  ]
+}

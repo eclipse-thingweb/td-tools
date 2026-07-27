@@ -1,0 +1,112 @@
+# Milesight IoT WT101
+name: milesight_wt101
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # LORAWAN CLASS TYPE
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # RESET EVENT
+        "[255, 254]":
+          - name: reset_event
+            type: u8
+            # raw: readResetEvent(1)
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(1)
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # TARGET TEMPERATURE
+        "[4, 103]":
+          - name: target_temperature
+            type: s16
+            div: 10
+        # VALVE OPENING
+        "[5, 146]":
+          - name: valve_opening
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TAMPER STATUS
+        "[6, 0]":
+          - name: tamper_status
+            type: u8
+            # raw: readTamperStatus(bytes[i])
+        # WINDOW DETECTION
+        "[7, 0]":
+          - name: window_detection
+            type: u8
+            # raw: readWindowDetectionStatus(bytes[i])
+        # MOTOR STROKE CALIBRATION RESULT
+        "[8, 229]":
+          - name: motor_calibration_result
+            type: u8
+            # raw: readMotorCalibrationResult(bytes[i])
+        # MOTOR STROKE
+        "[9, 144]":
+          - name: motor_stroke
+            type: u16
+        # FREEZE PROTECTION
+        "[10, 0]":
+          - name: freeze_protection
+            type: u8
+            # raw: readFreezeProtectionStatus(bytes[i])
+        # MOTOR CURRENT POSITION
+        "[11, 144]":
+          - name: motor_position
+            type: u16
+        # HEATING DATE
+        "[249, 51]":
+          - name: heating_date
+            type: u8
+            # raw: readHeatingDate(bytes.slice(i, i + 7))
+        # HEATING SCHEDULE
+        "[249, 52]":
+          - name: heating_schedule
+            type: u8
+            # raw: decoded.heating_schedule || []

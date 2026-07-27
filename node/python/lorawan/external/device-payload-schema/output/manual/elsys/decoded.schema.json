@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/elsys_ers",
+  "title": "elsys_ers Decoded Output",
+  "description": "JSON Schema for validating decoded output from elsys_ers sensor",
+  "type": "object",
+  "properties": {
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "x": {
+      "type": "number"
+    },
+    "y": {
+      "type": "number"
+    },
+    "z": {
+      "type": "number"
+    },
+    "light": {
+      "type": "number",
+      "description": "Unit: lux"
+    },
+    "motion": {
+      "type": "number"
+    },
+    "co2": {
+      "type": "number",
+      "description": "Unit: ppm"
+    },
+    "vdd": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "analog1": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "lat": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "long": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "pulse1": {
+      "type": "number"
+    },
+    "pulseAbs": {
+      "type": "number"
+    },
+    "externalTemperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "digital": {
+      "type": "number"
+    },
+    "distance": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "accMotion": {
+      "type": "number"
+    },
+    "irInternalTemperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "irExternalTemperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "occupancy": {
+      "type": "number"
+    },
+    "waterleak": {
+      "type": "number"
+    },
+    "pressure": {
+      "type": "number",
+      "description": "Unit: hPa"
+    },
+    "soundPeak": {
+      "type": "number"
+    },
+    "soundAvg": {
+      "type": "number"
+    },
+    "pulse2": {
+      "type": "number"
+    },
+    "pulse2Abs": {
+      "type": "number"
+    },
+    "analog2": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "externalTemperature2": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "digital2": {
+      "type": "number"
+    },
+    "analogUv": {
+      "type": "number",
+      "description": "Unit: \u00b5V"
+    },
+    "tvoc": {
+      "type": "number",
+      "description": "Unit: ppb"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,655 @@
+# LoRa Basic Station Protocol (LNS/TC)
+#
+# Modern gateway-to-server protocol using JSON/Protobuf over WebSocket.
+# Reference: https://doc.sm.tc/station
+#
+# Components:
+#   - CUPS: Configuration and Update Server (HTTPS)
+#   - LNS/TC: LoRaWAN Network Server / Traffic Controller (WebSocket)
+#
+# Transport: WebSocket (wss://)
+# Encoding: JSON (TEXT frames) or Protobuf (BINARY frames)
+
+protocol: LoRa Basic Station
+version: "2.0.6"
+transport: WebSocket
+encoding: JSON or Protobuf
+
+# =============================================================================
+# MESSAGE TYPES
+# =============================================================================
+
+message_types:
+  # Gateway → LNS
+  version: "version"           # Initial handshake
+  jreq: "jreq"                 # Join request
+  updf: "updf"                 # Uplink data frame
+  propdf: "propdf"             # Proprietary frame
+  dntxed: "dntxed"             # Downlink transmitted
+  timesync: "timesync"         # Time synchronization
+  rmtsh: "rmtsh"               # Remote shell (if enabled)
+
+  # LNS → Gateway
+  router_config: "router_config"  # Configuration response
+  dnmsg: "dnmsg"               # Downlink message
+  dnsched: "dnsched"           # Scheduled downlink (Class B/C)
+  dn_timesync: "dn_timesync"   # Time sync response
+
+definitions:
+
+  # ===========================================================================
+  # VERSION (GW → LNS) - Initial Handshake
+  # ===========================================================================
+
+  version_message:
+    name: VersionMessage
+    direction: uplink
+    description: "Gateway announces itself to LNS"
+    fields:
+      - name: msgtype
+        type: string
+        value: "version"
+      - name: station
+        type: string
+        description: "Station version string"
+        example: "2.0.6(linux/std)"
+      - name: firmware
+        type: string
+        description: "Firmware version"
+        optional: true
+      - name: package
+        type: string
+        description: "Package version"
+        optional: true
+      - name: model
+        type: string
+        description: "Hardware model"
+        example: "linux"
+      - name: protocol
+        type: u8
+        description: "Protocol version (2)"
+        value: 2
+      - name: features
+        type: string
+        description: "Space-separated feature flags"
+        example: "rmtsh gps prod"
+
+  feature_flags:
+    description: "Known feature flags in version message"
+    flags:
+      - name: rmtsh
+        description: "Remote shell enabled"
+      - name: gps
+        description: "GPS support"
+      - name: prod
+        description: "Production mode"
+      - name: "gps-ctrl"
+        description: "GPS control via router_config"
+      - name: dutyconf
+        description: "Duty cycle configuration"
+      - name: lbtconf
+        description: "Listen-before-talk configuration"
+      - name: "pdu-only"
+        description: "PDU-only mode supported"
+      - name: "updn-dr"
+        description: "Up/down data rate control"
+      - name: nsgw_dataplane
+        description: "NS-GW protobuf data plane"
+      - name: nsgw_telemetry
+        description: "NS-GW declarative telemetry"
+      - name: nsgw_dict_persist
+        description: "NS-GW dictionary persistence"
+      - name: protobuf
+        description: "Legacy protobuf encoding"
+
+  # ===========================================================================
+  # ROUTER_CONFIG (LNS → GW) - Configuration
+  # ===========================================================================
+
+  router_config_message:
+    name: RouterConfigMessage
+    direction: downlink
+    description: "LNS configures gateway"
+    fields:
+      - name: msgtype
+        type: string
+        value: "router_config"
+      - name: NetID
+        type: array
+        description: "Array of NetIDs to accept"
+        items:
+          type: u32
+      - name: JoinEui
+        type: array
+        description: "Array of JoinEUI filters (pairs: [min, max])"
+        optional: true
+      - name: region
+        type: string
+        description: "Region identifier"
+        example: "EU868"
+        enum: ["EU868", "US915", "CN779", "EU433", "AU915", "CN470", "AS923", "KR920", "IN865", "RU864"]
+      - name: hwspec
+        type: string
+        description: "Hardware specification"
+        example: "sx1301/1"
+      - name: freq_range
+        type: array
+        description: "[min_freq, max_freq] in Hz"
+        optional: true
+      - name: DRs
+        type: array
+        description: "Data rate definitions"
+        optional: true
+      - name: sx1301_conf
+        type: array
+        description: "SX1301/SX1302 concentrator configuration"
+        optional: true
+      - name: nocca
+        type: bool
+        description: "Disable clear channel assessment"
+        optional: true
+      - name: nodc
+        type: bool
+        description: "Disable duty cycle enforcement"
+        optional: true
+      - name: nodwell
+        type: bool
+        description: "Disable dwell time limit"
+        optional: true
+      - name: bcning
+        type: object
+        description: "Class B beacon configuration"
+        optional: true
+      - name: protocol_format
+        type: string
+        description: "Protocol format for data plane"
+        enum: ["json", "protobuf", "nsgw"]
+        optional: true
+      - name: gps_enable
+        type: bool
+        description: "Enable GPS"
+        optional: true
+
+  # ===========================================================================
+  # JREQ (GW → LNS) - Join Request
+  # ===========================================================================
+
+  jreq_message:
+    name: JoinRequestMessage
+    direction: uplink
+    description: "Join request received by gateway"
+    fields:
+      - name: msgtype
+        type: string
+        value: "jreq"
+      - name: MHdr
+        type: u8
+        description: "MAC header"
+      - name: JoinEui
+        type: string
+        description: "Join EUI (hex string, big-endian)"
+        format: "EUI-64"
+      - name: DevEui
+        type: string
+        description: "Device EUI (hex string, big-endian)"
+        format: "EUI-64"
+      - name: DevNonce
+        type: u16
+        description: "Device nonce"
+      - name: MIC
+        type: s32
+        description: "Message integrity code (signed for JSON)"
+      - name: RefTime
+        type: f64
+        description: "Reference time (GPS seconds)"
+        optional: true
+      - name: DR
+        type: u8
+        description: "Data rate index"
+      - name: Freq
+        type: u32
+        description: "Frequency (Hz)"
+      - name: upinfo
+        type: object
+        description: "Uplink metadata"
+        $ref: "#/definitions/uplink_info"
+
+  # ===========================================================================
+  # UPDF (GW → LNS) - Uplink Data Frame
+  # ===========================================================================
+
+  updf_message:
+    name: UplinkDataFrameMessage
+    direction: uplink
+    description: "Uplink data frame received by gateway"
+    fields:
+      - name: msgtype
+        type: string
+        value: "updf"
+      - name: MHdr
+        type: u8
+        description: "MAC header"
+      - name: DevAddr
+        type: s32
+        description: "Device address (signed for JSON)"
+      - name: FCtrl
+        type: u8
+        description: "Frame control"
+      - name: FCnt
+        type: u16
+        description: "Frame counter"
+      - name: FOpts
+        type: string
+        description: "Frame options (hex string)"
+        optional: true
+      - name: FPort
+        type: s8
+        description: "Frame port (-1 if not present)"
+      - name: FRMPayload
+        type: string
+        description: "Frame payload (hex string)"
+        optional: true
+      - name: MIC
+        type: s32
+        description: "Message integrity code"
+      - name: RefTime
+        type: f64
+        description: "Reference time (GPS seconds)"
+        optional: true
+      - name: DR
+        type: u8
+        description: "Data rate index"
+      - name: Freq
+        type: u32
+        description: "Frequency (Hz)"
+      - name: upinfo
+        type: object
+        description: "Uplink metadata"
+        $ref: "#/definitions/uplink_info"
+
+  uplink_info:
+    name: UplinkInfo
+    description: "Metadata for uplink reception"
+    fields:
+      - name: rctx
+        type: u64
+        description: "Radio context (opaque, for downlink)"
+      - name: xtime
+        type: u64
+        description: "Concentrator timestamp (expanded)"
+      - name: gpstime
+        type: u64
+        description: "GPS time (us since GPS epoch)"
+        optional: true
+      - name: rssi
+        type: f32
+        description: "RSSI (dBm)"
+      - name: snr
+        type: f32
+        description: "SNR (dB)"
+
+  # ===========================================================================
+  # DNMSG (LNS → GW) - Downlink Message
+  # ===========================================================================
+
+  dnmsg_message:
+    name: DownlinkMessage
+    direction: downlink
+    description: "Downlink frame to transmit"
+    fields:
+      - name: msgtype
+        type: string
+        value: "dnmsg"
+      - name: DevEui
+        type: string
+        description: "Device EUI (for logging)"
+        optional: true
+      - name: dC
+        type: u8
+        description: "Device class (0=A, 1=B, 2=C)"
+      - name: diid
+        type: u64
+        description: "Downlink ID (for TX_ACK correlation)"
+      - name: pdu
+        type: string
+        description: "PDU to transmit (hex string)"
+      - name: RxDelay
+        type: u8
+        description: "RX delay for Class A (1-15 seconds)"
+        optional: true
+      - name: RX1DR
+        type: u8
+        description: "RX1 data rate"
+        optional: true
+      - name: RX1Freq
+        type: u32
+        description: "RX1 frequency (Hz)"
+        optional: true
+      - name: RX2DR
+        type: u8
+        description: "RX2 data rate"
+        optional: true
+      - name: RX2Freq
+        type: u32
+        description: "RX2 frequency (Hz)"
+        optional: true
+      - name: xtime
+        type: u64
+        description: "Reference timestamp from uplink"
+        optional: true
+      - name: rctx
+        type: u64
+        description: "Radio context from uplink"
+        optional: true
+      - name: priority
+        type: u8
+        description: "Downlink priority (0=normal, 1=high)"
+        optional: true
+
+  # ===========================================================================
+  # DNTXED (GW → LNS) - Downlink Transmitted
+  # ===========================================================================
+
+  dntxed_message:
+    name: DownlinkTransmittedMessage
+    direction: uplink
+    description: "Downlink transmission result"
+    fields:
+      - name: msgtype
+        type: string
+        value: "dntxed"
+      - name: diid
+        type: u64
+        description: "Downlink ID (correlates to dnmsg)"
+      - name: DevEui
+        type: string
+        description: "Device EUI"
+        optional: true
+      - name: rctx
+        type: u64
+        description: "Radio context used"
+        optional: true
+      - name: xtime
+        type: u64
+        description: "Actual TX timestamp"
+        optional: true
+      - name: txtime
+        type: f64
+        description: "TX time (GPS seconds)"
+        optional: true
+      - name: gpstime
+        type: u64
+        description: "GPS time of TX (us)"
+        optional: true
+
+  # ===========================================================================
+  # TIMESYNC (GW → LNS)
+  # ===========================================================================
+
+  timesync_message:
+    name: TimeSyncMessage
+    direction: uplink
+    description: "Gateway requests time synchronization"
+    fields:
+      - name: msgtype
+        type: string
+        value: "timesync"
+      - name: txtime
+        type: f64
+        description: "Gateway's current time estimate"
+
+  dn_timesync_message:
+    name: DownlinkTimeSyncMessage
+    direction: downlink
+    description: "LNS provides time correction"
+    fields:
+      - name: msgtype
+        type: string
+        value: "timesync"
+      - name: txtime
+        type: f64
+        description: "Echo of gateway's txtime"
+      - name: gpstime
+        type: u64
+        description: "Server's GPS time (us)"
+
+  # ===========================================================================
+  # CLASS B BEACON
+  # ===========================================================================
+
+  bcning_config:
+    name: BeaconingConfig
+    description: "Class B beacon configuration in router_config"
+    fields:
+      - name: DR
+        type: u8
+        description: "Beacon data rate"
+      - name: layout
+        type: array
+        description: "Beacon frame layout [info_desc, time, gw_specific]"
+      - name: freqs
+        type: array
+        description: "Beacon frequencies (Hz)"
+
+  # ===========================================================================
+  # CUPS PROTOCOL
+  # ===========================================================================
+
+  cups_request:
+    name: CupsRequest
+    description: "CUPS HTTP POST request body"
+    fields:
+      - name: router
+        type: string
+        description: "Gateway EUI (hex)"
+        format: "EUI-64"
+      - name: cupsUri
+        type: string
+        description: "Current CUPS URI"
+        optional: true
+      - name: tcUri
+        type: string
+        description: "Current TC URI"
+        optional: true
+      - name: cupsCredCrc
+        type: u32
+        description: "CRC of CUPS credentials"
+      - name: tcCredCrc
+        type: u32
+        description: "CRC of TC credentials"
+      - name: station
+        type: string
+        description: "Station version"
+      - name: model
+        type: string
+        description: "Hardware model"
+      - name: package
+        type: string
+        description: "Installed package version"
+        optional: true
+      - name: keys
+        type: array
+        description: "Key CRCs [cups.key, tc.key]"
+        optional: true
+
+  cups_response:
+    name: CupsResponse
+    description: "CUPS HTTP response (binary)"
+    fields:
+      - name: cupsUri_len
+        type: u8
+        description: "Length of CUPS URI update (0=no change)"
+      - name: cupsUri
+        type: string
+        description: "New CUPS URI"
+        optional: true
+      - name: tcUri_len
+        type: u8
+        description: "Length of TC URI update"
+      - name: tcUri
+        type: string
+        description: "New TC URI"
+        optional: true
+      - name: cupsCred_len
+        type: u16
+        description: "Length of CUPS credentials update"
+      - name: cupsCred
+        type: bytes
+        description: "New CUPS credentials (trust + cert + key)"
+        optional: true
+      - name: tcCred_len
+        type: u16
+        description: "Length of TC credentials update"
+      - name: tcCred
+        type: bytes
+        description: "New TC credentials"
+        optional: true
+      - name: sig_len
+        type: u16
+        description: "Length of update signature"
+        optional: true
+      - name: sig
+        type: bytes
+        description: "ECDSA signature"
+        optional: true
+      - name: update_len
+        type: u32
+        description: "Length of firmware update"
+        optional: true
+      - name: update
+        type: bytes
+        description: "Firmware update binary"
+        optional: true
+
+# =============================================================================
+# PROTOCOL FLOW
+# =============================================================================
+
+protocol_flow:
+  connection:
+    description: "Gateway connects to LNS"
+    steps:
+      - "GW: Connect WebSocket to tc.uri"
+      - "GW → LNS: version { station, features, ... }"
+      - "LNS → GW: router_config { NetID, region, ... }"
+      - "Connection established, ready for data"
+
+  uplink_class_a:
+    description: "Class A uplink and downlink"
+    steps:
+      - "GW → LNS: updf { DevAddr, FPort, payload, upinfo }"
+      - "LNS → GW: dnmsg { pdu, RxDelay, RX1DR, ... } (optional)"
+      - "GW → LNS: dntxed { diid } (if downlink sent)"
+
+  join:
+    description: "OTAA join procedure"
+    steps:
+      - "GW → LNS: jreq { JoinEui, DevEui, DevNonce, ... }"
+      - "LNS → GW: dnmsg { pdu (JoinAccept) }"
+      - "GW → LNS: dntxed { diid }"
+
+  cups_update:
+    description: "CUPS firmware/credential update"
+    steps:
+      - "GW: POST to cups.uri with device info"
+      - "CUPS: Returns tcUri and/or credential updates"
+      - "GW: Applies updates, reconnects to TC"
+
+# =============================================================================
+# DATA RATE MAPPING
+# =============================================================================
+
+data_rates:
+  EU868:
+    - index: 0
+      sf: 12
+      bw: 125
+    - index: 1
+      sf: 11
+      bw: 125
+    - index: 2
+      sf: 10
+      bw: 125
+    - index: 3
+      sf: 9
+      bw: 125
+    - index: 4
+      sf: 8
+      bw: 125
+    - index: 5
+      sf: 7
+      bw: 125
+    - index: 6
+      sf: 7
+      bw: 250
+    - index: 7
+      modulation: FSK
+      bitrate: 50000
+
+# =============================================================================
+# TEST VECTORS
+# =============================================================================
+
+test_vectors:
+  - name: version_message
+    description: "Gateway version announcement"
+    json: |
+      {
+        "msgtype": "version",
+        "station": "2.0.6(linux/std)",
+        "firmware": "1.0.0",
+        "model": "linux",
+        "protocol": 2,
+        "features": "rmtsh gps prod"
+      }
+
+  - name: router_config_eu868
+    description: "EU868 router configuration"
+    json: |
+      {
+        "msgtype": "router_config",
+        "NetID": [1],
+        "region": "EU868",
+        "hwspec": "sx1301/1",
+        "freq_range": [863000000, 870000000],
+        "protocol_format": "json"
+      }
+
+  - name: updf_message
+    description: "Uplink data frame"
+    json: |
+      {
+        "msgtype": "updf",
+        "MHdr": 64,
+        "DevAddr": 620756326,
+        "FCtrl": 128,
+        "FCnt": 1,
+        "FPort": 1,
+        "FRMPayload": "48656C6C6F",
+        "MIC": -1234567890,
+        "DR": 5,
+        "Freq": 868100000,
+        "upinfo": {
+          "rctx": 0,
+          "xtime": 1234567890123456,
+          "rssi": -65.5,
+          "snr": 7.5
+        }
+      }
+
+  - name: dnmsg_class_a
+    description: "Class A downlink"
+    json: |
+      {
+        "msgtype": "dnmsg",
+        "dC": 0,
+        "diid": 12345,
+        "pdu": "60360000270000015F312D",
+        "RxDelay": 1,
+        "RX1DR": 5,
+        "RX1Freq": 868100000,
+        "RX2DR": 0,
+        "RX2Freq": 869525000,
+        "xtime": 1234567890123456,
+        "rctx": 0
+      }

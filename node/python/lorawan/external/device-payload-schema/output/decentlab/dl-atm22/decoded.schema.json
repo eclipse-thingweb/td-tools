@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_atm22",
+  "title": "decentlab_dl_atm22 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_atm22 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "wind_direction": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "maximum_wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "x_orientation_angle": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "y_orientation_angle": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "north_wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "east_wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

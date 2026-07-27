@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ws303",
+  "title": "milesight_ws303 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ws303 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "leak_status": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,40 @@
+# Milesight IoT WS302
+name: milesight_ws302
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # SOUND
+        "[5, 91]":
+          - name: freq_weight
+            type: u8
+            # raw: readFrequecyWeightType(bytes[i])
+          - name: time_weight
+            type: u8
+            # raw: readTimeWeightType(bytes[i])
+          - name: la
+            type: u16
+            div: 10
+          - name: laeq
+            type: u16
+            div: 10
+          - name: lamax
+            type: u16
+            div: 10
+        # LoRaWAN Class Type
+        "[255, 15]":
+          - name: class_type
+            type: u8
+            # raw: "class-a"

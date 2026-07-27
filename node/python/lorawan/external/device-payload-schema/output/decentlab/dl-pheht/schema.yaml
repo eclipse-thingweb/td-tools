@@ -1,0 +1,41 @@
+# https://www.decentlab.com/products/ph-orp-and-temperature-sensor-for-lorawan
+name: decentlab_dl_pheht
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: status
+              type: u16
+            - name: temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: ph
+              type: s16
+              div: 100
+            - name: redox
+              type: s16
+              div: 10
+              unit: "mV"
+            - name: ph_mv
+              type: s16
+              div: 10
+              unit: "mV"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

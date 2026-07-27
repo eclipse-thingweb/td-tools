@@ -1,0 +1,47 @@
+{
+  "@context": {
+    "lorav": "https://www.w3.org/2024/wot/lorawan#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "payloadLayout": "lorav:payloadLayout",
+    "tagFields": "lorav:tagFields",
+
+    "fPort": "lorav:fPort",
+    "type": "lorav:type",
+    "mostSignificantByte": "lorav:mostSignificantByte",
+    "multiplier": "lorav:multiplier",
+    "divisor": "lorav:divisor",
+    "offset": "lorav:offset",
+    "bitmask": "lorav:bitmask",
+    "byteOffset": "lorav:byteOffset",
+    "length": "lorav:length",
+    "tag": "lorav:tag",
+    "slot": "lorav:slot",
+    "presenceField": "lorav:presenceField",
+    "presenceBit": "lorav:presenceBit",
+    "switchField": "lorav:switchField",
+    "switchValue": "lorav:switchValue",
+    "var": "lorav:var",
+    "padBefore": "lorav:padBefore",
+    "ref": "lorav:ref",
+    "polynomial": "lorav:polynomial",
+    "transform": "lorav:transform",
+    "compute": "lorav:compute",
+    "guard": "lorav:guard",
+    "unit": "lorav:unit",
+    "unece": "lorav:unece",
+    "enum": "lorav:enum",
+
+    "devEUI": "lorav:devEUI",
+    "joinEUI": "lorav:joinEUI",
+    "macVersion": "lorav:macVersion",
+
+    "brand": "lorav:brand",
+    "model": "lorav:model",
+    "hardwareVersion": "lorav:hardwareVersion",
+    "softwareVersion": "lorav:softwareVersion",
+    "region": "lorav:region",
+    "frequencyPlan": "lorav:frequencyPlan",
+    "endDeviceId": "lorav:endDeviceId"
+  }
+}

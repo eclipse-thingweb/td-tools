@@ -1,0 +1,32 @@
+# https://www.decentlab.com/products/pressure-/-liquid-level-and-temperature-sensor-for-lorawan
+name: decentlab_dl_pr26_0_1
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: pressure
+              type: u16
+              unit: "bar"
+              # formula: (x[0] - 16384) / 32768 * (this.PARAMETERS.Pmax - this.PARAMETERS.Pmin) + this.PARAMETERS.Pmin
+            - name: temperature
+              type: u16
+              unit: "°C"
+              # formula: (x[1] - 384) * 0.003125 - 50
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

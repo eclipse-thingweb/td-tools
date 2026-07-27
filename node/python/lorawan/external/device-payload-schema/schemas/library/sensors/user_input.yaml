@@ -1,0 +1,90 @@
+# User Input Sensor Library
+# Buttons, switches, potentiometers
+
+definitions:
+  # === BUTTONS ===
+  
+  button_pressed:
+    name: button
+    type: bool
+    description: "Button pressed state"
+    semantic:
+      ipso: 3347
+
+  button_count:
+    name: button_count
+    type: u16
+    description: "Button press count"
+
+  button_id:
+    name: button_id
+    type: u8
+    description: "Button identifier (multi-button devices)"
+
+  button_action:
+    name: button_action
+    type: enum
+    values:
+      0: none
+      1: single
+      2: double
+      3: long
+      4: release
+    description: "Button action type"
+
+  # === SWITCHES ===
+  
+  switch_state:
+    name: switch
+    type: bool
+    description: "Switch on/off state"
+
+  switch_position:
+    name: switch_position
+    type: u8
+    description: "Multi-position switch state"
+
+  dip_switch:
+    name: dip_switch
+    type: u8
+    description: "DIP switch bitmap"
+
+  # === POTENTIOMETER/ROTARY ===
+  
+  potentiometer_pct:
+    name: potentiometer
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Potentiometer position"
+
+  potentiometer_raw:
+    name: potentiometer_raw
+    type: u16
+    description: "Potentiometer ADC value"
+
+  rotary_position:
+    name: rotary_position
+    type: u16
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 1
+    description: "Rotary encoder position"
+
+  rotary_count:
+    name: rotary_count
+    type: s32
+    description: "Rotary encoder cumulative count"
+
+  # === KEYPAD ===
+  
+  keypad_code:
+    name: keypad_code
+    type: u32
+    description: "Entered keypad code"
+
+  keypad_key:
+    name: keypad_key
+    type: u8
+    description: "Last pressed key"

@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_isf",
+  "title": "decentlab_dl_isf Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_isf sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "sap_flow": {
+      "type": "number",
+      "description": "Unit: l\u22c5h\u207b\u00b9"
+    },
+    "heat_velocity_outer": {
+      "type": "number",
+      "description": "Unit: cm\u22c5h\u207b\u00b9"
+    },
+    "heat_velocity_inner": {
+      "type": "number",
+      "description": "Unit: cm\u22c5h\u207b\u00b9"
+    },
+    "alpha_outer": {
+      "type": "number"
+    },
+    "alpha_inner": {
+      "type": "number"
+    },
+    "beta_outer": {
+      "type": "number"
+    },
+    "beta_inner": {
+      "type": "number"
+    },
+    "tmax_outer": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "tmax_inner": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "temperature_outer": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "max_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "min_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "diagnostic": {
+      "type": "number"
+    },
+    "upstream_tmax_outer": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "upstream_tmax_inner": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

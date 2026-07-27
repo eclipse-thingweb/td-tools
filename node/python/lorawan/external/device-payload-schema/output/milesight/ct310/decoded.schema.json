@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ct310",
+  "title": "milesight_ct310 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ct310 sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "reset_event": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "temperature_sensor_status": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "temperature_alarm": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

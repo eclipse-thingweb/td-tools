@@ -1,0 +1,110 @@
+# Milesight IoT AM319 HCHO (v2)
+name: milesight_am319l
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # IPSO VERSION
+        "[255, 1]":
+          - name: ipso_version
+            type: u8
+            # raw: readProtocolVersion(bytes[i])
+        # HARDWARE VERSION
+        "[255, 9]":
+          - name: hardware_version
+            type: u8
+            # raw: readHardwareVersion(bytes.slice(i, i + 2))
+        # FIRMWARE VERSION
+        "[255, 10]":
+          - name: firmware_version
+            type: u8
+            # raw: readFirmwareVersion(bytes.slice(i, i + 2))
+        # DEVICE STATUS
+        "[255, 11]":
+          - name: device_status
+            type: u8
+            # raw: readDeviceStatus(bytes[i])
+        # LORAWAN CLASS
+        "[255, 15]":
+          - name: lorawan_class
+            type: u8
+            # raw: readLoRaWANClass(bytes[i])
+        # PRODUCT SERIAL NUMBER
+        "[255, 22]":
+          - name: sn
+            type: u8
+            # raw: readSerialNumber(bytes.slice(i, i + 8))
+        # TSL VERSION
+        "[255, 255]":
+          - name: tsl_version
+            type: u8
+            # raw: readTslVersion(bytes.slice(i, i + 2))
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # HUMIDITY
+        "[4, 104]":
+          - name: humidity
+            type: u8
+            # raw: readUInt8(bytes[i]) / 2
+        # PIR
+        "[5, 0]":
+          - name: pir
+            type: u8
+            # raw: readPIRStatus(bytes[i])
+        # LIGHT
+        "[6, 203]":
+          - name: light_level
+            type: u8
+            # raw: readUInt8(bytes[i])
+        # CO2
+        "[7, 125]":
+          - name: co2
+            type: u16
+        # TVOC (iaq)
+        "[8, 125]":
+          - name: tvoc
+            type: u16
+            div: 100
+        # TVOC (µg/m³)
+        "[8, 230]":
+          - name: tvoc
+            type: u16
+        # PRESSURE
+        "[9, 115]":
+          - name: pressure
+            type: u16
+            div: 10
+        # HCHO
+        "[10, 125]":
+          - name: hcho
+            type: u16
+            div: 100
+        # PM2.5
+        "[11, 125]":
+          - name: pm2_5
+            type: u16
+        # PM10
+        "[12, 125]":
+          - name: pm10
+            type: u16
+        # BEEP
+        "[14, 1]":
+          - name: buzzer_status
+            type: u8
+            # raw: readBuzzerStatus(bytes[i])

@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_atm41g2",
+  "title": "decentlab_dl_atm41g2 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_atm41g2 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "solar_radiation": {
+      "type": "number",
+      "description": "Unit: W\u22c5m\u207b\u00b2"
+    },
+    "precipitation": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "lightning_strike_count": {
+      "type": "number",
+      "description": "Unit: None"
+    },
+    "lightning_average_distance": {
+      "type": "number",
+      "description": "Unit: km"
+    },
+    "wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "wind_direction": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "maximum_wind_speed": {
+      "type": "number",
+      "description": "Unit: m\u22c5s\u207b\u00b9"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "vapor_pressure": {
+      "type": "number",
+      "description": "Unit: kPa"
+    },
+    "barometric_pressure": {
+      "type": "number",
+      "description": "Unit: kPa"
+    },
+    "relative_humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "internal_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "tilt_angle_x_orientation": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "tilt_angle_y_orientation": {
+      "type": "number",
+      "description": "Unit: \u00b0"
+    },
+    "precipitation_electrical_conductivity": {
+      "type": "number",
+      "description": "Unit: \u00b5S\u22c5cm\u207b\u00b9"
+    },
+    "cumulative_precipitation": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

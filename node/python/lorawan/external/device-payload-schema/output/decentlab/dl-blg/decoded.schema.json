@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_blg",
+  "title": "decentlab_dl_blg Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_blg sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "voltage_ratio": {
+      "type": "number"
+    },
+    "thermistor_resistance": {
+      "type": "number",
+      "description": "Unit: \u03a9"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

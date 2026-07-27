@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_pm",
+  "title": "decentlab_dl_pm Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_pm sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "pm1_0_mass_concentration": {
+      "type": "number",
+      "description": "Unit: \u00b5g\u22c5m\u207b\u00b3"
+    },
+    "pm2_5_mass_concentration": {
+      "type": "number",
+      "description": "Unit: \u00b5g\u22c5m\u207b\u00b3"
+    },
+    "pm4_mass_concentration": {
+      "type": "number",
+      "description": "Unit: \u00b5g\u22c5m\u207b\u00b3"
+    },
+    "pm10_mass_concentration": {
+      "type": "number",
+      "description": "Unit: \u00b5g\u22c5m\u207b\u00b3"
+    },
+    "typical_particle_size": {
+      "type": "number",
+      "description": "Unit: nm"
+    },
+    "pm0_5_number_concentration": {
+      "type": "number",
+      "description": "Unit: 1\u22c5cm\u207b\u00b3"
+    },
+    "pm1_0_number_concentration": {
+      "type": "number",
+      "description": "Unit: 1\u22c5cm\u207b\u00b3"
+    },
+    "pm2_5_number_concentration": {
+      "type": "number",
+      "description": "Unit: 1\u22c5cm\u207b\u00b3"
+    },
+    "pm4_number_concentration": {
+      "type": "number",
+      "description": "Unit: 1\u22c5cm\u207b\u00b3"
+    },
+    "pm10_number_concentration": {
+      "type": "number",
+      "description": "Unit: 1\u22c5cm\u207b\u00b3"
+    },
+    "air_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "air_humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "barometric_pressure": {
+      "type": "number",
+      "description": "Unit: Pa"
+    }
+  },
+  "additionalProperties": true
+}

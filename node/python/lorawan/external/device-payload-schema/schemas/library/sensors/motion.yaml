@@ -1,0 +1,121 @@
+# Motion/Occupancy Sensor Library
+# PIR, radar presence, people counting
+
+definitions:
+  # === PIR/MOTION ===
+  
+  pir:
+    name: pir
+    type: bool
+    description: "PIR motion detected (bit-level, use pir_byte for full byte)"
+    semantic:
+      ipso: 3302
+
+  pir_byte:
+    # Use when PIR is a standalone byte (common in many devices)
+    name: pir
+    type: u8
+    description: "PIR motion detected (0=no, 1=yes)"
+    semantic:
+      ipso: 3302
+
+  motion:
+    name: motion
+    type: bool
+    description: "Motion detected"
+    semantic:
+      ipso: 3302
+
+  occupancy:
+    name: occupancy
+    type: bool
+    description: "Space occupied"
+    semantic:
+      ipso: 3302
+
+  # === PEOPLE COUNTING ===
+  
+  people_count:
+    name: people_count
+    type: u16
+    unit: "people"
+    valid_range: [0, 1000]
+    resolution: 1
+    description: "Current occupancy count"
+
+  total_in:
+    name: total_in
+    type: u32
+    description: "Cumulative entries"
+
+  total_out:
+    name: total_out
+    type: u32
+    description: "Cumulative exits"
+
+  period_in:
+    name: period_in
+    type: u16
+    description: "Entries in period"
+
+  period_out:
+    name: period_out
+    type: u16
+    description: "Exits in period"
+
+  # === ACCELEROMETER ===
+  
+  accel_x:
+    name: accel_x
+    type: s16
+    div: 1000
+    unit: "g"
+    valid_range: [-16, 16]
+    resolution: 0.001
+    description: "X-axis acceleration"
+
+  accel_y:
+    name: accel_y
+    type: s16
+    div: 1000
+    unit: "g"
+    valid_range: [-16, 16]
+    resolution: 0.001
+    description: "Y-axis acceleration"
+
+  accel_z:
+    name: accel_z
+    type: s16
+    div: 1000
+    unit: "g"
+    valid_range: [-16, 16]
+    resolution: 0.001
+    description: "Z-axis acceleration"
+
+  # === TILT ===
+  
+  tilt_angle:
+    name: tilt_angle
+    type: u8
+    unit: "°"
+    valid_range: [0, 90]
+    resolution: 1
+    description: "Tilt angle from vertical"
+
+  tilt_x:
+    name: tilt_x
+    type: s16
+    div: 100
+    unit: "°"
+    valid_range: [-90, 90]
+    resolution: 0.01
+    description: "X-axis tilt"
+
+  tilt_y:
+    name: tilt_y
+    type: s16
+    div: 100
+    unit: "°"
+    valid_range: [-90, 90]
+    resolution: 0.01
+    description: "Y-axis tilt"

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_tbrg_01",
+  "title": "decentlab_dl_tbrg_01 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_tbrg_01 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "precipitation": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "precipitation_interval": {
+      "type": "number",
+      "description": "Unit: s"
+    },
+    "cumulative_precipitation": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

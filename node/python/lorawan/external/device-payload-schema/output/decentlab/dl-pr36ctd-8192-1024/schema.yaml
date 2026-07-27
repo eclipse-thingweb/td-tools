@@ -1,0 +1,40 @@
+# https://www.decentlab.com/products/high-precision-pressure-/-liquid-level-temperature-and-electrical-conductivity-sensor-for-lorawan
+name: decentlab_dl_pr36ctd_8192_1024
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: pressure
+              type: u16
+              unit: "bar"
+              # formula: (x[0] - 32768) / this.PARAMETERS.kp
+            - name: temperature_electronics
+              type: s16
+              div: 256
+              unit: "°C"
+            - name: temperature_pt1000
+              type: s16
+              div: 256
+              unit: "°C"
+            - name: electrical_conductivity
+              type: u16
+              unit: "mS⋅cm⁻¹"
+              # formula: (x[3] - 32768) / this.PARAMETERS.kec
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

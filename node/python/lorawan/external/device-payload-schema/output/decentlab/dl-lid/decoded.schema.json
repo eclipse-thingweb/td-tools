@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_lid",
+  "title": "decentlab_dl_lid Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_lid sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "distance_average": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_minimum": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_maximum": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_median": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_10th_percentile": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_25th_percentile": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_75th_percentile": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_90th_percentile": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "distance_most_frequent_value": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "number_of_samples": {
+      "type": "number"
+    },
+    "total_acquisition_time": {
+      "type": "number",
+      "description": "Unit: ms"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

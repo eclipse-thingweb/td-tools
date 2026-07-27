@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_vs373",
+  "title": "milesight_vs373 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_vs373 sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "detection_status": {
+      "type": "number"
+    },
+    "target_status": {
+      "type": "number"
+    },
+    "use_time_now": {
+      "type": "number"
+    },
+    "use_time_today": {
+      "type": "number"
+    },
+    "region_1_occupancy": {
+      "type": "number"
+    },
+    "region_2_occupancy": {
+      "type": "number"
+    },
+    "region_3_occupancy": {
+      "type": "number"
+    },
+    "region_4_occupancy": {
+      "type": "number"
+    },
+    "region_1_out_of_bed_time": {
+      "type": "number"
+    },
+    "region_2_out_of_bed_time": {
+      "type": "number"
+    },
+    "region_3_out_of_bed_time": {
+      "type": "number"
+    },
+    "region_4_out_of_bed_time": {
+      "type": "number"
+    },
+    "region_5_out_of_bed_time": {
+      "type": "number"
+    },
+    "region_6_out_of_bed_time": {
+      "type": "number"
+    },
+    "respiratory_status": {
+      "type": "number"
+    },
+    "respiratory_rate": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

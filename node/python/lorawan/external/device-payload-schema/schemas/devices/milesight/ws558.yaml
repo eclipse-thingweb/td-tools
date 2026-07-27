@@ -1,0 +1,35 @@
+# Milesight IoT WS558
+name: milesight_ws558
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # VOLTAGE
+        "[3, 116]":
+          - name: voltage
+            type: u16
+            div: 10
+        # ACTIVE POWER
+        "[4, 128]":
+          - name: active_power
+            type: u32
+        # POWER FACTOR
+        "[5, 129]":
+          - name: power_factor
+            type: u8
+        # POWER CONSUMPTION
+        "[6, 131]":
+          - name: power_consumption
+            type: u32
+        # TOTAL CURRENT
+        "[7, 201]":
+          - name: total_current
+            type: u16

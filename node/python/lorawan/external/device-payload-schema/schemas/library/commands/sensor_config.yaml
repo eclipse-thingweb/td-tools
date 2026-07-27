@@ -1,0 +1,235 @@
+# Sensor Configuration Commands
+# Category ID: 0x10
+# 
+# Commands for configuring sensor behavior across device types.
+# Uses 2-byte addressing: [Category:0x10][CID]
+
+category_id: 0x10
+category: sensor_config
+
+definitions:
+
+  set_interval_req:
+    name: SetIntervalReq
+    cid: 0x00
+    direction: downlink
+    description: "Set sensor reporting interval"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: interval_seconds
+        type: u16
+        description: "Reporting interval in seconds (0=default)"
+        valid_range: [0, 65535]
+
+  set_interval_ans:
+    name: SetIntervalAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid, 2=out of range"
+      - name: current_interval
+        type: u16
+        description: "Currently active interval in seconds"
+
+  read_now_req:
+    name: ReadNowReq
+    cid: 0x01
+    direction: downlink
+    description: "Request immediate sensor reading"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: field_mask
+        type: u8
+        description: "Bitmask of fields to read (0xFF=all)"
+
+  read_now_ans:
+    name: ReadNowAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: sensor_data
+        type: bytes
+        description: "Sensor data (format per device schema)"
+
+  set_calibration_req:
+    name: SetCalibrationReq
+    cid: 0x02
+    direction: downlink
+    description: "Set calibration offset for a sensor field"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: field_id
+        type: u8
+        description: "Field identifier"
+      - name: offset
+        type: s16
+        description: "Calibration offset (in field units)"
+
+  set_calibration_ans:
+    name: SetCalibrationAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid field, 2=invalid offset"
+
+  set_enable_req:
+    name: SetEnableReq
+    cid: 0x03
+    direction: downlink
+    description: "Enable or disable sensor fields"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: field_bitmask
+        type: u16
+        description: "Bitmask of fields to enable (1=enable, 0=disable)"
+
+  set_enable_ans:
+    name: SetEnableAns
+    cid: 0x03
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid mask"
+
+  set_profile_req:
+    name: SetProfileReq
+    cid: 0x04
+    direction: downlink
+    description: "Switch sensor operating profile"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: profile_id
+        type: u8
+        description: "Profile identifier (device-specific)"
+
+  set_profile_ans:
+    name: SetProfileAns
+    cid: 0x04
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: status
+        type: u8
+        description: "0=success, 1=invalid profile"
+      - name: active_profile
+        type: u8
+        description: "Currently active profile ID"
+
+  get_config_req:
+    name: GetConfigReq
+    cid: 0x05
+    direction: downlink
+    description: "Query current sensor configuration"
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x05
+
+  get_config_ans:
+    name: GetConfigAns
+    cid: 0x05
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x10
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: interval
+        type: u16
+        description: "Current reporting interval (seconds)"
+      - name: active_profile
+        type: u8
+        description: "Active profile ID"
+      - name: enabled_fields
+        type: u16
+        description: "Bitmask of enabled fields"
+
+test_vectors:
+  - name: set_interval_5min
+    command: set_interval_req
+    payload: "10 00 012C"
+    expected:
+      category: 16
+      cid: 0
+      interval_seconds: 300
+
+  - name: read_all_sensors
+    command: read_now_req
+    payload: "10 01 FF"
+    expected:
+      category: 16
+      cid: 1
+      field_mask: 255
+
+  - name: set_temp_calibration
+    command: set_calibration_req
+    payload: "10 02 01 FFEC"
+    expected:
+      category: 16
+      cid: 2
+      field_id: 1
+      offset: -20

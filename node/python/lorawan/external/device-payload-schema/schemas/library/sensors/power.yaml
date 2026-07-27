@@ -1,0 +1,106 @@
+# Power/Battery Sensor Library
+# Common patterns from TTN device repo
+
+definitions:
+  # === BATTERY ===
+  
+  battery_pct:
+    # Most common: direct percentage
+    name: battery
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    unece: "P1"
+    description: "Battery percentage"
+    semantic:
+      ipso: 3316
+
+  battery_mv:
+    name: battery_mv
+    type: u16
+    unit: "mV"
+    valid_range: [1800, 4200]
+    resolution: 1
+    description: "Battery voltage in millivolts"
+    semantic:
+      ipso: 3316
+
+  battery_v_div10:
+    name: battery_voltage
+    type: u8
+    div: 10
+    unit: "V"
+    valid_range: [1.8, 4.2]
+    resolution: 0.1
+    unece: "VLT"
+    description: "Battery voltage"
+    semantic:
+      ipso: 3316
+
+  battery_v_div100:
+    name: battery_voltage
+    type: u16
+    div: 100
+    unit: "V"
+    valid_range: [1.8, 4.2]
+    resolution: 0.01
+    unece: "VLT"
+    semantic:
+      ipso: 3316
+
+  # Computed battery percentage from mV
+  battery_pct_from_mv:
+    name: battery_percent
+    type: number
+    ref: "$battery_mv"
+    transform:
+      - add: -1800
+      - div: 12
+    unit: "%"
+    valid_range: [0, 100]
+    description: "Battery percentage computed from mV (1800-3000mV = 0-100%)"
+
+  # === SUPPLY/EXTERNAL POWER ===
+  
+  supply_voltage:
+    name: supply_voltage
+    type: u16
+    div: 1000
+    unit: "V"
+    valid_range: [0, 36]
+    resolution: 0.001
+    unece: "VLT"
+    description: "External supply voltage"
+
+  current_ma:
+    name: current
+    type: u16
+    unit: "mA"
+    valid_range: [0, 65535]
+    resolution: 1
+    unece: "AMP"
+    description: "Current draw"
+    semantic:
+      ipso: 3317
+
+  power_w:
+    name: power
+    type: u16
+    unit: "W"
+    valid_range: [0, 65535]
+    resolution: 1
+    unece: "WTT"
+    description: "Power consumption"
+    semantic:
+      ipso: 3328
+
+  energy_kwh:
+    name: energy
+    type: u32
+    div: 1000
+    unit: "kWh"
+    valid_range: [0, 4294967]
+    resolution: 0.001
+    unece: "KWH"
+    description: "Cumulative energy"

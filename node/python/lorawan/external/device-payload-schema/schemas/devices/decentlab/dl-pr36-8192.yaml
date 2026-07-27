@@ -1,0 +1,32 @@
+# https://www.decentlab.com/products/high-precision-pressure-/-liquid-level-and-temperature-sensor-for-lorawan
+name: decentlab_dl_pr36_8192
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: pressure
+              type: u16
+              unit: "bar"
+              # formula: (x[0] - 32768) / this.PARAMETERS.kp
+            - name: temperature
+              type: s16
+              div: 256
+              unit: "°C"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

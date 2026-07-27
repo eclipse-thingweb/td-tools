@@ -1,0 +1,161 @@
+# TS003 Application Layer Clock Synchronization
+# FPort 202
+# Package ID: 1, Version: 2
+
+fport: 202
+package_id: 1
+package_version: 2
+spec: TS003
+
+definitions:
+  # === PACKAGE VERSION (CID 0x00) ===
+
+  package_version_req:
+    name: PackageVersionReq
+    cid: 0x00
+    direction: downlink
+    description: "Request package version from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+
+  package_version_ans:
+    name: PackageVersionAns
+    cid: 0x00
+    direction: uplink
+    description: "Package version response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: package_identifier
+        type: u8
+        value: 1
+        description: "Clock Sync package ID"
+      - name: package_version
+        type: u8
+        description: "Package version (2 for TS003 v2.0.0)"
+
+  # === APP TIME (CID 0x01) ===
+
+  app_time_req:
+    name: AppTimeReq
+    cid: 0x01
+    direction: uplink
+    description: "Device requests time correction"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: device_time
+        type: u32
+        description: "Current device clock (GPS epoch, modulo 2^32)"
+      - name: param
+        type: u8
+        description: "TokenReq[3:0] | AnsRequired[4]"
+
+  app_time_ans:
+    name: AppTimeAns
+    cid: 0x01
+    direction: downlink
+    description: "Server provides time correction"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: time_correction
+        type: s32
+        unit: "s"
+        description: "Signed seconds correction to apply"
+      - name: param
+        type: u8
+        description: "TokenAns[3:0] - must match TokenReq for validation"
+
+  # === DEVICE APP TIME PERIODICITY (CID 0x02) ===
+
+  device_app_time_periodicity_req:
+    name: DeviceAppTimePeriodicityReq
+    cid: 0x02
+    direction: downlink
+    description: "Set automatic time sync periodicity"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: periodicity
+        type: u8
+        description: "Sync period = 128 * 2^periodicity seconds (0-15)"
+        valid_range: [0, 15]
+
+  device_app_time_periodicity_ans:
+    name: DeviceAppTimePeriodicityAns
+    cid: 0x02
+    direction: uplink
+    description: "Confirmation of periodicity setting"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=not supported"
+      - name: time
+        type: u32
+        description: "Current device time (GPS epoch)"
+
+  # === FORCE DEVICE RESYNC (CID 0x03) ===
+
+  force_device_resync_cmd:
+    name: ForceDeviceResyncCmd
+    cid: 0x03
+    direction: downlink
+    description: "Force device to request time sync"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+
+test_vectors:
+  - name: package_version_req
+    command: package_version_req
+    payload: "00"
+    expected:
+      cid: 0
+
+  - name: app_time_req_with_ans_required
+    command: app_time_req
+    payload: "01 65A8F800 15"
+    expected:
+      cid: 1
+      device_time: 1705570304
+      param: 21
+
+  - name: app_time_ans_positive_correction
+    command: app_time_ans
+    payload: "01 0000003C 05"
+    expected:
+      cid: 1
+      time_correction: 60
+      param: 5
+
+  - name: app_time_ans_negative_correction
+    command: app_time_ans
+    payload: "01 FFFFFFC4 05"
+    expected:
+      cid: 1
+      time_correction: -60
+      param: 5
+
+  - name: set_periodicity_daily
+    command: device_app_time_periodicity_req
+    payload: "02 09"
+    expected:
+      cid: 2
+      periodicity: 9
+
+  - name: force_resync
+    command: force_device_resync_cmd
+    payload: "03"
+    expected:
+      cid: 3

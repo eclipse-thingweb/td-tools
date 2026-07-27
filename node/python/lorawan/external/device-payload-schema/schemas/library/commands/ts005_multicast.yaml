@@ -1,0 +1,245 @@
+# TS005 Remote Multicast Setup
+# FPort 200
+# Package ID: 2, Version: 2
+
+fport: 200
+package_id: 2
+package_version: 2
+spec: TS005
+
+definitions:
+  # === PACKAGE VERSION (CID 0x00) ===
+
+  package_version_req:
+    name: PackageVersionReq
+    cid: 0x00
+    direction: downlink
+    description: "Request package version from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+
+  package_version_ans:
+    name: PackageVersionAns
+    cid: 0x00
+    direction: uplink
+    description: "Package version response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: package_identifier
+        type: u8
+        value: 2
+        description: "Multicast setup package ID"
+      - name: package_version
+        type: u8
+        description: "Package version (2 for TS005 v2.0.0)"
+
+  # === MC GROUP STATUS (CID 0x01) ===
+
+  mc_group_status_req:
+    name: McGroupStatusReq
+    cid: 0x01
+    direction: downlink
+    description: "Query multicast group status"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: req_group_mask
+        type: u8
+        description: "Bitmask of groups to query [3:0]"
+
+  mc_group_status_ans:
+    name: McGroupStatusAns
+    cid: 0x01
+    direction: uplink
+    description: "Multicast group status response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: status
+        type: u8
+        description: "GroupsUnConfigured[3:0] | TotalGroups[7:4]"
+
+  # === MC GROUP SETUP (CID 0x02) ===
+
+  mc_group_setup_req:
+    name: McGroupSetupReq
+    cid: 0x02
+    direction: downlink
+    description: "Setup multicast group"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: mc_group_id_header
+        type: u8
+        description: "McGroupID[1:0]"
+      - name: mc_addr
+        type: bytes
+        length: 4
+        description: "Multicast address"
+      - name: mc_key_encrypted
+        type: bytes
+        length: 16
+        description: "Encrypted McKey (encrypted with McKEKey)"
+      - name: min_mc_f_cnt
+        type: u32
+        description: "Minimum multicast frame counter"
+      - name: max_mc_f_cnt
+        type: u32
+        description: "Maximum multicast frame counter"
+
+  mc_group_setup_ans:
+    name: McGroupSetupAns
+    cid: 0x02
+    direction: uplink
+    description: "Multicast group setup response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "McGroupID[1:0] | IDError[2] | McKeyDecryptError[3] | McFCntRangeError[4] | McGroupUndefined[5]"
+
+  # === MC GROUP DELETE (CID 0x03) ===
+
+  mc_group_delete_req:
+    name: McGroupDeleteReq
+    cid: 0x03
+    direction: downlink
+    description: "Delete multicast group"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: mc_group_id_header
+        type: u8
+        description: "McGroupID[1:0]"
+
+  mc_group_delete_ans:
+    name: McGroupDeleteAns
+    cid: 0x03
+    direction: uplink
+    description: "Multicast group delete response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status
+        type: u8
+        description: "McGroupID[1:0] | McGroupUndefined[2]"
+
+  # === MC CLASS C SESSION (CID 0x04) ===
+
+  mc_class_c_session_req:
+    name: McClassCSessionReq
+    cid: 0x04
+    direction: downlink
+    description: "Create Class C multicast session"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: mc_group_id_header
+        type: u8
+        description: "McGroupID[1:0]"
+      - name: session_time
+        type: u32
+        description: "Session start time (GPS epoch)"
+      - name: session_time_out
+        type: u8
+        description: "Timeout = 2^(SessionTimeOut+1) seconds"
+      - name: dl_frequency
+        type: u24
+        description: "Downlink frequency (Hz = value * 100)"
+      - name: dr
+        type: u8
+        description: "Data rate index"
+
+  mc_class_c_session_ans:
+    name: McClassCSessionAns
+    cid: 0x04
+    direction: uplink
+    description: "Class C multicast session response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: status_and_id
+        type: u8
+        description: "McGroupID[1:0] | McGroupUndefined[2] | FreqError[3] | DRError[4] | McKeyDecryptError[5]"
+      - name: time_to_start
+        type: u24
+        description: "Seconds until session starts (only if status OK)"
+        conditional: "status_and_id & 0x3C == 0"
+
+  # === MC CLASS B SESSION (CID 0x05) ===
+
+  mc_class_b_session_req:
+    name: McClassBSessionReq
+    cid: 0x05
+    direction: downlink
+    description: "Create Class B multicast session"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: mc_group_id_header
+        type: u8
+        description: "McGroupID[1:0]"
+      - name: session_time
+        type: u32
+        description: "Session start time (GPS epoch)"
+      - name: time_out_periodicity
+        type: u8
+        description: "TimeOut[3:0] | Periodicity[6:4]"
+      - name: dl_frequency
+        type: u24
+        description: "Downlink frequency (Hz = value * 100)"
+      - name: dr
+        type: u8
+        description: "Data rate index"
+
+  mc_class_b_session_ans:
+    name: McClassBSessionAns
+    cid: 0x05
+    direction: uplink
+    description: "Class B multicast session response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x05
+      - name: status_and_id
+        type: u8
+        description: "McGroupID[1:0] | McGroupUndefined[2] | FreqError[3] | DRError[4] | McKeyDecryptError[5]"
+      - name: time_to_start
+        type: u24
+        description: "Seconds until session starts (only if status OK)"
+        conditional: "status_and_id & 0x3C == 0"
+
+test_vectors:
+  - name: package_version_req
+    command: package_version_req
+    payload: "00"
+    expected:
+      cid: 0
+
+  - name: mc_group_status_all
+    command: mc_group_status_req
+    payload: "01 0F"
+    expected:
+      cid: 1
+      req_group_mask: 15
+
+  - name: mc_group_delete_0
+    command: mc_group_delete_req
+    payload: "03 00"
+    expected:
+      cid: 3
+      mc_group_id_header: 0

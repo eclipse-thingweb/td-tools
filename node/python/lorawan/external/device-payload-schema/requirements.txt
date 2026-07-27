@@ -1,0 +1,28 @@
+# Protocol Prototype Python Dependencies
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+pytest-cov>=4.0.0
+hypothesis>=6.0.0
+
+# Async networking
+aiohttp>=3.8.0
+websockets>=11.0
+
+# Protocol Buffers
+protobuf>=4.0.0
+nanopb>=0.4.7
+
+# Utilities
+pyyaml>=6.0
+python-dateutil>=2.8.0
+
+# QR Code generation (optional)
+qrcode>=7.0
+pillow>=9.0.0
+
+# Development
+black>=23.0.0
+mypy>=1.0.0

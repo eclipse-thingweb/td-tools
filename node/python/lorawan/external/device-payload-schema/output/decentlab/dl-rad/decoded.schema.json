@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_rad",
+  "title": "decentlab_dl_rad Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_rad sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "distance": {
+      "type": "number",
+      "description": "Unit: mm"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "reliability": {
+      "type": "number",
+      "description": "Unit: dB"
+    },
+    "status": {
+      "type": "number"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ts30x",
+  "title": "milesight_ts30x Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ts30x sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "reset_event": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number"
+    },
+    "temperature_chn1": {
+      "type": "number"
+    },
+    "magnet_chn1": {
+      "type": "number"
+    },
+    "temperature_chn2": {
+      "type": "number"
+    },
+    "magnet_chn2": {
+      "type": "number"
+    },
+    "temperature_chn1_alarm": {
+      "type": "number"
+    },
+    "temperature_chn1_mutation": {
+      "type": "number"
+    },
+    "temperature_chn2_alarm": {
+      "type": "number"
+    },
+    "temperature_chn2_mutation": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

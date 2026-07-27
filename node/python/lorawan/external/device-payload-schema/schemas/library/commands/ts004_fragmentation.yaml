@@ -1,0 +1,212 @@
+# TS004 Fragmented Data Block Transport
+# FPort 201
+# Package ID: 3, Version: 2
+
+fport: 201
+package_id: 3
+package_version: 2
+spec: TS004
+
+definitions:
+  # === PACKAGE VERSION (CID 0x00) ===
+
+  package_version_req:
+    name: PackageVersionReq
+    cid: 0x00
+    direction: downlink
+    description: "Request package version from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+
+  package_version_ans:
+    name: PackageVersionAns
+    cid: 0x00
+    direction: uplink
+    description: "Package version response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: package_identifier
+        type: u8
+        value: 3
+        description: "Fragmentation package ID"
+      - name: package_version
+        type: u8
+        description: "Package version (2 for TS004 v2.0.0)"
+
+  # === FRAG SESSION STATUS (CID 0x01) ===
+
+  frag_session_status_req:
+    name: FragSessionStatusReq
+    cid: 0x01
+    direction: downlink
+    description: "Query fragmentation session status"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: frag_index
+        type: u8
+        description: "Session index [1:0] + Participants [4]"
+
+  frag_session_status_ans:
+    name: FragSessionStatusAns
+    cid: 0x01
+    direction: uplink
+    description: "Fragmentation session status response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: received_and_index
+        type: u8
+        description: "FragIndex[1:0] | NotAllReceived[2] | MissingFrag[3]"
+      - name: missing_frag
+        type: u8
+        description: "Number of missing fragments"
+      - name: status
+        type: u8
+        description: "Status bits - MemoryError[0], MICError[1], etc."
+
+  # === FRAG SESSION SETUP (CID 0x02) ===
+
+  frag_session_setup_req:
+    name: FragSessionSetupReq
+    cid: 0x02
+    direction: downlink
+    description: "Create fragmentation session"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: frag_session
+        type: u8
+        description: "FragIndex[1:0] | McGroupBitMask[5:2]"
+      - name: nb_frag
+        type: u16
+        description: "Number of uncoded fragments (max 16383)"
+      - name: frag_size
+        type: u8
+        description: "Size of each fragment in octets"
+      - name: control
+        type: u8
+        description: "FragAlgo[2:0] | AckReception[3] | BlockAckDelay[6:4]"
+      - name: padding
+        type: u8
+        description: "Padding bytes count in last fragment"
+      - name: descriptor
+        type: bytes
+        length: 4
+        description: "4-byte vendor-specific descriptor"
+      - name: session_cnt
+        type: u16
+        description: "Session counter for replay protection"
+      - name: mic
+        type: bytes
+        length: 4
+        description: "4-byte AES-CMAC integrity check"
+
+  frag_session_setup_ans:
+    name: FragSessionSetupAns
+    cid: 0x02
+    direction: uplink
+    description: "Fragmentation session setup response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status_and_index
+        type: u8
+        description: "FragIndex[1:0] | WrongDescriptor[2] | FragSessionCntReplay[3] | NotEnoughMem[4] | EncodingUnsupported[5] | MICError[6]"
+
+  # === FRAG SESSION DELETE (CID 0x03) ===
+
+  frag_session_delete_req:
+    name: FragSessionDeleteReq
+    cid: 0x03
+    direction: downlink
+    description: "Delete fragmentation session"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: param
+        type: u8
+        description: "FragIndex[1:0]"
+
+  frag_session_delete_ans:
+    name: FragSessionDeleteAns
+    cid: 0x03
+    direction: uplink
+    description: "Fragmentation session delete response"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status_and_index
+        type: u8
+        description: "FragIndex[1:0] | SessionNotExist[2]"
+
+  # === DATA BLOCK RECEIVED (CID 0x04) ===
+
+  data_block_received_req:
+    name: DataBlockReceivedReq
+    cid: 0x04
+    direction: uplink
+    description: "Device signals data block reception complete"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: param
+        type: u8
+        description: "FragIndex[1:0]"
+
+  data_block_received_ans:
+    name: DataBlockReceivedAns
+    cid: 0x04
+    direction: downlink
+    description: "Server acknowledges data block reception"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x04
+
+  # === DATA FRAGMENT (CID 0x08) ===
+
+  data_fragment:
+    name: DataFragment
+    cid: 0x08
+    direction: downlink
+    description: "Fragment payload data"
+    fields:
+      - name: cid_and_index
+        type: u16
+        description: "CID[7:0]=0x08 | FragIndex_high[9:8] | FragN[21:10]"
+      - name: data
+        type: bytes
+        description: "Fragment data (length = FragSize)"
+
+test_vectors:
+  - name: package_version_req
+    command: package_version_req
+    payload: "00"
+    expected:
+      cid: 0
+
+  - name: frag_session_status_query
+    command: frag_session_status_req
+    payload: "01 00"
+    expected:
+      cid: 1
+      frag_index: 0
+
+  - name: frag_session_delete
+    command: frag_session_delete_req
+    payload: "03 00"
+    expected:
+      cid: 3
+      param: 0

@@ -1,0 +1,36 @@
+# Makerfabs 4-Channel ADC
+name: makerfabs_4ch_adc
+version: 1
+endian: big
+
+fields:
+  - name: num
+    type: u16
+  - name: battery
+    type: u8
+    div: 10
+    unit: "V"
+  - name: adc1
+    type: u16
+    div: 1000
+    unit: "V"
+  - name: adc2
+    type: u16
+    div: 1000
+    unit: "V"
+  - name: adc3
+    type: u16
+    div: 1000
+    unit: "V"
+  - name: adc4
+    type: u16
+    div: 1000
+    unit: "V"
+  - name: differential
+    type: u16
+    div: 1000
+    unit: "V"
+  - name: time_interval
+    type: u32
+    div: 1000
+    unit: "s"

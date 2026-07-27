@@ -1,0 +1,30 @@
+# https://www.decentlab.com/products/analog-or-digital-sensor-device-for-lorawan
+name: decentlab_dl_dlr2_011
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: ch0_input
+              type: u16
+        - bit: 1
+          fields:
+            - name: ch1_input
+              type: u16
+        - bit: 2
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

@@ -1,0 +1,279 @@
+# Digital Matter Oyster GPS Tracker
+# Source: https://www.digitalmatter.com/oyster-lorawan
+# TTN codec: vendor/digital-matter/oyster.js
+
+name: digital_matter_oyster
+version: 1
+endian: little
+
+ports:
+  1:
+    description: "Position (full precision, 32-bit coords)"
+    fields:
+      - name: latitude
+        type: s32
+        div: 10000000
+        unit: "°"
+        description: "Latitude in degrees (WGS84)"
+        ipso: 3336
+        senml: {unit: "lat"}
+        semantic: "location.latitude"
+        
+      - name: longitude
+        type: s32
+        div: 10000000
+        unit: "°"
+        description: "Longitude in degrees (WGS84)"
+        ipso: 3336
+        senml: {unit: "lon"}
+        semantic: "location.longitude"
+        
+      - byte_group:
+          size: 1
+          fields:
+            - name: in_trip
+              type: u8[0:0]
+              description: "Currently in a trip"
+            - name: fix_failed
+              type: u8[1:1]
+              description: "GPS fix failed (position may be cached)"
+            - name: heading_raw
+              type: u8[2:7]
+              description: "Heading in 5.625° increments"
+              
+      - name: heading
+        type: number
+        ref: $heading_raw
+        mult: 5.625
+        unit: "°"
+        description: "Heading (0-360°)"
+        ipso: 3332
+        senml: {unit: "deg"}
+        semantic: "location.heading"
+        
+      - name: speed
+        type: u8
+        unit: "km/h"
+        description: "Speed in km/h"
+        ipso: 3346
+        senml: {unit: "km/h"}
+        semantic: "location.speed"
+        
+      - name: battery
+        type: u8
+        mult: 0.025
+        unit: "V"
+        description: "Battery voltage"
+        ipso: 3316
+        senml: {unit: "V"}
+        semantic: "battery.voltage"
+
+  2:
+    description: "Downlink ACK"
+    fields:
+      - byte_group:
+          size: 1
+          fields:
+            - name: sequence
+              type: u8[0:6]
+              description: "Downlink sequence number"
+            - name: accepted
+              type: u8[7:7]
+              description: "Downlink was accepted"
+      - name: fw_major
+        type: u8
+        description: "Firmware major version"
+      - name: fw_minor
+        type: u8
+        description: "Firmware minor version"
+
+  4:
+    description: "Position compact (24-bit coords)"
+    fields:
+      - name: latitude_raw
+        type: s24
+        description: "Latitude raw (24-bit scaled)"
+        
+      - name: latitude
+        type: number
+        ref: $latitude_raw
+        mult: 0.0000256
+        unit: "°"
+        description: "Latitude in degrees (WGS84)"
+        ipso: 3336
+        senml: {unit: "lat"}
+        semantic: "location.latitude"
+        
+      - name: longitude_raw
+        type: s24
+        description: "Longitude raw (24-bit scaled)"
+        
+      - name: longitude
+        type: number
+        ref: $longitude_raw
+        mult: 0.0000256
+        unit: "°"
+        description: "Longitude in degrees (WGS84)"
+        ipso: 3336
+        senml: {unit: "lon"}
+        semantic: "location.longitude"
+        
+      - byte_group:
+          size: 1
+          fields:
+            - name: heading_raw
+              type: u8[0:2]
+              description: "Heading in 45° increments (0-7)"
+            - name: speed_raw
+              type: u8[3:7]
+              description: "Speed in 5 km/h increments"
+              
+      - name: heading
+        type: number
+        ref: $heading_raw
+        mult: 45
+        unit: "°"
+        description: "Heading (0-315° in 45° steps)"
+        ipso: 3332
+        senml: {unit: "deg"}
+        semantic: "location.heading"
+        
+      - name: speed
+        type: number
+        ref: $speed_raw
+        mult: 5
+        unit: "km/h"
+        description: "Speed in km/h (0-155 in steps of 5)"
+        ipso: 3346
+        senml: {unit: "km/h"}
+        semantic: "location.speed"
+        
+      - name: battery
+        type: u8
+        mult: 0.025
+        unit: "V"
+        description: "Battery voltage"
+        ipso: 3316
+        senml: {unit: "V"}
+        semantic: "battery.voltage"
+        
+      - byte_group:
+          size: 1
+          fields:
+            - name: in_trip
+              type: u8[0:0]
+              description: "Currently in a trip"
+            - name: fix_failed
+              type: u8[1:1]
+              description: "GPS fix failed"
+            - name: man_down
+              type: u8[2:2]
+              description: "Man-down alert active"
+
+test_vectors:
+  # Port 1: Full precision position
+  - name: port1_sydney
+    description: "Sydney, Australia (negative lat)"
+    fport: 1
+    # lat=-33.8688° * 1e7 = -338688000 -> LE: 0008D0EB
+    # lon=151.2093° * 1e7 = 1512093000 -> LE: 48B5205A
+    payload: "00 08 D0 EB 48 B5 20 5A 00 32 78"
+    expected:
+      latitude: -33.8688
+      longitude: 151.2093
+      in_trip: 0
+      fix_failed: 0
+      heading_raw: 0
+      heading: 0.0
+      speed: 50
+      battery: 3.0
+
+  - name: port1_london
+    description: "London, UK (positive coords)"
+    fport: 1
+    # lat=51.5074° * 1e7 = 515073999 -> LE: CF67B31E
+    # lon=-0.1278° * 1e7 = -1278000 -> LE: D07FECFF
+    payload: "CF 67 B3 1E D0 7F EC FF 44 00 80"
+    expected:
+      latitude: 51.5073999
+      longitude: -0.1278
+      in_trip: 0
+      fix_failed: 0
+      heading_raw: 17
+      heading: 95.625
+      speed: 0
+      battery: 3.2
+
+  - name: port1_moving_north
+    description: "Moving north at 100 km/h"
+    fport: 1
+    payload: "00 00 00 00 00 00 00 00 01 64 90"
+    expected:
+      latitude: 0.0
+      longitude: 0.0
+      in_trip: 1
+      fix_failed: 0
+      heading_raw: 0
+      heading: 0.0
+      speed: 100
+      battery: 3.6
+
+  # Port 2: Downlink ACK
+  - name: port2_ack_accepted
+    description: "Downlink accepted, firmware 1.5"
+    fport: 2
+    payload: "85 01 05"
+    expected:
+      sequence: 5
+      accepted: 1
+      fw_major: 1
+      fw_minor: 5
+
+  - name: port2_ack_rejected
+    description: "Downlink rejected"
+    fport: 2
+    payload: "03 02 10"
+    expected:
+      sequence: 3
+      accepted: 0
+      fw_major: 2
+      fw_minor: 16
+
+  # Port 4: Compact position (24-bit)
+  - name: port4_compact_coords
+    description: "Compact format test (±10°)"
+    fport: 4
+    # lat=-10° / 0.0000256 = -390625 -> s24 LE: 1F0AFA
+    # lon=10° / 0.0000256 = 390625 -> s24 LE: E1F505
+    payload: "1F 0A FA E1 F5 05 28 78 01"
+    expected:
+      latitude_raw: -390625
+      latitude: -10.0
+      longitude_raw: 390625
+      longitude: 10.0
+      heading_raw: 0
+      heading: 0
+      speed_raw: 5
+      speed: 25
+      battery: 3.0
+      in_trip: 1
+      fix_failed: 0
+      man_down: 0
+
+  - name: port4_all_directions
+    description: "Heading test all 8 directions"
+    fport: 4
+    payload: "00 00 00 00 00 00 3F 64 04"
+    expected:
+      latitude_raw: 0
+      latitude: 0.0
+      longitude_raw: 0
+      longitude: 0.0
+      heading_raw: 7
+      heading: 315
+      speed_raw: 7
+      speed: 35
+      battery: 2.5
+      in_trip: 0
+      fix_failed: 0
+      man_down: 1

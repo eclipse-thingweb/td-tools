@@ -1,0 +1,26 @@
+# Milesight IoT WS101
+name: milesight_ws202
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # PIR
+        "[3, 0]":
+          - name: pir
+            type: u8
+        # LIGHT
+        "[4, 0]":
+          - name: light
+            type: u8

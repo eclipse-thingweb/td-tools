@@ -1,0 +1,45 @@
+# MClimate T-Valve
+# Two payload formats: short (2 bytes) and long (5 bytes)
+name: mclimate_t_valve
+version: 1
+endian: big
+
+# Long packet (5 bytes)
+fields:
+  - byte_group:
+      size: 1
+      fields:
+        - name: reason
+          type: u8[5:7]
+          lookup:
+            0: "keepalive"
+            1: "testButtonPressed"
+            2: "floodDetected"
+            3: "controlButtonPressed"
+            4: "fraudDetected"
+        - name: boxTamper
+          type: u8[3:3]
+        - name: floodDetectionWireState
+          type: u8[2:2]
+        - name: flood
+          type: u8[1:1]
+        - name: magnet
+          type: u8[0:0]
+  - byte_group:
+      size: 1
+      fields:
+        - name: alarmValidated
+          type: u8[7:7]
+        - name: manualOpenIndicator
+          type: u8[6:6]
+        - name: manualCloseIndicator
+          type: u8[5:5]
+  - name: closeTime
+    type: u8
+  - name: openTime
+    type: u8
+  - name: battery
+    type: u8
+    mult: 0.008
+    add: 1.6
+    unit: "V"

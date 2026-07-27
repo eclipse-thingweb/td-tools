@@ -1,0 +1,71 @@
+# Milesight IoT AM307 / AM319
+name: milesight_am307
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # HUMIDITY
+        "[4, 104]":
+          - name: humidity
+            type: u8
+            div: 2
+        # PIR
+        "[5, 0]":
+          - name: pir
+            type: u8
+        # LIGHT
+        "[6, 203]":
+          - name: light_level
+            type: u8
+        # CO2
+        "[7, 125]":
+          - name: co2
+            type: u16
+        # TVOC
+        "[8, 125]":
+          - name: tvoc
+            type: u16
+        # PRESSURE
+        "[9, 115]":
+          - name: pressure
+            type: u16
+            div: 10
+        # HCHO
+        "[10, 125]":
+          - name: hcho
+            type: u16
+            div: 100
+        # PM2.5
+        "[11, 125]":
+          - name: pm2_5
+            type: u16
+        # PM10
+        "[12, 125]":
+          - name: pm10
+            type: u16
+        # O3
+        "[13, 125]":
+          - name: o3
+            type: u16
+            div: 100
+        # BEEP
+        "[14, 1]":
+          - name: beep
+            type: u8

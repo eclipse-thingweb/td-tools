@@ -1,0 +1,50 @@
+# Example: Multiple sensors of same type using rename
+#
+# Demonstrates using rename and prefix to include the same sensor type
+# multiple times with different field names.
+#
+# Run through preprocessor:
+#   python tools/schema_preprocessor.py examples/multi_sensor_rename.yaml --print
+
+name: multi_temp_sensor
+version: 1
+endian: big
+description: Device with indoor and outdoor temperature sensors
+
+fields:
+  # Message header
+  - $ref: "schemas/library/common/headers.yaml#/definitions/msg_type_header"
+  
+  # Indoor temperature - rename field
+  - $ref: "schemas/library/sensors/environmental.yaml#/definitions/temperature_c_div10"
+    rename:
+      temperature: indoor_temp
+  
+  # Outdoor temperature - rename field  
+  - $ref: "schemas/library/sensors/environmental.yaml#/definitions/temperature_c_div10"
+    rename:
+      temperature: outdoor_temp
+  
+  # Two humidity sensors using prefix
+  - $ref: "schemas/library/sensors/environmental.yaml#/definitions/humidity_pct_half"
+    prefix: "indoor_"
+    
+  - $ref: "schemas/library/sensors/environmental.yaml#/definitions/humidity_pct_half"
+    prefix: "outdoor_"
+  
+  # Battery with computed percentage (rename to avoid conflict)
+  - $ref: "schemas/library/sensors/power.yaml#/definitions/battery_mv"
+  - $ref: "schemas/library/sensors/power.yaml#/definitions/battery_pct_from_mv"
+
+test_vectors:
+  - name: normal_reading
+    description: "Indoor warm, outdoor cold"
+    payload: "01 00E7 FF9C 32 46 0BB8"
+    expected:
+      msg_type: "data"        # lookup transforms 1 -> "data"
+      indoor_temp: 23.1
+      outdoor_temp: -10.0
+      indoor_humidity: 25.0
+      outdoor_humidity: 35.0
+      battery_mv: 3000
+      battery_percent: 100.0  # (3000-1800)/12 = 100%

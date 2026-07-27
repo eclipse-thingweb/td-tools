@@ -1,0 +1,126 @@
+# Position/GPS Sensor Library
+# GNSS, WiFi positioning, geofencing
+
+definitions:
+  # === GPS COORDINATES ===
+  
+  latitude:
+    name: latitude
+    type: s32
+    div: 1000000
+    unit: "°"
+    valid_range: [-90, 90]
+    resolution: 0.000001
+    description: "Latitude in decimal degrees"
+    semantic:
+      ipso: 3336
+
+  longitude:
+    name: longitude
+    type: s32
+    div: 1000000
+    unit: "°"
+    valid_range: [-180, 180]
+    resolution: 0.000001
+    description: "Longitude in decimal degrees"
+    semantic:
+      ipso: 3336
+
+  latitude_3byte:
+    # Compact 3-byte format (common in trackers)
+    name: latitude
+    type: s24
+    div: 10000
+    unit: "°"
+    valid_range: [-90, 90]
+    resolution: 0.0001
+    description: "Latitude (3-byte compact)"
+
+  longitude_3byte:
+    name: longitude
+    type: s24
+    div: 10000
+    unit: "°"
+    valid_range: [-180, 180]
+    resolution: 0.0001
+    description: "Longitude (3-byte compact)"
+
+  # === ALTITUDE ===
+  
+  altitude_m:
+    name: altitude
+    type: s16
+    unit: "m"
+    valid_range: [-500, 10000]
+    resolution: 1
+    unece: "MTR"
+    description: "Altitude above sea level"
+
+  altitude_m_div10:
+    name: altitude
+    type: s16
+    div: 10
+    unit: "m"
+    valid_range: [-500, 3276]
+    resolution: 0.1
+    unece: "MTR"
+
+  # === GPS METADATA ===
+  
+  hdop:
+    name: hdop
+    type: u8
+    div: 10
+    valid_range: [0, 25]
+    resolution: 0.1
+    description: "Horizontal dilution of precision"
+
+  satellites:
+    name: satellites
+    type: u8
+    valid_range: [0, 32]
+    resolution: 1
+    description: "Number of satellites in view"
+
+  gps_fix:
+    name: gps_fix
+    type: bool
+    description: "GPS fix acquired"
+
+  # === SPEED ===
+  
+  speed_kmh:
+    name: speed
+    type: u8
+    unit: "km/h"
+    valid_range: [0, 255]
+    resolution: 1
+    unece: "KMH"
+    description: "Ground speed"
+
+  speed_ms_div10:
+    name: speed
+    type: u16
+    div: 10
+    unit: "m/s"
+    valid_range: [0, 6553]
+    resolution: 0.1
+    unece: "MTS"
+
+  # === HEADING ===
+  
+  heading:
+    name: heading
+    type: u16
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 1
+    description: "Compass heading"
+
+  heading_div10:
+    name: heading
+    type: u16
+    div: 10
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 0.1

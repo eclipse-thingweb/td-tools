@@ -1,0 +1,37 @@
+# Milesight IoT em500-co2
+name: milesight_em500_co2
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # HUMIDITY
+        "[4, 104]":
+          - name: humidity
+            type: u8
+            div: 2
+        # CO2
+        "[5, 125]":
+          - name: co2
+            type: s16
+        # PRESSURE
+        "[6, 115]":
+          - name: pressure
+            type: s16
+            div: 10

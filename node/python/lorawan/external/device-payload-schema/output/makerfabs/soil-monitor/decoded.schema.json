@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/makerfabs_soil_monitor",
+  "title": "makerfabs_soil_monitor Decoded Output",
+  "description": "JSON Schema for validating decoded output from makerfabs_soil_monitor sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number",
+      "description": "Unit: V"
+    },
+    "humidity": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "ec": {
+      "type": "number",
+      "description": "Unit: \u00b5S/cm"
+    },
+    "ph": {
+      "type": "number"
+    },
+    "interval": {
+      "type": "number",
+      "description": "Unit: s"
+    }
+  },
+  "additionalProperties": true
+}

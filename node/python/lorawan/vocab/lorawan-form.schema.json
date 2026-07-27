@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://www.w3.org/2024/wot/lorawan/lorawan-form.schema.json",
+  "title": "LoRaWAN WoT Binding Form",
+  "description": "Validation rules for the LoRaWAN binding terms used on a property form within a Thing Description.",
+  "type": "object",
+  "properties": {
+    "lorav:fPort": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 255,
+      "description": "LoRaWAN frame port (routing / branching)."
+    },
+    "lorav:type": {
+      "type": "string",
+      "description": "Wire data type, as an xsd:* alias or a native MultiTech type.",
+      "enum": [
+        "xsd:byte", "xsd:short", "xsd:int", "xsd:long",
+        "xsd:unsignedByte", "xsd:unsignedShort", "xsd:unsignedInt", "xsd:unsignedLong",
+        "xsd:float", "xsd:double", "xsd:boolean", "xsd:hexBinary", "xsd:string",
+        "u8", "u16", "u24", "u32", "u64",
+        "s8", "s16", "s24", "s32", "s64",
+        "f16", "f32", "f64",
+        "bool", "ascii", "hex", "bytes", "base64",
+        "number"
+      ]
+    },
+    "lorav:mostSignificantByte": { "type": "boolean" },
+    "lorav:multiplier": { "type": "number" },
+    "lorav:divisor": { "type": "number", "exclusiveMinimum": 0 },
+    "lorav:offset": { "type": "number" },
+    "lorav:bitmask": {
+      "type": "string",
+      "pattern": "^0[xX][0-9a-fA-F]+$",
+      "description": "Hexadecimal mask selecting a contiguous range of bits."
+    },
+    "lorav:byteOffset": { "type": "integer", "minimum": 0 },
+    "lorav:length": {
+      "type": "integer",
+      "minimum": -1,
+      "description": "Byte length for variable-length types (string/bytes/hex/base64); -1 means consume the remaining bytes."
+    },
+    "lorav:tag": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "minItems": 1,
+      "description": "Tag value(s), e.g. [channel, type], selecting this value."
+    },
+    "lorav:slot": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based order of this property within its group (multi-field TLV case, flagged group, or match case)."
+    },
+    "lorav:presenceField": {
+      "type": "string",
+      "description": "Name of the flags property whose bit gates this property's presence (flagged groups)."
+    },
+    "lorav:presenceBit": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Bit index in the presence field that must be set for this property to appear."
+    },
+    "lorav:switchField": {
+      "type": "string",
+      "description": "Name of the discriminator property whose value selects this property's match case."
+    },
+    "lorav:switchValue": {
+      "type": "integer",
+      "description": "Discriminator value that selects this property's match case."
+    },
+    "lorav:var": {
+      "type": "string",
+      "description": "Discriminator alias for this property, referenced as $var by a match block whose discriminator name differs from the property name."
+    },
+    "lorav:padBefore": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Reserved bytes consumed (skipped) immediately before this property within its sequential group (e.g. padding inside a match case)."
+    },
+    "lorav:unit": { "type": "string" },
+    "lorav:unece": { "type": "string" },
+    "lorav:enum": {
+      "type": "object",
+      "description": "Mapping from raw integer (as string key) to label."
+    },
+    "lorav:validRange": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Plausibility range [min, max]; the interpreter flags decoded values outside it."
+    },
+    "lorav:ref": {
+      "type": "string",
+      "description": "Input value of a computed property, a $name reference to another property."
+    },
+    "lorav:polynomial": {
+      "type": "array",
+      "items": { "type": "number" },
+      "description": "Coefficient list evaluated against the referenced input value."
+    },
+    "lorav:transform": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Ordered post-processing operations (add/div/mult/round) for a computed value."
+    },
+    "lorav:compute": {
+      "type": "object",
+      "description": "Binary operation {op, a, b} over two values or constants."
+    },
+    "lorav:guard": {
+      "type": "object",
+      "description": "Conditional gate {when: [...], else: value} for a computed value."
+    }
+  },
+  "required": ["lorav:type"],
+  "additionalProperties": true
+}

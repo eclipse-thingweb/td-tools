@@ -1,0 +1,113 @@
+# Magnetic & Orientation Sensor Library
+# Magnetometer, gyroscope, compass, hall effect
+
+definitions:
+  # === MAGNETOMETER ===
+  
+  mag_x:
+    name: mag_x
+    type: s16
+    unit: "µT"
+    valid_range: [-1000, 1000]
+    resolution: 1
+    description: "Magnetic field X axis"
+    semantic:
+      ipso: 3314
+
+  mag_y:
+    name: mag_y
+    type: s16
+    unit: "µT"
+    valid_range: [-1000, 1000]
+    resolution: 1
+    description: "Magnetic field Y axis"
+
+  mag_z:
+    name: mag_z
+    type: s16
+    unit: "µT"
+    valid_range: [-1000, 1000]
+    resolution: 1
+    description: "Magnetic field Z axis"
+
+  mag_total:
+    name: mag_total
+    type: u16
+    unit: "µT"
+    valid_range: [0, 2000]
+    resolution: 1
+    description: "Total magnetic field strength"
+
+  # === GYROSCOPE ===
+  
+  gyro_x:
+    name: gyro_x
+    type: s16
+    div: 100
+    unit: "°/s"
+    valid_range: [-2000, 2000]
+    resolution: 0.01
+    description: "Angular velocity X axis"
+    semantic:
+      ipso: 3334
+
+  gyro_y:
+    name: gyro_y
+    type: s16
+    div: 100
+    unit: "°/s"
+    valid_range: [-2000, 2000]
+    resolution: 0.01
+    description: "Angular velocity Y axis"
+
+  gyro_z:
+    name: gyro_z
+    type: s16
+    div: 100
+    unit: "°/s"
+    valid_range: [-2000, 2000]
+    resolution: 0.01
+    description: "Angular velocity Z axis"
+
+  # === HALL EFFECT ===
+  
+  hall_effect:
+    name: hall_effect
+    type: bool
+    description: "Hall effect sensor state (magnet detected)"
+
+  hall_count:
+    name: hall_count
+    type: u32
+    description: "Hall effect trigger count"
+
+  # === COMPASS ===
+  
+  compass_heading:
+    name: compass_heading
+    type: u16
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 1
+    description: "Compass heading (0=N)"
+
+  compass_heading_div10:
+    name: compass_heading
+    type: u16
+    div: 10
+    unit: "°"
+    valid_range: [0, 360]
+    resolution: 0.1
+    description: "Compass heading (0=N)"
+
+  # === MAGNETIC SWITCH (Reed) ===
+  
+  reed_switch:
+    name: reed_switch
+    type: bool
+    description: "Reed switch / magnetic contact state"
+
+  magnet_present:
+    name: magnet_present
+    type: bool
+    description: "Magnet presence detected"

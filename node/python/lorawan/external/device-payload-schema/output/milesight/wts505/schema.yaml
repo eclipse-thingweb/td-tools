@@ -1,0 +1,50 @@
+# Milesight IoT WTS305 / WTS506
+name: milesight_wts505
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # BATTERY
+        "[1, 117]":
+          - name: battery
+            type: u8
+        # TEMPERATURE
+        "[3, 103]":
+          - name: temperature
+            type: s16
+            div: 10
+        # HUMIDITY
+        "[4, 104]":
+          - name: humidity
+            type: u8
+            div: 2
+        # Wind Direction, unit degree
+        "[5, 132]":
+          - name: wind_direction
+            type: s16
+            div: 10
+        # Barometric Pressure, unit hPa
+        "[6, 115]":
+          - name: pressure
+            type: u16
+            div: 10
+        # Wind Speed, unit m/s
+        "[7, 146]":
+          - name: wind_speed
+            type: u16
+            div: 10
+        # rainfall_total, unit mm, Frame counter to define whether device enters the new rainfall accumulation phase, it will plus 1 every upload, range: 0~255
+        "[8, 119]":
+          - name: rainfall_total
+            type: u16
+            div: 100
+          - name: rainfall_counter
+            type: u8

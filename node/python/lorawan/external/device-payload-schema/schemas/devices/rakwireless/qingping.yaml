@@ -1,0 +1,35 @@
+# RAKwireless Qingping Air Quality Sensor (Modbus RTU frame)
+name: rakwireless_qingping
+version: 1
+endian: big
+
+fields:
+  - name: device_address
+    type: u8
+  - name: function_code
+    type: u8
+  - name: data_length
+    type: u8
+  - name: data_type
+    type: u8
+  - name: timestamp
+    type: u32
+  # Temperature: 12-bit value, offset -500, div 10
+  # temp = ((bytes[i] * 16) + (bytes[i+1] >> 4) - 500) / 10
+  # humidity = (256 * (bytes[i+1] & 0x0F) + bytes[i+2]) / 10
+  # Packed 20-bit temp + 12-bit humidity across 3 bytes — needs byte_group
+  - byte_group:
+      size: 3
+      fields:
+        - name: _temp_raw
+          type: u24[4:23]
+          # (raw - 500) / 10
+        - name: _humi_raw
+          type: u24[0:11]
+          # raw / 10
+  - name: co2
+    type: u16
+    unit: "ppm"
+  - name: battery
+    type: u8
+    unit: "%"

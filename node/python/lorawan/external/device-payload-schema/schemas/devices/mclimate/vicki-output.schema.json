@@ -1,0 +1,141 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/devices/mclimate_vicki/v2/output",
+  "title": "mclimate_vicki Decoded Payload",
+  "description": "MClimate Vicki Smart Radiator Thermostat",
+  "type": "object",
+  "properties": {
+    "reason": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "targetTemperature": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "description": "User-set target temperature (Unit: \u00b0C). Valid range: [5, 30]"
+    },
+    "sensorTemperatureRaw": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "description": "Raw temperature sensor value (before formula)"
+    },
+    "sensorTemperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C. Valid range: [-40, 85]"
+    },
+    "relativeHumidityRaw": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "description": "Raw humidity sensor value (before scaling)"
+    },
+    "relativeHumidity": {
+      "type": "number",
+      "description": "Unit: %. Valid range: [0, 100]"
+    },
+    "motorPositionLow": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "motorRangeLow": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "motorPositionHigh": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 15
+    },
+    "motorRangeHigh": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 15
+    },
+    "batteryLevel": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 15,
+      "description": "Battery level (0-15, maps to 2.0V-3.5V)"
+    },
+    "openWindow": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Open window detection flag"
+    },
+    "highMotorConsumption": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Motor consuming more power than expected"
+    },
+    "lowMotorConsumption": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Motor consuming less power than expected"
+    },
+    "brokenSensor": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Temperature sensor failure flag"
+    },
+    "childLock": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Child lock enabled"
+    },
+    "calibrationFailed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Valve calibration failed"
+    },
+    "attachedBackplate": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Device attached to backplate"
+    },
+    "perceiveAsOnline": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Device perceives itself as online"
+    },
+    "antiFreezeProtection": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Anti-freeze protection active"
+    },
+    "batteryVoltage": {
+      "type": "number",
+      "description": "Battery voltage (2.0V to 3.5V range) (Unit: V). Valid range: [2.0, 3.6]"
+    },
+    "motorRange": {
+      "type": "number",
+      "description": "Motor full range (steps)"
+    },
+    "motorPosition": {
+      "type": "number",
+      "description": "Current motor position (steps)"
+    },
+    "valveOpenness": {
+      "type": "number",
+      "description": "Valve openness percentage (0=closed, 100=open) (Unit: %). Valid range: [0, 100]"
+    },
+    "targetTemperatureFloat": {
+      "type": "number",
+      "description": "Target temperature with decimal precision (Unit: \u00b0C)"
+    }
+  },
+  "additionalProperties": true
+}

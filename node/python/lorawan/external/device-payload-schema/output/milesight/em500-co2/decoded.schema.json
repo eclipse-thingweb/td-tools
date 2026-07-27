@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_em500_co2",
+  "title": "milesight_em500_co2 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_em500_co2 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "co2": {
+      "type": "number"
+    },
+    "pressure": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

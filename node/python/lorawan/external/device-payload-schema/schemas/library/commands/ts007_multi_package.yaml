@@ -1,0 +1,118 @@
+# TS007 Multi Package Access Protocol
+# FPort 225
+# Package ID: 0, Version: 1
+
+fport: 225
+package_id: 0
+package_version: 1
+spec: TS007
+
+definitions:
+  # === PACKAGE VERSION (CID 0x00) ===
+
+  package_version_req:
+    name: PackageVersionReq
+    cid: 0x00
+    direction: downlink
+    description: "Request all supported package versions from device"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+
+  package_version_ans:
+    name: PackageVersionAns
+    cid: 0x00
+    direction: uplink
+    description: "List of supported packages and versions"
+    fields:
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: packages
+        type: array
+        description: "Array of (PackageID, PackageVersion) pairs"
+        items:
+          - name: package_id
+            type: u8
+            description: "Package identifier"
+          - name: package_version
+            type: u8
+            description: "Package version"
+
+# Package Registry (for reference)
+package_registry:
+  - id: 0
+    name: "Multi Package Access"
+    spec: TS007
+    fport: 225
+  - id: 1
+    name: "Clock Synchronization"
+    spec: TS003
+    fport: 202
+  - id: 2
+    name: "Remote Multicast Setup"
+    spec: TS005
+    fport: 200
+  - id: 3
+    name: "Fragmented Data Block"
+    spec: TS004
+    fport: 201
+  - id: 4
+    name: "Firmware Management"
+    spec: TS006
+    fport: 203
+  - id: 5
+    name: "Sensor Application Layer"
+    spec: TSxxx
+    fport: 204
+    status: proposed
+  - id: 6
+    name: "Certification Protocol"
+    spec: TS009
+    fport: 224
+
+# Multiplexed command wrapping
+multiplexed_format:
+  description: "When using FPort 225, commands from any package can be multiplexed"
+  fields:
+    - name: package_header
+      type: u8
+      description: "Target package ID"
+    - name: command
+      type: bytes
+      description: "Package-specific command (CID + payload)"
+
+test_vectors:
+  - name: package_version_req
+    command: package_version_req
+    payload: "00"
+    expected:
+      cid: 0
+
+  - name: package_version_ans_full_stack
+    command: package_version_ans
+    payload: "00 00 01 01 02 02 02 03 02 04 01"
+    expected:
+      cid: 0
+      packages:
+        - package_id: 0
+          package_version: 1
+        - package_id: 1
+          package_version: 2
+        - package_id: 2
+          package_version: 2
+        - package_id: 3
+          package_version: 2
+        - package_id: 4
+          package_version: 1
+
+  - name: multiplexed_clock_sync
+    description: "AppTimeReq via TS007 multiplexing"
+    payload: "01 01 65A8F800 05"
+    expected:
+      package_header: 1
+      command:
+        cid: 1
+        device_time: 1705570304
+        param: 5

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/rakwireless_qingping",
+  "title": "rakwireless_qingping Decoded Output",
+  "description": "JSON Schema for validating decoded output from rakwireless_qingping sensor",
+  "type": "object",
+  "properties": {
+    "device_address": {
+      "type": "number"
+    },
+    "function_code": {
+      "type": "number"
+    },
+    "data_length": {
+      "type": "number"
+    },
+    "data_type": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "number"
+    },
+    "co2": {
+      "type": "number",
+      "description": "Unit: ppm"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: %"
+    }
+  },
+  "additionalProperties": true
+}

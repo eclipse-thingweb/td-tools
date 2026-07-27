@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_am103",
+  "title": "milesight_am103 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_am103 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "activity": {
+      "type": "number"
+    },
+    "illumination": {
+      "type": "number"
+    },
+    "infrared_and_visible": {
+      "type": "number"
+    },
+    "infrared": {
+      "type": "number"
+    },
+    "co2": {
+      "type": "number"
+    },
+    "tvoc": {
+      "type": "number"
+    },
+    "pressure": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

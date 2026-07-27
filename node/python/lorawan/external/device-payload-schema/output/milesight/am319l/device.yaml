@@ -1,0 +1,25 @@
+name: Milesight Am319L
+description: Milesight Milesight Am319L sensor
+hardwareVersions:
+- version: '1'
+  numeric: 1
+firmwareVersions:
+- version: 1.0.0
+  numeric: 100
+  hardwareVersions:
+  - '1'
+  profiles:
+    EU863-870:
+      id: profile-eu868
+      codec: am319l-codec
+    US902-928:
+      id: profile-us915
+      codec: am319l-codec
+    AS923:
+      id: profile-as923
+      codec: am319l-codec
+    AU915-928:
+      id: profile-au915
+      codec: am319l-codec
+sensors:
+- sensor

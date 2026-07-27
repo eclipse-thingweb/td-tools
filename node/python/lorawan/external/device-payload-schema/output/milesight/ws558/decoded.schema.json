@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ws558",
+  "title": "milesight_ws558 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ws558 sensor",
+  "type": "object",
+  "properties": {
+    "voltage": {
+      "type": "number"
+    },
+    "active_power": {
+      "type": "number"
+    },
+    "power_factor": {
+      "type": "number"
+    },
+    "power_consumption": {
+      "type": "number"
+    },
+    "total_current": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

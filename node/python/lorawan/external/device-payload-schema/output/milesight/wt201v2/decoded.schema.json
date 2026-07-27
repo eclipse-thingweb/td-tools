@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_wt201v2",
+  "title": "milesight_wt201v2 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_wt201v2 sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "reset_event": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "target_temperature": {
+      "type": "number"
+    },
+    "target_temperature_2": {
+      "type": "number"
+    },
+    "temperature_control_mode": {
+      "type": "number"
+    },
+    "temperature_control_status": {
+      "type": "number"
+    },
+    "fan_mode": {
+      "type": "number"
+    },
+    "fan_status": {
+      "type": "number"
+    },
+    "plan_type": {
+      "type": "number"
+    },
+    "system_status": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "wires_relay": {
+      "type": "number"
+    },
+    "temperature_control_support_mode": {
+      "type": "number"
+    },
+    "temperature_control_support_status": {
+      "type": "number"
+    },
+    "temperature_alarm": {
+      "type": "number"
+    },
+    "temperature_sensor_status": {
+      "type": "number"
+    },
+    "humidity_sensor_status": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

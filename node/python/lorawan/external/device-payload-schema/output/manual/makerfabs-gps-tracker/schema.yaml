@@ -1,0 +1,50 @@
+# Makerfabs GPS Tracker (NEO-6M / PA1010D)
+name: makerfabs_gps_tracker
+version: 1
+endian: big
+
+fields:
+  - name: num
+    type: u16
+  - name: battery
+    type: u8
+    div: 10
+    unit: "V"
+  - name: gSensorState
+    type: u8
+  - name: gpsStatus
+    type: u8
+  - name: year
+    type: u16
+  - name: month
+    type: u8
+  - name: date
+    type: u8
+  - name: hour
+    type: u8
+  - name: minute
+    type: u8
+  - name: second
+    type: u8
+  - name: latitude
+    type: u32
+    div: 100000
+    unit: "°"
+  - name: nsHemi
+    type: u8
+    lookup:
+      0: "N"
+      1: "S"
+  - name: longitude
+    type: u32
+    div: 100000
+    unit: "°"
+  - name: ewHemi
+    type: u8
+    lookup:
+      0: "E"
+      1: "W"
+  - name: gsensor_onoff
+    type: u8
+  - name: gsensor_sensitivity
+    type: u8

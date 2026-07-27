@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_uc100",
+  "title": "milesight_uc100 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_uc100 sensor",
+  "type": "object",
+  "properties": {
+    "power": {
+      "type": "number"
+    },
+    "ipso_version": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "software_version": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

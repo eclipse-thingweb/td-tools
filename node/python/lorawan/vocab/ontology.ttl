@@ -1,0 +1,216 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix lorav: <https://www.w3.org/2024/wot/lorawan#> .
+
+#
+# LoRaWAN WoT binding vocabulary.
+#
+# These terms describe how a value carried in a LoRaWAN uplink is located in the
+# raw application payload and how the raw bytes are converted into a typed value.
+# A converter maps each term onto the MultiTech / LoRa Alliance Payload Schema
+# language so a reference codec can be generated and executed.
+#
+
+lorav: a owl:Ontology ;
+    rdfs:label "LoRaWAN Binding Vocabulary" ;
+    rdfs:comment "Vocabulary for describing LoRaWAN payload bindings in WoT Thing Descriptions." .
+
+# --- Thing-level terms -------------------------------------------------------
+
+lorav:payloadLayout a owl:DatatypeProperty ;
+    rdfs:label "payload layout" ;
+    rdfs:comment "Overall structure of the device payload: 'fixed', 'ports', 'tlv' or 'ctv'." ;
+    rdfs:range xsd:string .
+
+lorav:tagFields a owl:DatatypeProperty ;
+    rdfs:label "tag fields" ;
+    rdfs:comment "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value." .
+
+# --- Form-level terms --------------------------------------------------------
+
+lorav:fPort a owl:DatatypeProperty ;
+    rdfs:label "frame port" ;
+    rdfs:comment "LoRaWAN FPort used to route or branch the payload." ;
+    rdfs:range xsd:integer .
+
+lorav:type a owl:DatatypeProperty ;
+    rdfs:label "payload data type" ;
+    rdfs:comment "Wire data type of the value, named with an xsd:* alias or a native type (e.g. s16, u8)." .
+
+lorav:mostSignificantByte a owl:DatatypeProperty ;
+    rdfs:label "most significant byte first" ;
+    rdfs:comment "True for big-endian byte order, false for little-endian." ;
+    rdfs:range xsd:boolean .
+
+lorav:multiplier a owl:DatatypeProperty ;
+    rdfs:label "multiplier" ;
+    rdfs:comment "Factor multiplied with the raw value to obtain the engineering value." ;
+    rdfs:range xsd:double .
+
+lorav:divisor a owl:DatatypeProperty ;
+    rdfs:label "divisor" ;
+    rdfs:comment "Factor the raw value is divided by to obtain the engineering value." ;
+    rdfs:range xsd:double .
+
+lorav:offset a owl:DatatypeProperty ;
+    rdfs:label "offset" ;
+    rdfs:comment "Constant added to the value after scaling." ;
+    rdfs:range xsd:double .
+
+lorav:bitmask a owl:DatatypeProperty ;
+    rdfs:label "bitmask" ;
+    rdfs:comment "Hexadecimal mask selecting a contiguous range of bits from the raw value." ;
+    rdfs:range xsd:string .
+
+lorav:byteOffset a owl:DatatypeProperty ;
+    rdfs:label "byte offset" ;
+    rdfs:comment "Zero-based byte position of the value within a fixed payload layout." ;
+    rdfs:range xsd:integer .
+
+lorav:length a owl:DatatypeProperty ;
+    rdfs:label "length" ;
+    rdfs:comment "Byte length for variable-length types (string, bytes, hex, base64)." ;
+    rdfs:range xsd:integer .
+
+lorav:tag a owl:DatatypeProperty ;
+    rdfs:label "tag" ;
+    rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value." .
+
+lorav:unit a owl:DatatypeProperty ;
+    rdfs:label "unit" ;
+    rdfs:comment "Human-readable engineering unit of the value." ;
+    rdfs:range xsd:string .
+
+lorav:unece a owl:DatatypeProperty ;
+    rdfs:label "UN/CEFACT unit code" ;
+    rdfs:comment "UN/CEFACT Recommendation 20 unit code for the value." ;
+    rdfs:range xsd:string .
+
+lorav:enum a owl:DatatypeProperty ;
+    rdfs:label "enumeration" ;
+    rdfs:comment "Mapping from raw integer values to labels." .
+
+# --- Grouping / conditional-presence terms -----------------------------------
+
+lorav:slot a owl:DatatypeProperty ;
+    rdfs:label "group slot" ;
+    rdfs:comment "Zero-based order of this property within its group (multi-field TLV case, flagged group or match case)." ;
+    rdfs:range xsd:integer .
+
+lorav:presenceField a owl:DatatypeProperty ;
+    rdfs:label "presence field" ;
+    rdfs:comment "Name of the flags property whose bit gates whether this property is present in the payload." ;
+    rdfs:range xsd:string .
+
+lorav:presenceBit a owl:DatatypeProperty ;
+    rdfs:label "presence bit" ;
+    rdfs:comment "Index of the bit in the presence field that must be set for this property to appear." ;
+    rdfs:range xsd:integer .
+
+lorav:switchField a owl:DatatypeProperty ;
+    rdfs:label "switch field" ;
+    rdfs:comment "Name of the discriminator property whose value selects the match case this property belongs to." ;
+    rdfs:range xsd:string .
+
+lorav:switchValue a owl:DatatypeProperty ;
+    rdfs:label "switch value" ;
+    rdfs:comment "Value of the discriminator property that selects this property's match case." ;
+    rdfs:range xsd:integer .
+
+lorav:var a owl:DatatypeProperty ;
+    rdfs:label "discriminator alias" ;
+    rdfs:comment "Alias under which a match block references this property (as $var) when the discriminator name differs from the property name." ;
+    rdfs:range xsd:string .
+
+lorav:padBefore a owl:DatatypeProperty ;
+    rdfs:label "padding before" ;
+    rdfs:comment "Number of reserved bytes consumed before this property within its group (e.g. a skip inside a match case)." ;
+    rdfs:range xsd:integer .
+
+# --- Computed / derived-value terms ------------------------------------------
+#
+# A computed property (lorav:type 'number') carries no payload bytes; the
+# reference interpreter derives its value from other decoded fields.
+
+lorav:ref a owl:DatatypeProperty ;
+    rdfs:label "input reference" ;
+    rdfs:comment "Name ($field) of the decoded value this computed property derives from." ;
+    rdfs:range xsd:string .
+
+lorav:polynomial a owl:DatatypeProperty ;
+    rdfs:label "polynomial" ;
+    rdfs:comment "Coefficient list [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input value." .
+
+lorav:transform a owl:DatatypeProperty ;
+    rdfs:label "transform" ;
+    rdfs:comment "Ordered post-processing operations (add/div/mult) applied to a derived value." .
+
+lorav:compute a owl:DatatypeProperty ;
+    rdfs:label "compute" ;
+    rdfs:comment "Binary operation {op, a, b} combining two values into a derived value." .
+
+lorav:guard a owl:DatatypeProperty ;
+    rdfs:label "guard" ;
+    rdfs:comment "Conditional gate {when, else} selecting a derived value based on a predicate." .
+
+# --- Thing-level OTAA activation / identity terms ----------------------------
+#
+# DevEUI and JoinEUI are identifiers and may appear in the TD. The OTAA root keys
+# AppKey (1.0.x / 1.1.x) and NwkKey (1.1.x only) are secrets and are NOT given a
+# vocabulary term: they are declared as WoT 'apikey' security schemes (with the
+# scheme 'name' set to "appKey" / "nwkKey") and injected at runtime, never stored
+# as values in the Thing Description.
+
+lorav:devEUI a owl:DatatypeProperty ;
+    rdfs:label "DevEUI" ;
+    rdfs:comment "8-byte LoRaWAN device identifier (16 hexadecimal characters)." ;
+    rdfs:range xsd:string .
+
+lorav:joinEUI a owl:DatatypeProperty ;
+    rdfs:label "JoinEUI" ;
+    rdfs:comment "8-byte LoRaWAN join/application identifier, formerly AppEUI (16 hexadecimal characters)." ;
+    rdfs:range xsd:string .
+
+lorav:macVersion a owl:DatatypeProperty ;
+    rdfs:label "LoRaWAN MAC version" ;
+    rdfs:comment "LoRaWAN MAC version such as '1.0.3' or '1.1.0'. Version 1.1.x additionally requires a NwkKey." ;
+    rdfs:range xsd:string .
+
+# --- Thing-level onboarding / device-repository metadata ---------------------
+
+lorav:brand a owl:DatatypeProperty ;
+    rdfs:label "end-device brand" ;
+    rdfs:comment "Brand or vendor of the end device." ;
+    rdfs:range xsd:string .
+
+lorav:model a owl:DatatypeProperty ;
+    rdfs:label "end-device model" ;
+    rdfs:comment "Model name of the end device." ;
+    rdfs:range xsd:string .
+
+lorav:hardwareVersion a owl:DatatypeProperty ;
+    rdfs:label "hardware version" ;
+    rdfs:comment "Hardware revision of the end device." ;
+    rdfs:range xsd:string .
+
+lorav:softwareVersion a owl:DatatypeProperty ;
+    rdfs:label "software version" ;
+    rdfs:comment "Firmware/software version running on the end device." ;
+    rdfs:range xsd:string .
+
+lorav:region a owl:DatatypeProperty ;
+    rdfs:label "region" ;
+    rdfs:comment "Regulatory region / profile of the device, e.g. 'EU868', 'US915'." ;
+    rdfs:range xsd:string .
+
+lorav:frequencyPlan a owl:DatatypeProperty ;
+    rdfs:label "frequency plan" ;
+    rdfs:comment "LoRaWAN Network Server frequency plan identifier, e.g. 'EU_863_870_TTN'." ;
+    rdfs:range xsd:string .
+
+lorav:endDeviceId a owl:DatatypeProperty ;
+    rdfs:label "end-device ID" ;
+    rdfs:comment "Human-readable end-device identifier used when registering with the Network Server." ;
+    rdfs:range xsd:string .

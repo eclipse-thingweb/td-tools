@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_trs11",
+  "title": "decentlab_dl_trs11 Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_trs11 sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "dielectric_permittivity": {
+      "type": "number"
+    },
+    "volumetric_water_content": {
+      "type": "number",
+      "description": "Unit: m\u00b3\u22c5m\u207b\u00b3"
+    },
+    "soil_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

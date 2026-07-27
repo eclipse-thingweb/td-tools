@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_em500_smtc",
+  "title": "milesight_em500_smtc Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_em500_smtc sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number"
+    },
+    "humidity": {
+      "type": "number"
+    },
+    "conductivity": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,79 @@
+# https://www.decentlab.com/products/particulate-matter-temperature-humidity-and-barometric-pressure-sensor-for-lorawan
+name: decentlab_dl_pm
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"
+        - bit: 1
+          fields:
+            - name: pm1_0_mass_concentration
+              type: u16
+              div: 10
+              unit: "µg⋅m⁻³"
+            - name: pm2_5_mass_concentration
+              type: u16
+              div: 10
+              unit: "µg⋅m⁻³"
+            - name: pm4_mass_concentration
+              type: u16
+              div: 10
+              unit: "µg⋅m⁻³"
+            - name: pm10_mass_concentration
+              type: u16
+              div: 10
+              unit: "µg⋅m⁻³"
+            - name: typical_particle_size
+              type: u16
+              unit: "nm"
+            - name: pm0_5_number_concentration
+              type: u16
+              div: 10
+              unit: "1⋅cm⁻³"
+            - name: pm1_0_number_concentration
+              type: u16
+              div: 10
+              unit: "1⋅cm⁻³"
+            - name: pm2_5_number_concentration
+              type: u16
+              div: 10
+              unit: "1⋅cm⁻³"
+            - name: pm4_number_concentration
+              type: u16
+              div: 10
+              unit: "1⋅cm⁻³"
+            - name: pm10_number_concentration
+              type: u16
+              div: 10
+              unit: "1⋅cm⁻³"
+        - bit: 2
+          fields:
+            - name: air_temperature
+              type: u16
+              unit: "°C"
+              # formula: 175.72 * x[0] / 65536 - 46.85
+            - name: air_humidity
+              type: u16
+              unit: "%"
+              # formula: 125 * x[1] / 65536 - 6
+        - bit: 3
+          fields:
+            - name: barometric_pressure
+              type: u16
+              mult: 2
+              unit: "Pa"

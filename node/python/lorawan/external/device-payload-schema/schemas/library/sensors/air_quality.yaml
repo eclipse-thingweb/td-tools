@@ -1,0 +1,161 @@
+# Air Quality Sensor Library
+# Gases, particles, pollutants (extends environmental.yaml)
+
+definitions:
+  # === OZONE ===
+  
+  ozone_ppb:
+    name: ozone
+    type: u16
+    unit: "ppb"
+    valid_range: [0, 1000]
+    resolution: 1
+    description: "Ozone (O3) concentration"
+
+  ozone_ppm:
+    name: ozone
+    type: u16
+    div: 1000
+    unit: "ppm"
+    valid_range: [0, 1]
+    resolution: 0.001
+    description: "Ozone (O3) concentration"
+
+  # === NITROGEN OXIDES ===
+  
+  no_ppb:
+    name: no
+    type: u16
+    unit: "ppb"
+    valid_range: [0, 2000]
+    resolution: 1
+    description: "Nitric oxide (NO)"
+
+  no2_ppb:
+    name: no2
+    type: u16
+    unit: "ppb"
+    valid_range: [0, 2000]
+    resolution: 1
+    description: "Nitrogen dioxide (NO2)"
+
+  nox_ppb:
+    name: nox
+    type: u16
+    unit: "ppb"
+    valid_range: [0, 5000]
+    resolution: 1
+    description: "Nitrogen oxides (NOx)"
+
+  # === CARBON MONOXIDE ===
+  
+  co_ppm:
+    name: co
+    type: u16
+    div: 10
+    unit: "ppm"
+    valid_range: [0, 1000]
+    resolution: 0.1
+    description: "Carbon monoxide (CO)"
+    semantic:
+      ipso: 3325
+
+  # === SULFUR DIOXIDE ===
+  
+  so2_ppb:
+    name: so2
+    type: u16
+    unit: "ppb"
+    valid_range: [0, 2000]
+    resolution: 1
+    description: "Sulfur dioxide (SO2)"
+
+  # === METHANE ===
+  
+  ch4_ppm:
+    name: methane
+    type: u16
+    unit: "ppm"
+    valid_range: [0, 50000]
+    resolution: 1
+    description: "Methane (CH4)"
+
+  ch4_lel_pct:
+    name: methane_lel
+    type: u8
+    unit: "% LEL"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Methane as % of Lower Explosive Limit"
+
+  # === AMMONIA ===
+  
+  nh3_ppm:
+    name: ammonia
+    type: u16
+    div: 10
+    unit: "ppm"
+    valid_range: [0, 500]
+    resolution: 0.1
+    description: "Ammonia (NH3)"
+
+  # === HYDROGEN SULFIDE ===
+  
+  h2s_ppm:
+    name: h2s
+    type: u16
+    div: 10
+    unit: "ppm"
+    valid_range: [0, 100]
+    resolution: 0.1
+    description: "Hydrogen sulfide (H2S)"
+
+  # === AIR QUALITY INDEX ===
+  
+  aqi:
+    name: aqi
+    type: u16
+    valid_range: [0, 500]
+    resolution: 1
+    description: "Air Quality Index"
+
+  iaq:
+    name: iaq
+    type: u16
+    valid_range: [0, 500]
+    resolution: 1
+    description: "Indoor Air Quality index"
+
+  # === PARTICLE COUNTS ===
+  
+  particle_count_0_3um:
+    name: pc_0_3
+    type: u16
+    unit: "1/cm³"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Particle count >0.3µm"
+
+  particle_count_0_5um:
+    name: pc_0_5
+    type: u16
+    unit: "1/cm³"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Particle count >0.5µm"
+
+  particle_count_1_0um:
+    name: pc_1_0
+    type: u16
+    unit: "1/cm³"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Particle count >1.0µm"
+
+  particle_count_2_5um:
+    name: pc_2_5
+    type: u16
+    unit: "1/cm³"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Particle count >2.5µm"

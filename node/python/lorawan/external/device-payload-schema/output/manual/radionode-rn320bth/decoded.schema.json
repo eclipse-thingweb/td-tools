@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/radionode_rn320bth",
+  "title": "radionode_rn320bth Decoded Output",
+  "description": "JSON Schema for validating decoded output from radionode_rn320bth sensor",
+  "type": "object",
+  "properties": {
+    "head": {
+      "type": "number"
+    },
+    "model": {
+      "type": "number"
+    },
+    "timestamp": {
+      "type": "number"
+    },
+    "interval": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number",
+      "description": "Unit: %"
+    },
+    "millivolt": {
+      "type": "number",
+      "description": "Unit: mV"
+    },
+    "freqband": {
+      "type": "number"
+    },
+    "subband": {
+      "type": "number"
+    },
+    "tsmode": {
+      "type": "number"
+    },
+    "splfmt": {
+      "type": "number"
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "humidity": {
+      "type": "number",
+      "description": "Unit: %RH"
+    }
+  },
+  "additionalProperties": true
+}

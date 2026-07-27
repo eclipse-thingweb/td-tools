@@ -1,0 +1,42 @@
+# https://www.decentlab.com/products/optical-dissolved-oxygen-and-temperature-sensor-for-lorawan
+name: decentlab_dl_optod
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: status
+              type: u16
+            - name: temperature
+              type: s16
+              div: 100
+              unit: "°C"
+            - name: oxygen_saturation
+              type: s16
+              div: 100
+              unit: "%"
+            - name: oxygen_concentration
+              type: s16
+              div: 100
+              unit: "mg⋅L⁻¹"
+            - name: oxygen_concentration_alt
+              type: s16
+              div: 100
+              unit: "ppm"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

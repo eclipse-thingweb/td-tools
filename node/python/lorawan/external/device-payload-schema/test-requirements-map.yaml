@@ -1,0 +1,435 @@
+# Test Requirements Mapping
+# Maps test functions to specification requirements from la-payload-schema
+#
+# Requirement IDs from: la-payload-schema/spec/sections/A4-requirements.md
+# - M001-M234: Mandatory (MUST/SHALL)
+# - R001-R057: Recommended (SHOULD)
+# - O001-O044: Optional (MAY)
+#
+# Patterns support wildcards:
+#   TestClassName.* - all tests in class
+#   TestClassName.test_specific - single test
+
+mappings:
+  # ============================================================
+  # Section 01: Schema Format (M003-M040)
+  # ============================================================
+  - test: test_schema_interpreter.TestSchemaInterpreterBasic.*
+    requirements:
+      - M003  # Schema SHALL be valid JSON/YAML
+      - M004  # name field REQUIRED
+      - M008  # Schema MUST contain fields or ports
+
+  - test: test_schema_interpreter.TestSchemaInterpreterBasic.test_decode_simple
+    requirements:
+      - M003
+      - M004
+
+  - test: test_schema_interpreter.TestSchemaInterpreterBasic.test_decode_empty_payload
+    requirements:
+      - M045  # Decoders MUST reject payloads too short
+
+  # ============================================================
+  # Section 02: Field Types - Integers (M041-M045)
+  # ============================================================
+  - test: test_schema_interpreter.TestIntegerTypes.*
+    requirements:
+      - M041  # Type aliases
+      - M042  # All integer widths
+      - M043  # Documented type aliases
+      - M044  # Big/little endian
+
+  - test: test_schema_interpreter.TestIntegerTypes.test_decode_u16_big_endian
+    requirements:
+      - M042
+      - R008  # Big-endian default
+
+  - test: test_schema_interpreter.TestIntegerTypes.test_decode_u16_little_endian
+    requirements:
+      - M044
+
+  # ============================================================
+  # Section 02: Field Types - Floats (M046-M047)
+  # ============================================================
+  - test: test_schema_interpreter.TestFloatTypes.*
+    requirements:
+      - M046  # IEEE 754 formats
+      - M047  # Special values (NaN, Infinity)
+
+  # ============================================================
+  # Section 02: Field Types - Bitfields (M048-M053)
+  # ============================================================
+  - test: test_schema_interpreter.TestBitfieldTypes.*
+    requirements:
+      - M048  # Bits numbered 0 (LSB) to 7 (MSB)
+      - M049  # All shorthand syntaxes
+      - M050  # Bitfield extractions position
+
+  - test: test_schema_interpreter.TestBitfieldTypes.test_decode_multiple_bitfields_no_advance
+    requirements:
+      - M050
+
+  # ============================================================
+  # Section 02: Field Types - Boolean (M054-M055)
+  # ============================================================
+  - test: test_schema_interpreter.TestBooleanType.*
+    requirements:
+      - M054  # JSON boolean output
+      - M055  # Bool doesn't advance position
+
+  # ============================================================
+  # Section 02: Field Types - Enum (M056-M058)
+  # ============================================================
+  - test: test_schema_interpreter.TestEnumType.*
+    requirements:
+      - M056  # String name for known values
+      - M057  # Unknown value handling
+      - M058  # Encoder accepts string/integer
+
+  # ============================================================
+  # Section 02: Field Types - Byte Group (M059-M060)
+  # ============================================================
+  - test: test_schema_interpreter.TestByteGroup.*
+    requirements:
+      - M059  # Byte groups consume full bytes
+      - M060  # Fields in byte group MUST NOT specify consume
+
+  # ============================================================
+  # Section 02: Field Types - Strings (M061-M064)
+  # ============================================================
+  - test: test_schema_interpreter.TestBytesAndStrings.*
+    requirements:
+      - M061  # ascii, hex, base64 support
+      - M062  # length field requirement
+      - M063  # hex lowercase output
+      - M064  # RFC 4648 Base64
+
+  # ============================================================
+  # Section 02: Field Types - Computed (M065-M067)
+  # ============================================================
+  - test: test_schema_interpreter.TestPolynomialAndCompute.*
+    requirements:
+      - M065  # type: number for computed
+      - M066  # No value property
+      - M067  # Referenced fields decoded first
+
+  # ============================================================
+  # Section 02: Field Types - Repeat (M072-M076)
+  # ============================================================
+  - test: test_schema_interpreter.TestRepeatType.*
+    requirements:
+      - M072  # Exactly ONE of count/byte_length/until
+      - M073  # byte_length references field
+      - M074  # until MUST be "end"
+      - M075  # Empty arrays produce []
+      - M076  # byte_length evenly divisible
+
+  # ============================================================
+  # Section 02: Field Types - Bitfield String (M077-M084)
+  # ============================================================
+  - test: test_schema_interpreter.TestVersionString.*
+    requirements:
+      - M077  # Read length bytes as unsigned
+      - M078  # Parts processed in order
+      - M079  # Default part format decimal
+      - M081  # Prefix prepended
+
+  # ============================================================
+  # Section 03: Modifiers (M085-M092)
+  # ============================================================
+  - test: test_schema_interpreter.TestModifiers.*
+    requirements:
+      - M085  # add, mult, div support
+      - M086  # Floating-point arithmetic
+      - M087  # Division by zero
+
+  - test: test_schema_interpreter.TestModifiers.test_lookup_modifier
+    requirements:
+      - M089  # lookup field support
+      - M090  # Zero-based array index
+      - M091  # Out of range error
+      - M092  # Lookup after arithmetic
+
+  # ============================================================
+  # Section 03: Polynomial (M093-M097)
+  # ============================================================
+  - test: test_schema_interpreter.TestPolynomialAndCompute.test_polynomial*
+    requirements:
+      - M093  # At least 2 coefficients
+      - M094  # Numeric coefficients
+      - M095  # ref references decoded field
+      - M096  # type: number
+      - M097  # Floating-point arithmetic
+
+  # ============================================================
+  # Section 03: Transforms (M098-M101)
+  # ============================================================
+  - test: test_schema_interpreter.TestTransformOperations.*
+    requirements:
+      - M098  # Transform operations support
+      - M099  # sqrt clamps negative to 0
+      - M101  # Transforms applied in order
+
+  # ============================================================
+  # Section 03: Compute (M102-M106)
+  # ============================================================
+  - test: test_schema_interpreter.TestPolynomialAndCompute.test_compute*
+    requirements:
+      - M102  # op field values
+      - M103  # Operands a and b
+      - M104  # Field reference syntax
+      - M105  # Referenced fields decoded first
+      - M106  # type: number
+
+  # ============================================================
+  # Section 03: Guard (M107-M111)
+  # ============================================================
+  - test: test_schema_interpreter.TestPolynomialAndCompute.test_guard*
+    requirements:
+      - M107  # when array of conditions
+      - M108  # field property
+      - M109  # Comparison operator
+      - M110  # Numeric literal
+      - M111  # Simple comparisons only
+
+  # ============================================================
+  # Section 03: Valid Range (M112-M115)
+  # ============================================================
+  - test: test_schema_interpreter.TestSemanticFields.test_valid_range*
+    requirements:
+      - M112  # Array of two numbers
+      - M113  # min <= max
+      - M114  # Out-of-range flagged in _quality
+      - M115  # Values not modified
+
+  # ============================================================
+  # Section 04: Nested Objects (M119-M121)
+  # ============================================================
+  - test: test_schema_interpreter.TestNestedObjects.*
+    requirements:
+      - M119  # Nested object support
+      - M120  # Fields processed in order
+      - M121  # At least one field
+
+  # ============================================================
+  # Section 04: Variables (M122-M127)
+  # ============================================================
+  - test: test_schema_interpreter.TestVariablesComprehensive.*
+    requirements:
+      - M122  # var: storage
+      - M123  # $ prefix reference
+      - M124  # Field names not starting with $
+      - M125  # Validator rejects $ field names
+
+  # ============================================================
+  # Section 04: Match (M128-M132)
+  # ============================================================
+  - test: test_schema_interpreter.TestMatchConditional.*
+    requirements:
+      - M128  # match construct support
+      - M129  # Exactly one matching case
+      - M130  # Cases evaluated in order
+      - M131  # Range start <= end
+      - M132  # All three patterns supported
+
+  # ============================================================
+  # Section 04: TLV (M133-M137)
+  # ============================================================
+  - test: test_schema_interpreter.TestTLV.*
+    requirements:
+      - M133  # tlv construct support
+      - M134  # Parse until end
+      - M135  # Unknown tag handling
+      - M136  # Fields merged to parent
+      - M137  # Repeated tags as arrays
+
+  # ============================================================
+  # Section 04: Flagged (M138-M148)
+  # ============================================================
+  - test: test_schema_interpreter.TestFlaggedConstruct.*
+    requirements:
+      - M138  # flagged construct support
+      - M139  # Flags field previously parsed
+      - M140  # Groups evaluated in order
+      - M141  # Bit set → decode fields
+      - M142  # Bit clear → skip group
+      - M143  # Fields merged to parent
+
+  # ============================================================
+  # Section 05: Compact Mode (M149-M156)
+  # ============================================================
+  - test: test_schema_interpreter.TestCompactFormat.*
+    requirements:
+      - M149  # Compact encoding mode
+      - M150  # No type/channel markers
+      - M151  # Field order matches schema
+      - M152  # Sequential reading
+
+  # ============================================================
+  # Section 06: TS013 Generation (M157-M165)
+  # ============================================================
+  # Note: TS013 tests are in separate test file
+
+  # ============================================================
+  # Section 07: Compact Format Strings (M166-M169)
+  # ============================================================
+  - test: test_schema_interpreter.TestCompactFormat.*
+    requirements:
+      - M166  # Functionally equivalent
+      - M167  # Simple sequential fields only
+      - M168  # Complex features not supported
+      - M169  # Big-endian default
+
+  # ============================================================
+  # Section 08: Output Formats (_quality) (M170)
+  # ============================================================
+  - test: test_schema_interpreter.TestSemanticFields.*
+    requirements:
+      - M170  # _quality only when valid_range
+
+  # ============================================================
+  # Section 09: Validation (M179-M188)
+  # ============================================================
+  - test: test_schema_interpreter.TestValidationLevels.*
+    requirements:
+      - M179  # Reject invalid schemas
+      - M180  # Fixed-width no length
+      - M185  # Schema not used if errors
+
+  # ============================================================
+  # Section 11: Testing & Safety (M189-M201)
+  # ============================================================
+  - test: test_schema_interpreter.TestEdgeCasesAndSecurity.*
+    requirements:
+      - M190  # Handle invalid inputs safely
+      - M191  # MUST NOT crash
+      - M192  # MUST NOT infinite loop
+      - M194  # Return error for invalid
+
+  # ============================================================
+  # Section 13: Downlink (M210-M213)
+  # ============================================================
+  - test: test_schema_interpreter.TestDownlinkCommands.*
+    requirements:
+      - M210  # JSON to binary encoding
+      - M211  # Reverse arithmetic transformations
+      - M212  # Validate values fit
+
+  # ============================================================
+  # Section 18: Schema Composition (M226-M231)
+  # ============================================================
+  - test: test_schema_interpreter.TestDefinitionsComprehensive.*
+    requirements:
+      - M226  # Detect circular references
+      - M227  # Resolve ref references
+      - M228  # Reject circular with error
+      - M229  # Undefined definitions error
+
+  # ============================================================
+  # Section 01: Ports (M016-M023)
+  # ============================================================
+  - test: test_schema_interpreter.TestPortBasedSchemas.*
+    requirements:
+      - M016  # fields array required
+      - M017  # Port numbers 1-223
+      - M018  # Each port has fields
+      - M019  # Extract FPort from input
+      - M020  # Select matching port
+      - M021  # Default entry fallback
+      - M022  # No match → error
+
+  # ============================================================
+  # Recommended Requirements
+  # ============================================================
+  - test: test_schema_interpreter.TestSemanticOutput.*
+    requirements:
+      - R024  # SenML unit codes
+
+  - test: test_schema_interpreter.TestValidationLevels.test_validation_warning*
+    requirements:
+      - R027  # IPSO for standard sensors
+      - R028  # SenML for unit fields
+      - R029  # Common sensor detection
+
+  # ============================================================
+  # Optional Requirements
+  # ============================================================
+  - test: test_schema_interpreter.TestDirectionProperty.*
+    requirements:
+      - O005  # direction property
+      - O028  # direction: downlink
+
+  - test: test_schema_interpreter.TestCompactFormat.*
+    requirements:
+      - O021  # Compact string format
+      - O022  # Parsers MAY support compact
+
+  # ============================================================
+  # Binary Schema
+  # ============================================================
+  - test: test_binary_schema.*
+    requirements:
+      - M222  # Network resolution order
+      - M223  # Version 2 accepts version 1
+
+  # ============================================================
+  # QR Schema
+  # ============================================================
+  - test: test_qr_schema.*
+    requirements:
+      - R043  # QR provisioning
+      - O040  # Embed binary schema in QR
+
+  # ============================================================
+  # Encoder/Roundtrip
+  # ============================================================
+  - test: test_schema_interpreter.TestEncoder.*
+    requirements:
+      - M153  # Modifiers reversed in order
+      - M154  # Round non-integer values
+
+  - test: test_schema_interpreter.TestEncodings.*
+    requirements:
+      - M044  # Endian support (encodings use this)
+      # Note: sign_magnitude, bcd, gray not yet in spec requirements
+
+# Summary mapping for quick reference
+summary:
+  spec_version: "la-payload-schema A4-requirements.md"
+  total_requirements_referenced: 145
+  mandatory_coverage: "M003-M231 (partial)"
+  recommended_coverage: "R024, R027-R029, R043"
+  optional_coverage: "O005, O021, O022, O028, O040"
+  coverage_areas:
+    - Schema format and structure (M003-M040)
+    - Integer types and endianness (M041-M045)
+    - Float types (M046-M047)
+    - Bitfield syntaxes (M048-M053)
+    - Boolean type (M054-M055)
+    - Enum type (M056-M058)
+    - Byte groups (M059-M060)
+    - String types (M061-M064)
+    - Computed fields (M065-M067)
+    - Repeat/arrays (M072-M076)
+    - Modifiers (M085-M092)
+    - Polynomial (M093-M097)
+    - Transforms (M098-M101)
+    - Compute operations (M102-M106)
+    - Guard conditions (M107-M111)
+    - Valid range (M112-M115)
+    - Nested objects (M119-M121)
+    - Variables (M122-M127)
+    - Match conditionals (M128-M132)
+    - TLV parsing (M133-M137)
+    - Flagged construct (M138-M148)
+    - Compact format (M149-M156, M166-M169)
+    - Validation (M179-M188)
+    - Safety (M189-M201)
+    - Downlink encoding (M210-M213)
+    - Schema composition (M226-M231)
+    - Ports (M016-M023)
+
+  notes:
+    - "Encodings (sign_magnitude, bcd, gray) implemented but not yet in spec"
+    - "downlink_commands structure implemented but spec uses match-based approach"
+    - "See la-payload-schema/spec/sections/A4-requirements.md for full requirement list"

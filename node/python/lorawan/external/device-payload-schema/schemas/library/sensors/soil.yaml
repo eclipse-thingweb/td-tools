@@ -1,0 +1,137 @@
+# Soil/Agriculture Sensor Library
+# Soil moisture, temperature, conductivity, nutrients
+
+definitions:
+  # === SOIL MOISTURE ===
+  
+  soil_moisture_pct:
+    name: soil_moisture
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    unece: "P1"
+    description: "Volumetric water content percentage"
+    semantic:
+      ipso: 3304
+
+  soil_moisture_vwc:
+    name: soil_moisture
+    type: u16
+    div: 1000
+    unit: "m³/m³"
+    valid_range: [0, 1]
+    resolution: 0.001
+    description: "Volumetric water content"
+
+  soil_moisture_raw:
+    name: soil_moisture_raw
+    type: u16
+    description: "Raw soil moisture ADC reading"
+
+  # === SOIL TEMPERATURE ===
+  
+  soil_temperature_c:
+    name: soil_temperature
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-40, 80]
+    resolution: 0.1
+    unece: "CEL"
+    description: "Soil temperature"
+    semantic:
+      ipso: 3303
+
+  # === SOIL ELECTRICAL PROPERTIES ===
+  
+  soil_ec_dsm:
+    name: soil_ec
+    type: u16
+    div: 100
+    unit: "dS/m"
+    valid_range: [0, 20]
+    resolution: 0.01
+    description: "Soil electrical conductivity"
+
+  soil_ec_uscm:
+    name: soil_ec
+    type: u16
+    unit: "µS/cm"
+    valid_range: [0, 20000]
+    resolution: 1
+    description: "Soil electrical conductivity"
+
+  dielectric_permittivity:
+    name: dielectric_permittivity
+    type: u16
+    div: 100
+    valid_range: [1, 80]
+    resolution: 0.01
+    description: "Soil dielectric permittivity"
+
+  # === LEAF/PLANT SENSORS ===
+  
+  leaf_wetness:
+    name: leaf_wetness
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Leaf wetness percentage"
+
+  leaf_temperature_c:
+    name: leaf_temperature
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-20, 60]
+    resolution: 0.1
+    unece: "CEL"
+    description: "Leaf/canopy temperature"
+
+  # === SOIL WATER POTENTIAL ===
+  
+  soil_tension_kpa:
+    name: soil_tension
+    type: u16
+    unit: "kPa"
+    valid_range: [0, 200]
+    resolution: 1
+    description: "Soil water tension (matric potential)"
+
+  soil_water_potential:
+    name: soil_water_potential
+    type: s16
+    unit: "kPa"
+    valid_range: [-1500, 0]
+    resolution: 1
+    description: "Soil water potential"
+
+  # === SAP FLOW (Tree/Plant Monitoring) ===
+  
+  sap_flow:
+    name: sap_flow
+    type: u16
+    div: 100
+    unit: "L/h"
+    valid_range: [0, 100]
+    resolution: 0.01
+    description: "Sap flow rate in trees/plants"
+
+  stem_water_potential:
+    name: stem_water_potential
+    type: s16
+    unit: "kPa"
+    valid_range: [-3000, 0]
+    resolution: 1
+    description: "Stem/plant water potential"
+
+  vapor_pressure_deficit:
+    name: vpd
+    type: u16
+    div: 100
+    unit: "kPa"
+    valid_range: [0, 10]
+    resolution: 0.01
+    description: "Vapor pressure deficit"

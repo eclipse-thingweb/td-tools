@@ -1,0 +1,56 @@
+# https://www.decentlab.com/products/wind-speed-wind-direction-and-temperature-sensor-for-lorawan
+name: decentlab_dl_atm22
+version: 2
+endian: big
+
+fields:
+  - name: protocol_version
+    type: u8
+  - name: device_id
+    type: u16
+  - name: flags
+    type: u16
+
+  - flagged:
+      field: flags
+      groups:
+        - bit: 0
+          fields:
+            - name: wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+            - name: wind_direction
+              type: s16
+              div: 10
+              unit: "°"
+            - name: maximum_wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+            - name: air_temperature
+              type: s16
+              div: 10
+              unit: "°C"
+            - name: x_orientation_angle
+              type: s16
+              div: 10
+              unit: "°"
+            - name: y_orientation_angle
+              type: s16
+              div: 10
+              unit: "°"
+            - name: north_wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+            - name: east_wind_speed
+              type: s16
+              div: 100
+              unit: "m⋅s⁻¹"
+        - bit: 1
+          fields:
+            - name: battery_voltage
+              type: u16
+              div: 1000
+              unit: "V"

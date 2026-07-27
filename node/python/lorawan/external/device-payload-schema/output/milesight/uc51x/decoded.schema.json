@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_uc51x",
+  "title": "milesight_uc51x Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_uc51x sensor",
+  "type": "object",
+  "properties": {
+    "ipso_version": {
+      "type": "number"
+    },
+    "hardware_version": {
+      "type": "number"
+    },
+    "firmware_version": {
+      "type": "number"
+    },
+    "tsl_version": {
+      "type": "number"
+    },
+    "sn": {
+      "type": "number"
+    },
+    "lorawan_class": {
+      "type": "number"
+    },
+    "reset_event": {
+      "type": "number"
+    },
+    "device_status": {
+      "type": "number"
+    },
+    "battery": {
+      "type": "number"
+    },
+    "valve_1_result": {
+      "type": "number"
+    },
+    "valve_2_result": {
+      "type": "number"
+    },
+    "valve_1_pulse": {
+      "type": "number"
+    },
+    "valve_2_pulse": {
+      "type": "number"
+    },
+    "gpio_1": {
+      "type": "number"
+    },
+    "gpio_2": {
+      "type": "number"
+    },
+    "pressure": {
+      "type": "number"
+    },
+    "pressure_sensor_status": {
+      "type": "number"
+    },
+    "custom_message": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

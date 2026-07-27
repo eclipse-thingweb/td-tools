@@ -1,0 +1,35 @@
+# Milesight IoT GS101
+name: milesight_gs101
+version: 1
+endian: little
+
+fields:
+  - tlv:
+      tag_fields:
+        - name: channel_id
+          type: u8
+        - name: channel_type
+          type: u8
+      tag_key: [channel_id, channel_type]
+      cases:
+        # gas status
+        "[5, 142]":
+          - name: state
+            type: u8
+        # vale
+        "[6, 1]":
+          - name: valve
+            type: u8
+        # relay
+        "[7, 1]":
+          - name: relay
+            type: u8
+        # remained life time for the sensor
+        "[8, 144]":
+          - name: life_remain
+            type: u32
+        # alarm info
+        "[255, 63]":
+          - name: alarm
+            type: u8
+            # raw: "power down"

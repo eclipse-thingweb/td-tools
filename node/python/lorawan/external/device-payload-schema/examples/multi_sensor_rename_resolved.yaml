@@ -1,0 +1,91 @@
+name: multi_temp_sensor
+version: 1
+endian: big
+description: Device with indoor and outdoor temperature sensors
+fields:
+- name: msg_type
+  type: u8
+  description: Message type identifier
+  lookup:
+    0: heartbeat
+    1: data
+    2: alarm
+    3: config
+    255: diagnostic
+- name: indoor_temp
+  type: s16
+  div: 10
+  unit: °C
+  valid_range:
+  - -40
+  - 125
+  resolution: 0.1
+  unece: CEL
+  semantic:
+    ipso: 3303
+- name: outdoor_temp
+  type: s16
+  div: 10
+  unit: °C
+  valid_range:
+  - -40
+  - 125
+  resolution: 0.1
+  unece: CEL
+  semantic:
+    ipso: 3303
+- name: indoor_humidity
+  type: u8
+  mult: 0.5
+  unit: '%RH'
+  valid_range:
+  - 0
+  - 100
+  resolution: 0.5
+  unece: P1
+  semantic:
+    ipso: 3304
+- name: outdoor_humidity
+  type: u8
+  mult: 0.5
+  unit: '%RH'
+  valid_range:
+  - 0
+  - 100
+  resolution: 0.5
+  unece: P1
+  semantic:
+    ipso: 3304
+- name: battery_mv
+  type: u16
+  unit: mV
+  valid_range:
+  - 1800
+  - 4200
+  resolution: 1
+  description: Battery voltage in millivolts
+  semantic:
+    ipso: 3316
+- name: battery_percent
+  type: number
+  ref: $battery_mv
+  transform:
+  - add: -1800
+  - div: 12
+  unit: '%'
+  valid_range:
+  - 0
+  - 100
+  description: Battery percentage computed from mV (1800-3000mV = 0-100%)
+test_vectors:
+- name: normal_reading
+  description: Indoor warm, outdoor cold
+  payload: 01 00E7 FF9C 32 46 0BB8
+  expected:
+    msg_type: data
+    indoor_temp: 23.1
+    outdoor_temp: -10.0
+    indoor_humidity: 25.0
+    outdoor_humidity: 35.0
+    battery_mv: 3000
+    battery_percent: 100.0

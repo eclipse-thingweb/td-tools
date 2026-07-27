@@ -1,0 +1,201 @@
+# Device Management Commands
+# Category ID: 0x12
+# 
+# Commands for device lifecycle and identification.
+# Uses 2-byte addressing: [Category:0x12][CID]
+
+category_id: 0x12
+category: device_management
+
+definitions:
+
+  factory_reset_req:
+    name: FactoryResetReq
+    cid: 0x00
+    direction: downlink
+    description: "Factory reset device to default settings"
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: magic
+        type: u32
+        value: 0xDEADBEEF
+        description: "Safety magic number (must be 0xDEADBEEF)"
+
+  factory_reset_ans:
+    name: FactoryResetAns
+    cid: 0x00
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x00
+      - name: status
+        type: u8
+        description: "0=resetting, 1=invalid magic, 2=not supported"
+
+  get_config_req:
+    name: GetConfigReq
+    cid: 0x01
+    direction: downlink
+    description: "Request device configuration dump"
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x01
+
+  get_config_ans:
+    name: GetConfigAns
+    cid: 0x01
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x01
+      - name: config_version
+        type: u8
+        description: "Config format version"
+      - name: config_data
+        type: bytes
+        description: "Configuration payload (variable length)"
+
+  identify_req:
+    name: IdentifyReq
+    cid: 0x02
+    direction: downlink
+    description: "Trigger visual/audio identification (LED blink, beep)"
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: duration_sec
+        type: u8
+        description: "Identification duration in seconds (0=stop)"
+        valid_range: [0, 255]
+
+  identify_ans:
+    name: IdentifyAns
+    cid: 0x02
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x02
+      - name: status
+        type: u8
+        description: "0=success, 1=not supported, 2=busy"
+
+  reboot_req:
+    name: RebootReq
+    cid: 0x03
+    direction: downlink
+    description: "Reboot device"
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: delay_sec
+        type: u8
+        description: "Delay before reboot (0=immediate)"
+
+  reboot_ans:
+    name: RebootAns
+    cid: 0x03
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x03
+      - name: status
+        type: u8
+        description: "0=rebooting, 1=not supported"
+
+  get_info_req:
+    name: GetInfoReq
+    cid: 0x04
+    direction: downlink
+    description: "Request device information"
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x04
+
+  get_info_ans:
+    name: GetInfoAns
+    cid: 0x04
+    direction: uplink
+    fields:
+      - name: category
+        type: u8
+        value: 0x12
+      - name: cid
+        type: u8
+        value: 0x04
+      - name: fw_major
+        type: u8
+        description: "Firmware major version"
+      - name: fw_minor
+        type: u8
+        description: "Firmware minor version"
+      - name: fw_patch
+        type: u8
+        description: "Firmware patch version"
+      - name: hw_version
+        type: u8
+        description: "Hardware revision"
+      - name: uptime_hours
+        type: u16
+        description: "Device uptime in hours"
+
+test_vectors:
+  - name: factory_reset
+    command: factory_reset_req
+    payload: "12 00 DEADBEEF"
+    expected:
+      category: 18
+      cid: 0
+      magic: 0xDEADBEEF
+
+  - name: identify_10sec
+    command: identify_req
+    payload: "12 02 0A"
+    expected:
+      category: 18
+      cid: 2
+      duration_sec: 10
+
+  - name: reboot_immediate
+    command: reboot_req
+    payload: "12 03 00"
+    expected:
+      category: 18
+      cid: 3
+      delay_sec: 0

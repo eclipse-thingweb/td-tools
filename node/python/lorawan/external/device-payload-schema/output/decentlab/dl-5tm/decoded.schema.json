@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/decentlab_dl_5tm",
+  "title": "decentlab_dl_5tm Decoded Output",
+  "description": "JSON Schema for validating decoded output from decentlab_dl_5tm sensor",
+  "type": "object",
+  "properties": {
+    "protocol_version": {
+      "type": "number"
+    },
+    "device_id": {
+      "type": "number"
+    },
+    "flags": {
+      "type": "number"
+    },
+    "dielectric_permittivity": {
+      "type": "number"
+    },
+    "volumetric_water_content": {
+      "type": "number",
+      "description": "Unit: m\u00b3/m\u00b3"
+    },
+    "soil_temperature_raw": {
+      "type": "number"
+    },
+    "soil_temperature": {
+      "type": "number",
+      "description": "Unit: \u00b0C"
+    },
+    "battery_voltage": {
+      "type": "number",
+      "description": "Unit: V"
+    }
+  },
+  "additionalProperties": true
+}

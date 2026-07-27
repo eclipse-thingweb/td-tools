@@ -1,0 +1,165 @@
+# Industrial Sensor Library
+# 4-20mA, strain, vibration, process control
+
+definitions:
+  # === ANALOG INPUTS ===
+  
+  analog_4_20ma:
+    name: analog_input
+    type: u16
+    div: 1000
+    unit: "mA"
+    valid_range: [4, 20]
+    resolution: 0.001
+    description: "4-20mA analog input"
+
+  analog_0_10v:
+    name: analog_input
+    type: u16
+    div: 1000
+    unit: "V"
+    valid_range: [0, 10]
+    resolution: 0.001
+    unece: "VLT"
+    description: "0-10V analog input"
+
+  adc_raw:
+    name: adc_raw
+    type: u16
+    description: "Raw ADC reading"
+
+  # === STRAIN/LOAD ===
+  
+  strain_ustrain:
+    name: strain
+    type: s32
+    unit: "µε"
+    valid_range: [-50000, 50000]
+    resolution: 1
+    description: "Strain in microstrain"
+
+  load_kg:
+    name: load
+    type: s32
+    div: 100
+    unit: "kg"
+    valid_range: [-100000, 100000]
+    resolution: 0.01
+    unece: "KGM"
+    description: "Load/weight"
+    semantic:
+      ipso: 3322
+
+  load_n:
+    name: load
+    type: s32
+    div: 10
+    unit: "N"
+    valid_range: [-1000000, 1000000]
+    resolution: 0.1
+    unece: "NEW"
+    description: "Force/load"
+
+  # === VIBRATION ===
+  
+  vibration_mms:
+    name: vibration
+    type: u16
+    div: 100
+    unit: "mm/s"
+    valid_range: [0, 100]
+    resolution: 0.01
+    description: "Vibration velocity RMS"
+
+  vibration_g:
+    name: vibration
+    type: u16
+    div: 1000
+    unit: "g"
+    valid_range: [0, 50]
+    resolution: 0.001
+    description: "Vibration acceleration RMS"
+
+  vibration_hz:
+    name: vibration_freq
+    type: u16
+    div: 10
+    unit: "Hz"
+    valid_range: [0, 10000]
+    resolution: 0.1
+    unece: "HTZ"
+    description: "Dominant vibration frequency"
+
+  # === TEMPERATURE (INDUSTRIAL) ===
+  
+  thermocouple_c:
+    name: temperature
+    type: s16
+    div: 10
+    unit: "°C"
+    valid_range: [-200, 1300]
+    resolution: 0.1
+    unece: "CEL"
+    description: "Thermocouple temperature"
+
+  rtd_c:
+    name: temperature
+    type: s16
+    div: 100
+    unit: "°C"
+    valid_range: [-200, 850]
+    resolution: 0.01
+    unece: "CEL"
+    description: "RTD/PT100 temperature"
+
+  # === RESISTANCE ===
+  
+  resistance_ohm:
+    name: resistance
+    type: u32
+    div: 100
+    unit: "Ω"
+    valid_range: [0, 1000000]
+    resolution: 0.01
+    unece: "OHM"
+    description: "Resistance measurement"
+
+  # === FREQUENCY/RPM ===
+  
+  frequency_hz:
+    name: frequency
+    type: u32
+    div: 100
+    unit: "Hz"
+    valid_range: [0, 100000]
+    resolution: 0.01
+    unece: "HTZ"
+    description: "Frequency"
+
+  rpm:
+    name: rpm
+    type: u16
+    unit: "RPM"
+    valid_range: [0, 65535]
+    resolution: 1
+    description: "Rotational speed"
+
+  # === VALVE/ACTUATOR POSITION ===
+  
+  valve_position_pct:
+    name: valve_position
+    type: u8
+    unit: "%"
+    valid_range: [0, 100]
+    resolution: 1
+    description: "Valve position"
+
+  actuator_position_mm:
+    name: actuator_position
+    type: u16
+    div: 10
+    unit: "mm"
+    valid_range: [0, 1000]
+    resolution: 0.1
+    unece: "MMT"
+    description: "Linear actuator position"

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lorawan-schema.org/decoded/milesight_ws302",
+  "title": "milesight_ws302 Decoded Output",
+  "description": "JSON Schema for validating decoded output from milesight_ws302 sensor",
+  "type": "object",
+  "properties": {
+    "battery": {
+      "type": "number"
+    },
+    "freq_weight": {
+      "type": "number"
+    },
+    "time_weight": {
+      "type": "number"
+    },
+    "la": {
+      "type": "number"
+    },
+    "laeq": {
+      "type": "number"
+    },
+    "lamax": {
+      "type": "number"
+    },
+    "class_type": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}
