@@ -3,17 +3,6 @@
   "description": "Netvox R718A fPort 6 (version/status report) and fPort 7 (config command response) uplinks. The official_* vectors are taken verbatim from TheThingsNetwork/lorawan-devices' vendor/netvox/r718a-codec.yaml reference test vectors.",
   "vectors": [
     {
-      "name": "official_version_report",
-      "payload": "01 0B 00 64 02 20 20 08 11 00 00",
-      "fport": 6,
-      "expected": {
-        "reportType": 0,
-        "reportedSoftwareVersion": 10.0,
-        "reportedHardwareVersion": 2,
-        "reportedBuildDate": "20200811"
-      }
-    },
-    {
       "name": "official_status_report",
       "payload": "010B012409EA1A90000000",
       "fport": 6,

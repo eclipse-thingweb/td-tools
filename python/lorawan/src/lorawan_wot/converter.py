@@ -72,9 +72,10 @@ _BITRANGE_BASES: frozenset[str] = frozenset({"u8", "u16", "u24", "u32"})
 class _Field:
     """Intermediate representation of one property's LoRaWAN field descriptor."""
 
-    def __init__(self, name: str, form: dict[str, Any]) -> None:
+    def __init__(self, name: str, form: dict[str, Any], *, unit: str | None = None) -> None:
         self.name = name
         self.form = form
+        self.unit = unit
         # Resolved MultiTech field body (without endian prefix); filled lazily.
         self._body: dict[str, Any] | None = None
 
@@ -203,9 +204,10 @@ class _Field:
         if self.form.get(vocab.BITMASK) is not None:
             field["consume"] = self.byte_width
 
+        # Units live at property level in TDs and map directly to schema fields.
+        if self.unit is not None:
+            field["unit"] = self.unit
         # Semantics carried straight through to the schema.
-        if (unit := self.form.get(vocab.UNIT)) is not None:
-            field["unit"] = unit
         if (unece := self.form.get(vocab.UNECE)) is not None:
             field["unece"] = unece
         if (enum := self.form.get(vocab.ENUM)) is not None:
@@ -264,8 +266,8 @@ class _Field:
         # mult/div/add are applied in field-key order by the interpreter; emit
         # them in form order to preserve the source schema's operation order.
         _emit_scaling(field, self.form)
-        if (unit := self.form.get(vocab.UNIT)) is not None:
-            field["unit"] = unit
+        if self.unit is not None:
+            field["unit"] = self.unit
         if (unece := self.form.get(vocab.UNECE)) is not None:
             field["unece"] = unece
         if (valid_range := self.form.get(vocab.VALID_RANGE)) is not None:
@@ -611,8 +613,10 @@ def _collect_fields(td: dict[str, Any]) -> list[_Field]:
     """
     fields: list[_Field] = []
     for name, affordance in (td.get("properties") or {}).items():
+        unit = affordance.get("unit") if isinstance(affordance, dict) else None
+        unit = unit if isinstance(unit, str) else None
         for form in _lorawan_forms(affordance.get("forms") or []):
-            fields.append(_Field(name, form))
+            fields.append(_Field(name, form, unit=unit))
     return fields
 
 

@@ -2,12 +2,14 @@
 
 This project lets you describe a LoRaWAN sensor with a **W3C Web of Things (WoT)
 Thing Description (TD)** and automatically turn it into a working **payload
-codec**.
+codec**. We have validated the generated codec in ChirpStack to decode uplink payloads into JSON values. It should also work in The Things Network (TTN).
+
+or The Things Network (TTN) .
 
 The TD carries the payload binding *inside its property forms* (using
 `lorav:` terms). A converter translates that TD into the
-[MultiTech / LoRa Alliance Payload Schema](https://github.com/MultiTechSystems/device-payload-schema)
-language, and the MultiTech reference interpreter does the actual byte decoding.
+[LoRa Alliance Payload Schema / MultiTech](https://github.com/MultiTechSystems/device-payload-schema)
+language, and the reference interpreter does the actual byte decoding.
 
 ```
 Thing Description (.td.json)
@@ -16,7 +18,7 @@ Thing Description (.td.json)
   td_to_payload_schema()        ← this project
         │   MultiTech payload schema (YAML/dict)
         ▼
-  MultiTech SchemaInterpreter   ← pinned git submodule
+  Referenced SchemaInterpreter   ← pinned git submodule
         │
         ▼
   Decoded values  { "temperature": 28.3, ... }
@@ -26,7 +28,7 @@ Thing Description (.td.json)
 
 * **One source of truth** – the TD holds both the WoT abstraction *and* the
   payload binding.
-* **No reinvented codec** – decoding is delegated to MultiTech's interpreter.
+* **No reinvented codec** – decoding is delegated to the referenced interpreter.
 * **Real layouts** – supports fixed binary layouts, per-`fPort` layouts, and
   channel/type/value or type/length/value (TLV) payloads.
 
@@ -34,12 +36,11 @@ Thing Description (.td.json)
 
 * [uv](https://docs.astral.sh/uv/) (Python project & environment manager)
 * Python 3.11+
-* `git` (the MultiTech interpreter is a pinned submodule)
 
 ## Setup
 
 ```bash
-# 1. Get the MultiTech interpreter (pinned submodule)
+# 1. Get the LoRa Alliance Payload / MultiTech interpreter (pinned submodule)
 git submodule update --init --recursive
 
 # 2. Create the environment and install dependencies
@@ -51,7 +52,7 @@ uv sync
 ```
 src/lorawan_wot/
   vocab.py        # binding terms + xsd->wire type mapping (single source of truth)
-  converter.py    # TD  ->  MultiTech payload schema
+  converter.py    # TD  ->  LoRa Alliance Payload / MultiTech payload schema
   schema_to_td.py # MultiTech payload schema  ->  TD (reverse of converter)
   decode.py       # drive the MultiTech interpreter from a TD + payload
   cli.py          # `lorawan-wot convert | decode | generate`
@@ -60,8 +61,9 @@ vocab/
   context.jsonld          # JSON-LD context for the lorav: namespace
   lorawan-form.schema.json# JSON Schema for LoRaWAN property forms
   lorawan-thing.schema.json# JSON Schema for Thing-level OTAA / onboarding terms
-examples/         # example TDs + test vectors
+examples/         # curated TD examples + vectors + generated artifacts
   devices/        # TD catalog generated from the reference device schemas
+  generated/      # output folder for generated schema/codec artifacts
 scripts/
   generate_device_tds.py  # batch-generate the examples/devices/ catalog
 tests/            # converter, decode, schema-validation, and catalog tests
@@ -92,24 +94,13 @@ uv run lorawan-wot decode examples/dragino-lht65n.td.json 0B450A8C02DD010A1E --f
 #    }
 ```
 
-For a `ports` layout, pass the frame port:
+For a `ports` layout, don't forget to pass the frame port:
 
 ```bash
 uv run lorawan-wot decode my-device.td.json 01A0 --fport 2
 ```
 
-### Generate a Thing Description from a payload schema
 
-The reverse of `convert`: turn an existing MultiTech / LoRa Alliance payload
-schema into a starter Thing Description.
-
-```bash
-uv run lorawan-wot generate \
-    external/device-payload-schema/schemas/devices/makerfabs/ath20.yaml \
-    -o examples/devices/makerfabs/ath20.td.json
-```
-
-This is how the bundled [device catalog](#device-catalog) is produced.
 
 ### Use it from Python
 
@@ -133,10 +124,21 @@ generated_td = payload_schema_to_td(source, source="ath20.yaml")
 For production code, prefer context managers (`with open(...)`) and explicit
 `encoding="utf-8"` when reading files.
 
+### Generate a Thing Description from a payload schema
+
+The reverse of `convert`: turn an existing MultiTech / LoRa Alliance payload
+schema into a starter Thing Description.
+
+```bash
+uv run lorawan-wot generate external/device-payload-schema/schemas/devices/makerfabs/ath20.yaml -o examples/devices/makerfabs/ath20.td.json
+```
+
+This is how to generat a bundled [device catalog](#device-catalog).
+
 
 ## Generate a ChirpStack / TTN JavaScript codec
 
-The MultiTech schema produced from a TD can be turned into a self-contained
+The reference MultiTech schema produced from a TD can be turned into a self-contained
 `decodeUplink(input)` JavaScript codec (for ChirpStack / TTN).
 
 **Quick rule**
@@ -159,12 +161,10 @@ The MultiTech schema produced from a TD can be turned into a self-contained
 
 ```bash
 # TD -> schema
-uv run lorawan-wot convert examples/netvox-r718a.td.json \
-    -o examples/generated/netvox-r718a.schema.yaml
+uv run lorawan-wot convert examples/netvox-r718a.td.json -o examples/generated/netvox-r718a.schema.yaml
 
 # schema -> JS codec
-uv run python external/device-payload-schema/tools/generate_ts013_codec.py \
-    examples/generated/netvox-r718a.schema.yaml -o examples/generated
+uv run python external/device-payload-schema/tools/generate_ts013_codec.py examples/generated/netvox-r718a.schema.yaml -o examples/generated
 # -> examples/generated/netvox_r718a.schema_codec.js
 ```
 
@@ -174,12 +174,10 @@ This is the recommended path for `ports` and `match` devices.
 
 ```bash
 # TD -> schema
-uv run lorawan-wot convert examples/em300-zld.td.json \
-    -o examples/generated/em300-zld.schema.yaml
+uv run lorawan-wot convert examples/em300-zld.td.json -o examples/generated/em300-zld.schema.yaml
 
 # schema -> JS codec
-uv run python external/device-payload-schema/tools/generate_ts013_codec.py \
-    examples/generated/em300-zld.schema.yaml -o examples/generated
+uv run python external/device-payload-schema/tools/generate_ts013_codec.py examples/generated/em300-zld.schema.yaml -o examples/generated
 # -> examples/generated/em300_zld.schema_codec.js
 ```
 
@@ -204,14 +202,14 @@ field descriptor on each property's form.
   "properties": {
     "temperature": {
       "type": "number",
+      "unit": "Cel",
       "forms": [
         {
           "href": "uplink",
           "lorav:byteOffset": 2,            // where in the payload
           "lorav:type": "xsd:short",        // wire data type
           "lorav:mostSignificantByte": true,
-          "lorav:multiplier": 0.01,         // raw * 0.01
-          "lorav:unit": "Cel"
+          "lorav:multiplier": 0.01          // raw * 0.01
         }
       ]
     }
@@ -243,7 +241,7 @@ For `tlv`/`ctv` you may declare the tag fields at Thing level with
 | `lorav:fPort` | LoRaWAN frame port | `ports` key |
 | `lorav:tag` | Tag selecting a value, e.g. `[3, 103]` | `tlv` case key |
 | `lorav:length` | Byte length for `bytes`/`string`/`hex` (`-1` = consume rest) | `length` |
-| `lorav:unit` / `lorav:unece` | Engineering unit / UN/CEFACT code | `unit` / `unece` |
+| `lorav:unece` | UN/CEFACT unit code | `unece` |
 | `lorav:enum` | Map raw integers to labels | `values` |
 | `lorav:slot` | Order of a property within its group (multi-field TLV / flagged / match) | field order |
 | `lorav:presenceField` | Name of the bit-flags property that gates this property | `flagged.field` |
@@ -350,10 +348,15 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
 
 ## Examples
 
+The repository ships **6 curated example pairs** (`*.td.json` + `*.vectors.json`)
+in `examples/`:
+
 | File | Layout | Highlights |
 |------|--------|-----------|
+| `examples/adeunis-comfort2.td.json` | `fixed` | Compact fixed layout with signed temperature + humidity scaling and battery percentage. |
 | `examples/milesight-am102.td.json` | `ctv` | Channel/type/value, signed scaling, little-endian; OTAA AppKey (1.0.3) |
 | `examples/dragino-lht65n.td.json` | `ports` | fPort-aware LHT65N example: fPort 2 status bits + basic battery/temperature/humidity, and fPort 5 device-info/battery; OTAA AppKey (1.0.3). Extension-specific alternate paths are documented gaps. |
+| `examples/em300-zld.td.json` | `ctv` | Milesight channel/type payload with leak state + battery from tagged uplinks. |
 | `examples/generic-lorawan11.td.json` | `fixed` | LoRaWAN 1.1 OTAA with AppKey **and** NwkKey; onboarding metadata |
 | `examples/netvox-r718a.td.json` | `ports` | Real device validated against `TheThingsNetwork/lorawan-devices` reference vectors; fPort 6 (`match` on reportType: startup version report vs. status report with a shared status byte) and fPort 7 (`match` on commandId: config-report responses) |
 
@@ -373,7 +376,8 @@ uv run python -m scripts.generate_device_tds
 Validation is in `tests/test_device_catalog.py`: TD round-trip must preserve
 decode structure, and TD-based decoding must match source schema decoding.
 
-Coverage summary for the 158 reference schemas: **157 generated, 1 skipped**.
+Coverage summary for the current reference set (158 schemas): **157 generated,
+1 skipped**.
 
 | Category | Status |
 |----------|--------|

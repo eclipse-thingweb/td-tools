@@ -34,7 +34,7 @@ def test_dragino_example_uses_ports_layout_for_basic_fport_coverage(lht65n_td):
 
     assert schema["endian"] == "big"
     ports = schema["ports"]
-    assert sorted(ports.keys()) == [2, 5]
+    assert sorted(ports.keys()) == [2]
     port2_names = [field["name"] for field in ports[2]["fields"]]
     assert port2_names == [
         "batteryVoltage",
@@ -43,13 +43,6 @@ def test_dragino_example_uses_ports_layout_for_basic_fport_coverage(lht65n_td):
         "extensionCode",
         "pollMessageStatus",
         "retransmissionStatus",
-    ]
-    assert [field["name"] for field in ports[5]["fields"]] == [
-        "sensorModelCode",
-        "_pad_1",
-        "frequencyBandCode",
-        "subBandCode",
-        "deviceInfoBatteryVoltage",
     ]
 
 

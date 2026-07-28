@@ -51,8 +51,7 @@
           "href": "uplink",
           "op": ["readproperty", "observeproperty"],
           "lorav:byteOffset": 0,
-          "lorav:type": "xsd:unsignedByte",
-          "lorav:unit": "%"
+          "lorav:type": "xsd:unsignedByte"
         }
       ]
     },
@@ -68,8 +67,7 @@
           "lorav:byteOffset": 1,
           "lorav:type": "xsd:short",
           "lorav:mostSignificantByte": true,
-          "lorav:multiplier": 0.1,
-          "lorav:unit": "Cel"
+          "lorav:multiplier": 0.1
         }
       ]
     }

@@ -52,7 +52,6 @@ BITMASK: Final = "lorav:bitmask"  # hex mask, e.g. "0x3FFF"
 BYTE_OFFSET: Final = "lorav:byteOffset"  # fixed-layout position (bytes)
 LENGTH: Final = "lorav:length"  # byte length for string/bytes/hex
 TAG: Final = "lorav:tag"  # tlv/ctv case selector, e.g. [3, 103]
-UNIT: Final = "lorav:unit"  # engineering unit, e.g. "Cel"
 UNECE: Final = "lorav:unece"  # UN/CEFACT unit code, e.g. "CEL"
 ENUM: Final = "lorav:enum"  # categorical mapping {int: str}
 VALID_RANGE: Final = "lorav:validRange"  # [min, max] plausibility range -> quality flag

@@ -28,7 +28,6 @@
     "transform": "lorav:transform",
     "compute": "lorav:compute",
     "guard": "lorav:guard",
-    "unit": "lorav:unit",
     "unece": "lorav:unece",
     "enum": "lorav:enum",
 

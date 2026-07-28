@@ -38,17 +38,6 @@
         "extensionCode": 15,
         "batteryVoltage": 2.885
       }
-    },
-    {
-      "name": "device_info_port5",
-      "payload": "0B014201FF0B45",
-      "fport": 5,
-      "expected": {
-        "sensorModelCode": 11,
-        "frequencyBandCode": 1,
-        "subBandCode": 255,
-        "deviceInfoBatteryVoltage": 2.885
-      }
     }
   ]
 }

@@ -638,8 +638,6 @@ def _build_computed_form(
     if "transform" in field:
         form[vocab.TRANSFORM] = field["transform"]
     _store_scaling(form, field)
-    if "unit" in field:
-        form[vocab.UNIT] = field["unit"]
     if "unece" in field:
         form[vocab.UNECE] = field["unece"]
     if "valid_range" in field:
@@ -780,8 +778,6 @@ def _build_form(
     enum = _enum(field)
     if enum is not None:
         form[vocab.ENUM] = enum
-    if "unit" in field:
-        form[vocab.UNIT] = field["unit"]
     if "unece" in field:
         form[vocab.UNECE] = field["unece"]
     if "valid_range" in field:

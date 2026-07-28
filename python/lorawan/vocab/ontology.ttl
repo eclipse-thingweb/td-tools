@@ -78,11 +78,6 @@ lorav:tag a owl:DatatypeProperty ;
     rdfs:label "tag" ;
     rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value." .
 
-lorav:unit a owl:DatatypeProperty ;
-    rdfs:label "unit" ;
-    rdfs:comment "Human-readable engineering unit of the value." ;
-    rdfs:range xsd:string .
-
 lorav:unece a owl:DatatypeProperty ;
     rdfs:label "UN/CEFACT unit code" ;
     rdfs:comment "UN/CEFACT Recommendation 20 unit code for the value." ;

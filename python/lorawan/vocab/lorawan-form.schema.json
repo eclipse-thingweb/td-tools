@@ -77,7 +77,6 @@
       "minimum": 0,
       "description": "Reserved bytes consumed (skipped) immediately before this property within its sequential group (e.g. padding inside a match case)."
     },
-    "lorav:unit": { "type": "string" },
     "lorav:unece": { "type": "string" },
     "lorav:enum": {
       "type": "object",

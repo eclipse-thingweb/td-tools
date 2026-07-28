@@ -62,8 +62,7 @@
           "lorav:tag": [3, 103],
           "lorav:type": "xsd:short",
           "lorav:mostSignificantByte": false,
-          "lorav:divisor": 10,
-          "lorav:unit": "Cel"
+          "lorav:divisor": 10
         }
       ]
     },
@@ -78,8 +77,7 @@
           "op": ["readproperty", "observeproperty"],
           "lorav:tag": [4, 104],
           "lorav:type": "xsd:unsignedByte",
-          "lorav:divisor": 2,
-          "lorav:unit": "%RH"
+          "lorav:divisor": 2
         }
       ]
     }

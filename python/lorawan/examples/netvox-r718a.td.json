@@ -63,8 +63,7 @@
           "lorav:byteOffset": 3,
           "lorav:type": "xsd:unsignedByte",
           "lorav:bitmask": "0x7F",
-          "lorav:divisor": 10,
-          "lorav:unit": "V"
+          "lorav:divisor": 10
         }
       ]
     },
@@ -108,8 +107,7 @@
           "lorav:byteOffset": 4,
           "lorav:type": "xsd:short",
           "lorav:mostSignificantByte": true,
-          "lorav:divisor": 100,
-          "lorav:unit": "Cel"
+          "lorav:divisor": 100
         }
       ]
     },
@@ -131,8 +129,7 @@
           "lorav:byteOffset": 6,
           "lorav:type": "xsd:unsignedShort",
           "lorav:mostSignificantByte": true,
-          "lorav:divisor": 100,
-          "lorav:unit": "%RH"
+          "lorav:divisor": 100
         }
       ]
     }
