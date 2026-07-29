@@ -4,8 +4,6 @@ This project lets you describe a LoRaWAN sensor with a **W3C Web of Things (WoT)
 Thing Description (TD)** and automatically turn it into a working **payload
 codec**. We have validated the generated codec in ChirpStack to decode uplink payloads into JSON values. It should also work in The Things Network (TTN).
 
-or The Things Network (TTN) .
-
 The TD carries the payload binding *inside its property forms* (using
 `lorav:` terms). A converter translates that TD into the
 [LoRa Alliance Payload Schema / MultiTech](https://github.com/MultiTechSystems/device-payload-schema)
@@ -59,8 +57,8 @@ src/lorawan_wot/
 vocab/
   ontology.ttl            # RDF vocabulary
   context.jsonld          # JSON-LD context for the lorav: namespace
-  lorawan-form.schema.json# JSON Schema for LoRaWAN property forms
-  lorawan-thing.schema.json# JSON Schema for Thing-level OTAA / onboarding terms
+  lorawan-form.schema.json  # JSON Schema for LoRaWAN property forms
+  lorawan-thing.schema.json  # JSON Schema for Thing-level OTAA / onboarding terms
 examples/         # curated TD examples + vectors + generated artifacts
   devices/        # TD catalog generated from the reference device schemas
   generated/      # output folder for generated schema/codec artifacts
@@ -95,11 +93,6 @@ uv run lorawan-wot decode examples/dragino-lht65n.td.json 0B450A8C02DD010A1E --f
 ```
 
 For a `ports` layout, don't forget to pass the frame port:
-
-```bash
-uv run lorawan-wot decode my-device.td.json 01A0 --fport 2
-```
-
 
 
 ### Use it from Python
