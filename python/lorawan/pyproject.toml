@@ -36,6 +36,10 @@ target-version = "py311"
 # The MultiTech upstream code lives in a submodule; do not lint vendored code.
 extend-exclude = ["external"]
 
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [tool.ruff.lint]
 # Common best-practice rule sets: pyflakes, pycodestyle, isort, bugbear,
 # comprehensions, pyupgrade, and naming.
