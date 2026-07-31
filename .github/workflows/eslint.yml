@@ -14,13 +14,11 @@ on:
         branches: ["main"]
         paths:
             - "node/**"
-            - ".eslintrc.json"
     pull_request:
         # The branches below must be a subset of the branches above
         branches: ["main"]
         paths:
             - "node/**"
-            - ".eslintrc.json"
 
 jobs:
     eslint:

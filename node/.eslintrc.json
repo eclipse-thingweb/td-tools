@@ -11,7 +11,7 @@
     },
     "plugins": ["@typescript-eslint", "unused-imports"],
     "extends": ["eslint:recommended", "prettier", "plugin:@typescript-eslint/recommended"],
-    "ignorePatterns": ["dist", "node_modules", "bin", "python"],
+    "ignorePatterns": ["dist", "node_modules", "bin"],
     "rules": {
         // default rules are overriden by the plugins
         "no-unused-vars": "off",

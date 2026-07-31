@@ -3,4 +3,3 @@ package-lock.json
 coverage
 .nyc_output
 **/out
-python/

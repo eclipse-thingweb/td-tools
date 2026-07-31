@@ -5,15 +5,11 @@ on:
         branches: ["main"]
         paths:
             - "node/**"
-            - ".prettierrc.json"
-            - ".prettierignore"
     pull_request:
         # The branches below must be a subset of the branches above
         branches: ["main"]
         paths:
             - "node/**"
-            - ".prettierrc.json"
-            - ".prettierignore"
 
 jobs:
     prettier:
