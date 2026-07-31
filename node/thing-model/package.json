@@ -14,8 +14,8 @@
     "homepage": "https://github.com/eclipse-thingweb/td-tools#readme",
     "scripts": {
         "build": "tsc -b",
-        "test": "mocha --node-option loader=ts-node/esm --require ts-node/register --extension ts",
-        "test:coverage": "nyc --reporter=lcov mocha --node-option loader=ts-node/esm --require ts-node/register --extension ts"
+        "test": "mocha --require ts-node/register --extension ts",
+        "test:coverage": "nyc --reporter=lcov mocha --require ts-node/register --extension ts"
     },
     "main": "dist/src/thing-model.js",
     "types": "dist/src/thing-model.d.ts",
@@ -30,14 +30,14 @@
         "wot-typescript-definitions": "^1.0.0-SNAPSHOT.0"
     },
     "devDependencies": {
-        "@testdeck/mocha": "^0.1.2",
+        "@testdeck/mocha": "^0.3.3",
         "@types/chai": "^4.2.18",
         "@types/chai-as-promised": "^7.1.4",
         "@types/debug": "^4.1.12",
-        "@types/mocha": "^9.0.0",
+        "@types/mocha": "^10.0.0",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1",
-        "mocha": "^10.8.2",
+        "mocha": "^11.0.0",
         "nyc": "^17.0.0",
         "ts-node": "^10.9.1",
         "typescript": "4.7.4"
