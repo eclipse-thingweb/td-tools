@@ -1,0 +1,24 @@
+{
+  "td": "em300-zld.td.json",
+  "description": "Channel/type/value uplinks for the Milesight AM102",
+  "vectors": [
+    {
+      "name": "nominal_reading",
+      "payload": "03674601046840050000",
+      "expected": {
+        "leakage_status": "normal",
+        "temperature": 32.6,
+        "humidity": 32
+      }
+    },
+    {
+      "name": "nominal_reading",
+      "payload": "03673a01046843050000",
+      "expected": {
+        "leakage_status": "normal",
+        "humidity": 33.5,
+        "temperature": 31.4
+      }
+    }
+  ]
+}

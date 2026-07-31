@@ -1,0 +1,106 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:adeunis_comfort2",
+  "title": "adeunis comfort2",
+  "description": "Adeunis Comfort 2 basic sensor-reading mapping for the official 0x4C data frame (temperature/humidity history): first sample only.",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime by the Servient; never stored in this TD."
+    }
+  },
+  "security": "otaa_sc",
+  "base": "lorawan://0000000000000000/{appKey}/device",
+  "lorav:endDeviceId": "adeunis-comfort2-01",
+  "lorav:devEUI": "0000000000000000",
+  "lorav:joinEUI": "0000000000000000",
+  "lorav:macVersion": "1.0.2",
+  "lorav:brand": "Adeunis",
+  "lorav:model": "Comfort 2",
+  "lorav:hardwareVersion": "1",
+  "lorav:softwareVersion": "1",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870_TTN",
+  "lorav:payloadLayout": "fixed",
+  "properties": {
+    "frameCode": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": true
+        }
+      ]
+    },
+    "statusByte": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": true
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "unit": "°C",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:type": "s16",
+          "lorav:mostSignificantByte": true,
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "humidity": {
+      "type": "integer",
+      "unit": "%",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "readproperty",
+            "observeproperty"
+          ],
+          "lorav:byteOffset": 4,
+          "lorav:type": "u8",
+          "lorav:mostSignificantByte": true
+        }
+      ]
+    }
+  }
+}

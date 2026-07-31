@@ -1,0 +1,28 @@
+{
+  "td": "adeunis-comfort2.td.json",
+  "description": "Adeunis Comfort 2 vectors from official comfort_lib.js frame 0x4C sensor data examples (first sample extraction).",
+  "vectors": [
+    {
+      "name": "frame_0x4c_with_timestamp",
+      "payload": "4C9600C51F00C72000C82100CA2200CC2300CD2414ABA3E9",
+      "fport": 1,
+      "expected": {
+        "frameCode": 76,
+        "statusByte": 150,
+        "temperature": 19.7,
+        "humidity": 31
+      }
+    },
+    {
+      "name": "frame_0x4c_single_sample_no_timestamp",
+      "payload": "4C9200C51F",
+      "fport": 1,
+      "expected": {
+        "frameCode": 76,
+        "statusByte": 146,
+        "temperature": 19.7,
+        "humidity": 31
+      }
+    }
+  ]
+}

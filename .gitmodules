@@ -1,0 +1,3 @@
+[submodule "python/lorawan/external/device-payload-schema"]
+	path = python/lorawan/external/device-payload-schema
+	url = https://github.com/MultiTechSystems/device-payload-schema
