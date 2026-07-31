@@ -15,8 +15,8 @@ import {
     getAvailableLanguages,
     getAvailableLibraries,
     splitLibrariesByProtocolSupport,
-} from "../generators/helpers.js";
-import { Form, PROTOCOL } from "../types.js";
+} from "../src/generators/helpers.js";
+import { Form, PROTOCOL } from "../src/types.js";
 import { HTTP_TD, MODBUS_TD, EMPTY_TD, WRITE_ONLY_TD } from "./fixtures.js";
 
 describe("getProtocolFromHref", () => {

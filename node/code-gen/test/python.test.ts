@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { generateRequestsCode, generateWotPyCode, generatePyModbusCode } from "../generators/python.js";
-import { CodeGeneratorContext } from "../generators/helpers.js";
+import { generateRequestsCode, generateWotPyCode, generatePyModbusCode } from "../src/generators/python.js";
+import { CodeGeneratorContext } from "../src/generators/helpers.js";
 import { HTTP_TD, MODBUS_TD, STREAMING_TD } from "./fixtures.js";
 
 function makeCtx(overrides: Partial<CodeGeneratorContext>): CodeGeneratorContext {

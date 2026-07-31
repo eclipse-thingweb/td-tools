@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateCode, isProtocolSupported, generatePrompt } from "../index.js";
+import { generateCode, isProtocolSupported, generatePrompt } from "../src/index.js";
 import { HTTP_TD, MODBUS_TD, WRITE_ONLY_TD, CUSTOM_METHOD_TD } from "./fixtures.js";
 
 describe("generateCode", () => {
