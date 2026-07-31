@@ -1307,22 +1307,19 @@ export class AssetInterfaceDescriptionTest {
         expect(hasInteractionMetadata, "No InteractionMetadata").to.equal(true);
     }
 
-    @test.skip async "should correctly transform counter TD into JSON AAS"() {
-        // built-in fetch requires Node.js 18+
+    @test async "should correctly transform counter TD into JSON AAS"() {
         const response = await fetch("https://plugfest.thingweb.io/counter");
         const counterTD = await response.json();
 
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), { createAAS: true }, [
             "http",
         ]); // "coap"
-        console.log("XXX AAS\n\n" + sm + "\n\nXXX");
 
         const aasObj = JSON.parse(sm);
         // TODO proper AID submodel checks
         expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array");
         expect(aasObj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
         const submodel = aasObj.submodels[0];
-        console.log("YYY AID\n\n" + JSON.stringify(submodel) + "\n\nYYY");
         const isValid = this.validateAID(submodel);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(submodel).to.have.property("submodelElements").to.be.an("array").to.have.lengthOf(1);
