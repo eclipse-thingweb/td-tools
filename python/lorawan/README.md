@@ -5,9 +5,9 @@ Thing Description (TD)** and automatically turn it into a working **payload
 codec**. We have validated the generated codec in ChirpStack to decode uplink payloads into JSON values. It should also work in The Things Network (TTN).
 
 The TD carries the payload binding *inside its property forms* (using
-`lorav:` terms). A converter translates that TD into the
+terms prefixed with `lorav:`). A converter translates that TD into the
 [LoRa Alliance Payload Schema / MultiTech](https://github.com/MultiTechSystems/device-payload-schema)
-language, and the reference interpreter does the actual byte decoding.
+language, and the reference interpreter (e.g. ChirpStack) does the actual byte decoding.
 
 ```
 Thing Description (.td.json)
