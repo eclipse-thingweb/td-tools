@@ -20,11 +20,11 @@
         "eslint-plugin-unused-imports": "^4.4.1"
     },
     "scripts": {
-        "lint": "npx eslint node/ --config node/.eslintrc.json",
-        "lint:sarif": "npx eslint node/ --config node/.eslintrc.json --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif",
-        "lint:fix": "npx eslint node/ --config node/.eslintrc.json --fix",
-        "format": "prettier --write node/ --config node/.prettierrc.json && npm run format --silent --workspaces --if-present",
-        "format:check": "prettier --check node/ --config node/.prettierrc.json",
+        "lint": "npx eslint . --config .eslintrc.json",
+        "lint:sarif": "npx eslint . --config .eslintrc.json --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif",
+        "lint:fix": "npx eslint . --config .eslintrc.json --fix",
+        "format": "prettier --write . --config .prettierrc.json && npm run format --silent --workspaces --if-present",
+        "format:check": "prettier --check . --config .prettierrc.json",
         "format:quick": "pretty-quick"
     }
 }

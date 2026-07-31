@@ -20,6 +20,10 @@ on:
         paths:
             - "node/**"
 
+defaults:
+    run:
+        working-directory: node
+
 jobs:
     eslint:
         name: Run eslint scanning
@@ -42,5 +46,5 @@ jobs:
             - name: Upload analysis results to GitHub
               uses: github/codeql-action/upload-sarif@v3
               with:
-                  sarif_file: ./eslint-results.sarif
+                  sarif_file: node/eslint-results.sarif
                   wait-for-processing: true

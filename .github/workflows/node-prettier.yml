@@ -11,6 +11,10 @@ on:
         paths:
             - "node/**"
 
+defaults:
+    run:
+        working-directory: node
+
 jobs:
     prettier:
         runs-on: ubuntu-latest
