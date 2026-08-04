@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [20.x, 22.x]
+        node-version: [24.x, 26.x]
 
     timeout-minutes: 30
 
@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
+          cache-dependency-path: "node/json-spell-checker/package-lock.json"
 
       - name: Install Dependencies
         run: npm ci

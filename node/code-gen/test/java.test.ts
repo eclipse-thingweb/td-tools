@@ -3,8 +3,8 @@ import {
     generateJavaHttpClientCode,
     generateWotServientCode,
     generateDigitalpetriModbusCode,
-} from "../generators/java.js";
-import { CodeGeneratorContext } from "../generators/helpers.js";
+} from "../src/generators/java.js";
+import { CodeGeneratorContext } from "../src/generators/helpers.js";
 import { HTTP_TD, MODBUS_TD } from "./fixtures.js";
 
 function makeCtx(overrides: Partial<CodeGeneratorContext>): CodeGeneratorContext {

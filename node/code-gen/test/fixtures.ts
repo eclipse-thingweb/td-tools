@@ -1,4 +1,4 @@
-import { Affordances } from "../types.js";
+import { Affordances } from "../src/types.js";
 
 /**
  * A minimal HTTP-based Thing Description for testing code generators.

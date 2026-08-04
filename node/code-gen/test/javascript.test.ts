@@ -4,8 +4,8 @@ import {
     generateNodeWotCode,
     generateWebthingCode,
     generateModbusSerialCode,
-} from "../generators/javascript.js";
-import { CodeGeneratorContext } from "../generators/helpers.js";
+} from "../src/generators/javascript.js";
+import { CodeGeneratorContext } from "../src/generators/helpers.js";
 import { HTTP_TD, MODBUS_TD, STREAMING_TD } from "./fixtures.js";
 
 function makeCtx(overrides: Partial<CodeGeneratorContext>): CodeGeneratorContext {

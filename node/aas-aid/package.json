@@ -29,20 +29,20 @@
         "wot-typescript-definitions": "0.8.0-SNAPSHOT.29"
     },
     "devDependencies": {
-        "@testdeck/mocha": "^0.1.2",
+        "@testdeck/mocha": "^0.3.3",
         "@types/chai": "^4.2.18",
         "@types/debug": "^4.1.12",
-        "@types/mocha": "^9.0.0",
+        "@types/mocha": "^10.0.0",
         "chai": "^4.3.4",
-        "mocha": "^10.8.2",
+        "mocha": "^11.0.0",
         "nyc": "^17.0.0",
         "ts-node": "^10.9.1",
         "typescript": "4.7.4"
     },
     "scripts": {
         "build": "tsc -b",
-        "test": "mocha --node-option loader=ts-node/esm --require ts-node/register --extension ts",
-        "test:coverage": "nyc --reporter=lcov mocha --node-option loader=ts-node/esm --require ts-node/register --extension ts"
+        "test": "mocha --require ts-node/register --extension ts",
+        "test:coverage": "nyc --reporter=lcov mocha --require ts-node/register --extension ts"
     },
     "bugs": {
         "url": "https://github.com/eclipse-thingweb/td-tools/issues"

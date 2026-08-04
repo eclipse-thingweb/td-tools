@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { generateReqwestCode } from "../generators/rust.js";
-import { generateGoNetHttpCode } from "../generators/go.js";
-import { generateCSharpHttpClientCode, generateWotNetCode } from "../generators/csharp.js";
-import { generatePhpCurlCode } from "../generators/php.js";
-import { generateRubyNetHttpCode } from "../generators/ruby.js";
-import { generateDartWotCode, generateDartHttpCode } from "../generators/dart.js";
-import { CodeGeneratorContext } from "../generators/helpers.js";
+import { generateReqwestCode } from "../src/generators/rust.js";
+import { generateGoNetHttpCode } from "../src/generators/go.js";
+import { generateCSharpHttpClientCode, generateWotNetCode } from "../src/generators/csharp.js";
+import { generatePhpCurlCode } from "../src/generators/php.js";
+import { generateRubyNetHttpCode } from "../src/generators/ruby.js";
+import { generateDartWotCode, generateDartHttpCode } from "../src/generators/dart.js";
+import { CodeGeneratorContext } from "../src/generators/helpers.js";
 import { HTTP_TD } from "./fixtures.js";
 
 function makeCtx(overrides: Partial<CodeGeneratorContext>): CodeGeneratorContext {

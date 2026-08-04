@@ -95,7 +95,7 @@ export class AssetInterfaceDescriptionTest {
             .to.have.lengthOf(1);
         expect(tdObj.properties.count.forms[0])
             .to.have.property("href")
-            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/count");
+            .to.eql("https://plugfest.thingweb.io/counter" + "/properties/count");
         expect(tdObj.properties.count.forms[0]).to.have.property("htv:methodName").to.eql("GET");
         expect(tdObj.properties.count.forms[0]).to.have.property("contentType").to.eql("application/json");
         expect(tdObj.properties.count.forms[0]).not.to.have.property("security");
@@ -115,7 +115,7 @@ export class AssetInterfaceDescriptionTest {
             .to.have.lengthOf(1);
         expect(tdObj.properties.countAsImage.forms[0])
             .to.have.property("href")
-            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/countAsImage");
+            .to.eql("https://plugfest.thingweb.io/counter" + "/properties/countAsImage");
         expect(tdObj.properties.countAsImage.forms[0]).to.have.property("htv:methodName").to.eql("GET");
         expect(tdObj.properties.countAsImage.forms[0]).to.have.property("contentType").to.eql("image/svg+xml");
         expect(tdObj.properties.countAsImage.forms[0]).not.to.have.property("security");
@@ -135,7 +135,7 @@ export class AssetInterfaceDescriptionTest {
             .to.have.lengthOf(1);
         expect(tdObj.properties.redDotImage.forms[0])
             .to.have.property("href")
-            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/redDotImage");
+            .to.eql("https://plugfest.thingweb.io/counter" + "/properties/redDotImage");
         expect(tdObj.properties.redDotImage.forms[0]).to.have.property("htv:methodName").to.eql("GET");
         expect(tdObj.properties.redDotImage.forms[0]).to.have.property("contentType").to.eql("image/png;base64");
         expect(tdObj.properties.redDotImage.forms[0]).not.to.have.property("security");
@@ -165,7 +165,7 @@ export class AssetInterfaceDescriptionTest {
             .to.have.lengthOf(1);
         expect(tdObj.properties.lastChange.forms[0])
             .to.have.property("href")
-            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/lastChange");
+            .to.eql("https://plugfest.thingweb.io/counter" + "/properties/lastChange");
         expect(tdObj.properties.lastChange.forms[0]).to.have.property("htv:methodName").to.eql("GET");
         expect(tdObj.properties.lastChange.forms[0]).to.have.property("contentType").to.eql("application/json");
         expect(tdObj.properties.lastChange.forms[0]).not.to.have.property("security");
@@ -240,7 +240,7 @@ export class AssetInterfaceDescriptionTest {
             .to.have.lengthOf(1);
         expect(tdObj.properties.count.forms[0])
             .to.have.property("href")
-            .to.eql("http://plugfest.thingweb.io:8083/counter" + "/properties/count");
+            .to.eql("https://plugfest.thingweb.io/counter" + "/properties/count");
         expect(tdObj.properties.count.forms[0]).to.have.property("htv:methodName").to.eql("GET");
         expect(tdObj.properties.count.forms[0]).to.have.property("contentType").to.eql("application/json");
         expect(tdObj.properties.count.forms[0]).not.to.have.property("security");
@@ -1307,22 +1307,19 @@ export class AssetInterfaceDescriptionTest {
         expect(hasInteractionMetadata, "No InteractionMetadata").to.equal(true);
     }
 
-    @test.skip async "should correctly transform counter TD into JSON AAS"() {
-        // built-in fetch requires Node.js 18+
-        const response = await fetch("http://plugfest.thingweb.io:8083/counter");
+    @test async "should correctly transform counter TD into JSON AAS"() {
+        const response = await fetch("https://plugfest.thingweb.io/counter");
         const counterTD = await response.json();
 
         const sm = this.assetInterfacesDescription.transformTD2AID(JSON.stringify(counterTD), { createAAS: true }, [
             "http",
         ]); // "coap"
-        console.log("XXX AAS\n\n" + sm + "\n\nXXX");
 
         const aasObj = JSON.parse(sm);
         // TODO proper AID submodel checks
         expect(aasObj).to.have.property("assetAdministrationShells").to.be.an("array");
         expect(aasObj).to.have.property("submodels").to.be.an("array").to.have.lengthOf(1);
         const submodel = aasObj.submodels[0];
-        console.log("YYY AID\n\n" + JSON.stringify(submodel) + "\n\nYYY");
         const isValid = this.validateAID(submodel);
         expect(isValid.valid, isValid.errors).to.equal(true);
         expect(submodel).to.have.property("submodelElements").to.be.an("array").to.have.lengthOf(1);
