@@ -92,8 +92,8 @@ uv run lorawan-wot decode examples/dragino-lht65n.td.json 0B450A8C02DD010A1E --f
 #    }
 ```
 
-For a `ports` layout, don't forget to pass the frame port:
-
+For a `ports` layout, don't forget to pass the frame port with `--fport`, as in
+the example above; without it the interpreter cannot select the right field set.
 
 ### Use it from Python
 
@@ -126,7 +126,7 @@ schema into a starter Thing Description.
 uv run lorawan-wot generate external/device-payload-schema/schemas/devices/makerfabs/ath20.yaml -o examples/devices/makerfabs/ath20.td.json
 ```
 
-This is how to generat a bundled [device catalog](#device-catalog).
+This is how the bundled [device catalog](#device-catalog) is generated.
 
 
 ## Generate a ChirpStack / TTN JavaScript codec
@@ -236,6 +236,7 @@ For `tlv`/`ctv` you may declare the tag fields at Thing level with
 | `lorav:length` | Byte length for `bytes`/`string`/`hex` (`-1` = consume rest) | `length` |
 | `lorav:unece` | UN/CEFACT unit code | `unece` |
 | `lorav:enum` | Map raw integers to labels | `values` |
+| `lorav:validRange` | Plausibility range `[min, max]`; decoded values outside it are flagged | `valid_range` |
 | `lorav:slot` | Order of a property within its group (multi-field TLV / flagged / match) | field order |
 | `lorav:presenceField` | Name of the bit-flags property that gates this property | `flagged.field` |
 | `lorav:presenceBit` | Bit index in `presenceField` that must be set for this property to appear | `flagged.groups[*].bit` |

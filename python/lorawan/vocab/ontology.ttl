@@ -87,6 +87,10 @@ lorav:enum a owl:DatatypeProperty ;
     rdfs:label "enumeration" ;
     rdfs:comment "Mapping from raw integer values to labels." .
 
+lorav:validRange a owl:DatatypeProperty ;
+    rdfs:label "valid range" ;
+    rdfs:comment "Plausibility range [min, max]; the interpreter flags decoded values outside it." .
+
 # --- Grouping / conditional-presence terms -----------------------------------
 
 lorav:slot a owl:DatatypeProperty ;

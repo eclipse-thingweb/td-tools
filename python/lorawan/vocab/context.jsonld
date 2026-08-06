@@ -30,6 +30,7 @@
     "guard": "lorav:guard",
     "unece": "lorav:unece",
     "enum": "lorav:enum",
+    "validRange": "lorav:validRange",
 
     "devEUI": "lorav:devEUI",
     "joinEUI": "lorav:joinEUI",
