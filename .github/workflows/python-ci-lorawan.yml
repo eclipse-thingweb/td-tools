@@ -30,6 +30,10 @@ jobs:
               with:
                   python-version: ${{ matrix.python-version }}
 
+            - name: Generate device catalog
+              working-directory: python/lorawan
+              run: uv run python -m scripts.generate_device_tds
+
             - name: Run tests
               working-directory: python/lorawan
               run: uv run --dev pytest
