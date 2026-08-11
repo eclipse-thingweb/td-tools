@@ -1,8 +1,12 @@
 name: LoRaWAN CI Pipeline
 
 on:
+    # Run on every branch, not only main. A fork's feature branches otherwise
+    # get no CI at all, so the first execution of these tests is the pull
+    # request against upstream — which is how a latent failure on main went
+    # unnoticed until it surfaced in an unrelated contributor's PR.
     push:
-        branches: ["main"]
+        branches: ["**"]
         paths:
             - "python/**"
     pull_request:
