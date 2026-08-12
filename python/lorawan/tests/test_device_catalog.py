@@ -207,7 +207,11 @@ _CATALOG = _device_tds()
 #:
 #: Change this number only in the same commit as the change that moves it, so the diff
 #: shows the coverage cost and a reviewer can weigh it.
-EXPECTED_CATALOG_SIZE = 157
+#:
+#: 157 -> 166 when the submodule moved to device-payload-schema 1174141: the corpus grew
+#: from 158 device schemas to 218, and the converter learned to keep a wire field that
+#: carries a `transform`. Without that converter change the same bump gives 81.
+EXPECTED_CATALOG_SIZE = 166
 
 
 def test_catalog_is_not_empty():
