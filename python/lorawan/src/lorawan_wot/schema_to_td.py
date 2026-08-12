@@ -151,9 +151,9 @@ def _fixed_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     discriminator). Each contributes one WoT property per decoded value, located
     by the relevant ``lorav:`` grouping term rather than a byte offset.
     """
-    endian_big = _endian_is_big(schema)
+    default_endian = _schema_endian(schema)
     properties: dict[str, Any] = {}
-    _emit_fixed_fields(schema["fields"], properties, endian_big)
+    _emit_fixed_fields(schema["fields"], properties, default_endian)
     if not properties:
         raise UnsupportedSchemaError(
             "fixed layout has no decodable fields", reason=SkipReason.MALFORMED
@@ -169,7 +169,7 @@ def _ports_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     reported on more than one port (e.g. ``latitude`` in two formats) becomes a
     single WoT property with one form per port.
     """
-    endian_big = _endian_is_big(schema)
+    default_endian = _schema_endian(schema)
     properties: dict[str, Any] = {}
     for raw_port, port_def in schema["ports"].items():
         port = _port_number(raw_port)
@@ -178,7 +178,7 @@ def _ports_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
             raise UnsupportedSchemaError(
                 f"port {raw_port!r} has no 'fields' list", reason=SkipReason.MALFORMED
             )
-        _emit_fixed_fields(fields, properties, endian_big, fport=port)
+        _emit_fixed_fields(fields, properties, default_endian, fport=port)
     if not properties:
         raise UnsupportedSchemaError(
             "ports layout has no decodable fields", reason=SkipReason.MALFORMED
@@ -202,7 +202,7 @@ def _port_number(raw: Any) -> int:
 
 
 def _emit_fixed_fields(
-    fields: list[Any], properties: dict[str, Any], endian_big: bool, *, fport: int | None = None
+    fields: list[Any], properties: dict[str, Any], default_endian: str, *, fport: int | None = None
 ) -> None:
     """Walk a flat field list, storing one property per decoded value.
 
@@ -218,14 +218,14 @@ def _emit_fixed_fields(
             )
         if "byte_group" in field:
             offset = _emit_byte_group(
-                field["byte_group"], properties, endian_big, offset, fport=fport
+                field["byte_group"], properties, default_endian, offset, fport=fport
             )
             continue
         if "flagged" in field and not field.get("type"):
-            _emit_flagged(field["flagged"], properties, endian_big, fport=fport)
+            _emit_flagged(field["flagged"], properties, default_endian, fport=fport)
             continue
         if "match" in field and not field.get("type"):
-            _emit_match(field["match"], properties, endian_big, fport=fport)
+            _emit_match(field["match"], properties, default_endian, fport=fport)
             continue
         if "name" not in field:
             raise UnsupportedSchemaError(
@@ -243,7 +243,7 @@ def _emit_fixed_fields(
             _store_property(properties, field.get("name"), prop)
             computed_slot += 1
             continue
-        base, prop = _scalar_property(field, endian_big, byte_offset=offset, fport=fport)
+        base, prop = _scalar_property(field, default_endian, byte_offset=offset, fport=fport)
         _store_property(properties, field["name"], prop)
         offset += _byte_width(base, field)
 
@@ -251,7 +251,7 @@ def _emit_fixed_fields(
 def _emit_flagged(
     flagged_def: dict[str, Any],
     properties: dict[str, Any],
-    endian_big: bool,
+    default_endian: str,
     *,
     fport: int | None = None,
 ) -> None:
@@ -281,7 +281,7 @@ def _emit_flagged(
             else:
                 _, prop = _scalar_property(
                     field,
-                    endian_big,
+                    default_endian,
                     presence_field=flag_field,
                     presence_bit=bit,
                     slot=slot,
@@ -293,7 +293,7 @@ def _emit_flagged(
 def _emit_match(
     match_def: dict[str, Any],
     properties: dict[str, Any],
-    endian_big: bool,
+    default_endian: str,
     *,
     fport: int | None = None,
 ) -> None:
@@ -347,7 +347,7 @@ def _emit_match(
             else:
                 _, prop = _scalar_property(
                     field,
-                    endian_big,
+                    default_endian,
                     switch_field=switch_field,
                     switch_value=value,
                     slot=slot,
@@ -367,7 +367,7 @@ def _emit_match(
 def _emit_byte_group(
     byte_group: Any,
     properties: dict[str, Any],
-    endian_big: bool,
+    default_endian: str,
     offset: int,
     *,
     fport: int | None = None,
@@ -439,7 +439,7 @@ def _tlv_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     block = schema["fields"][0]["tlv"]
     tag_fields = _resolve_tag_fields(block)
 
-    endian_big = _endian_is_big(schema)
+    default_endian = _schema_endian(schema)
     properties: dict[str, Any] = {}
     for key, case_fields in (block.get("cases") or {}).items():
         if not isinstance(case_fields, list) or not case_fields:
@@ -456,7 +456,7 @@ def _tlv_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
                 # in tlv cases as well.
                 prop = _computed_property(field, tag=tag, slot=slot)
             else:
-                _, prop = _scalar_property(field, endian_big, tag=tag, slot=slot)
+                _, prop = _scalar_property(field, default_endian, tag=tag, slot=slot)
             _store_property(properties, field.get("name"), prop)
 
     if not properties:
@@ -470,7 +470,7 @@ def _tlv_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
 
 
 def _scalar_property(
-    field: dict[str, Any], endian_big: bool, **locator: Any
+    field: dict[str, Any], default_endian: str, **locator: Any
 ) -> tuple[str, dict[str, Any]]:
     """Build a WoT property for one named scalar field, validating its keys.
 
@@ -480,8 +480,8 @@ def _scalar_property(
     """
     _reject_computed(field)
     _check_field_keys(field)
-    base, msb = _parse_type(field["type"])
-    form = _build_form(field, base, _coalesce_msb(msb, endian_big), **locator)
+    base, endian = _parse_type(field["type"])
+    form = _build_form(field, base, _form_endian(endian, default_endian), **locator)
     return base, _build_property(field, base, form)
 
 
@@ -692,23 +692,23 @@ def _parse_bitrange(raw: Any) -> tuple[str, str]:
     return base, f"0x{mask:0{width_bytes * 2}X}"
 
 
-def _parse_type(raw: Any) -> tuple[str, bool | None]:
-    """Split a wire type into its base type and explicit endianness (if any)."""
+def _parse_type(raw: Any) -> tuple[str, str | None]:
+    """Split a wire type into its base type and explicit byte order (if any)."""
     if not isinstance(raw, str):
         raise UnsupportedSchemaError(f"non-string field type {raw!r}", reason=SkipReason.WIRE_TYPE)
-    msb: bool | None = None
+    endian: str | None = None
     base = raw
     if base.startswith("be_"):
-        msb, base = True, base[3:]
+        endian, base = vocab.ENDIAN_BIG, base[3:]
     elif base.startswith("le_"):
-        msb, base = False, base[3:]
+        endian, base = vocab.ENDIAN_LITTLE, base[3:]
     if "[" in base:
         raise UnsupportedSchemaError(
             f"bit-range type {raw!r} is not supported", reason=SkipReason.BIT_RANGE
         )
     if base not in vocab.NATIVE_WIRE_TYPES:
         raise UnsupportedSchemaError(f"unsupported wire type {raw!r}", reason=SkipReason.WIRE_TYPE)
-    return base, msb
+    return base, endian
 
 
 def _byte_width(base: str, field: dict[str, Any]) -> int:
@@ -727,7 +727,7 @@ def _byte_width(base: str, field: dict[str, Any]) -> int:
 def _build_form(
     field: dict[str, Any],
     base: str,
-    msb: bool | None,
+    endian: str | None,
     *,
     byte_offset: int | None = None,
     tag: list[int] | None = None,
@@ -768,8 +768,8 @@ def _build_form(
     form[vocab.TYPE] = base
     if bitmask is not None:
         form[vocab.BITMASK] = bitmask
-    if msb is not None:
-        form[vocab.MSB] = msb
+    if endian is not None:
+        form[vocab.ENDIAN] = endian
     _store_scaling(form, field)
     if "var" in field:
         form[vocab.VAR] = field["var"]
@@ -896,17 +896,22 @@ def _assemble_td(
     return td
 
 
-def _endian_is_big(schema: dict[str, Any]) -> bool:
-    """Resolve the schema-wide endianness (LoRaWAN defaults to big-endian)."""
-    endian = schema.get("endian", "big")
-    if endian not in ("big", "little"):
+def _schema_endian(schema: dict[str, Any]) -> str:
+    """Resolve the schema-wide byte order (LoRaWAN defaults to big-endian)."""
+    endian = schema.get("endian", vocab.ENDIAN_BIG)
+    if endian not in vocab.SUPPORTED_ENDIAN:
         raise UnsupportedSchemaError(f"unknown endian {endian!r}", reason=SkipReason.MALFORMED)
-    return endian == "big"
+    return endian
 
 
-def _coalesce_msb(field_msb: bool | None, endian_big: bool) -> bool:
-    """A field inherits the schema endianness unless it overrides it explicitly."""
-    return endian_big if field_msb is None else field_msb
+def _form_endian(field_endian: str | None, default_endian: str) -> str:
+    """Resolve the byte order to record on a form.
+
+    ``lorav:endian`` is a form-level term, so each value states its own byte
+    order: either the ``be_``/``le_`` prefix on its wire type, or the schema-wide
+    default when the type carries no prefix.
+    """
+    return default_endian if field_endian is None else field_endian
 
 
 def _slug(raw: str) -> str:

@@ -1,0 +1,42 @@
+{
+  "td": "netvox-r718a.td.json",
+  "description": "Netvox R718A fPort 6 (version/status report) and fPort 7 (config command response) uplinks. The official_* vectors are taken verbatim from TheThingsNetwork/lorawan-devices' vendor/netvox/r718a-codec.yaml reference test vectors.",
+  "vectors": [
+    {
+      "name": "official_status_report",
+      "payload": "010B012409EA1A90000000",
+      "fport": 6,
+      "expected": {
+        "reportType": 1,
+        "batteryVoltage": 3.6,
+        "lowBattery": 0,
+        "temperature": 25.38,
+        "humidity": 68.0
+      }
+    },
+    {
+      "name": "negative_temperature",
+      "payload": "010B0124FE0C1388000000",
+      "fport": 6,
+      "expected": {
+        "reportType": 1,
+        "batteryVoltage": 3.6,
+        "lowBattery": 0,
+        "temperature": -5.0,
+        "humidity": 50.0
+      }
+    },
+    {
+      "name": "low_battery_flag",
+      "payload": "010B01A409EA1A90000000",
+      "fport": 6,
+      "expected": {
+        "reportType": 1,
+        "batteryVoltage": 3.6,
+        "lowBattery": 1,
+        "temperature": 25.38,
+        "humidity": 68.0
+      }
+    }
+  ]
+}

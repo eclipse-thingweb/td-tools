@@ -1,0 +1,135 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:netvox:r718a",
+  "title": "netvox_r718a",
+  "description": "Netvox R718A Temperature and Humidity Sensor for Low Temperature Environment.",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime by the Servient; never stored in this TD."
+    }
+  },
+  "security": "otaa_sc",
+  "base": "lorawan://0000000000000000/{appKey}/device",
+  "lorav:endDeviceId": "netvox-r718a-01",
+  "lorav:devEUI": "0000000000000000",
+  "lorav:joinEUI": "0000000000000000",
+  "lorav:macVersion": "1.0.2",
+  "lorav:brand": "Netvox",
+  "lorav:model": "R718A",
+  "lorav:hardwareVersion": "2",
+  "lorav:softwareVersion": "10",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870_TTN",
+  "lorav:payloadLayout": "ports",
+  "properties": {
+    "reportType": {
+      "type": "integer",
+      "title": "fPort 6 report type",
+      "readOnly": true,
+      "observable": true,
+      "description": "Discriminator byte for fPort 6 uplinks. 0 = startup version report, 1 = periodic status report.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 6,
+          "lorav:byteOffset": 2,
+          "lorav:type": "xsd:unsignedByte"
+        }
+      ]
+    },
+    "batteryVoltage": {
+      "type": "number",
+      "title": "Battery voltage",
+      "unit": "V",
+      "readOnly": true,
+      "observable": true,
+      "description": "Battery voltage in volts (fPort 6, reportType 1). Carried in bits 0-6 of byte 3 as deci-volts; bit 7 is the low-battery flag (see lowBattery). The official codec appends a '(low battery)' string suffix when that flag is set -- not representable in this vocabulary, so it is exposed only as the separate lowBattery property.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 6,
+          "lorav:switchField": "reportType",
+          "lorav:switchValue": 1,
+          "lorav:slot": 0,
+          "lorav:byteOffset": 3,
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:bitmask": "0x7F",
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "lowBattery": {
+      "type": "integer",
+      "title": "Low battery flag",
+      "readOnly": true,
+      "observable": true,
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Low-battery indicator carried in bit 7 of byte 3 (fPort 6, reportType 1); 1 = low battery.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 6,
+          "lorav:switchField": "reportType",
+          "lorav:switchValue": 1,
+          "lorav:slot": 1,
+          "lorav:byteOffset": 3,
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:bitmask": "0x80"
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "title": "Temperature",
+      "unit": "Cel",
+      "readOnly": true,
+      "observable": true,
+      "description": "Measured temperature (fPort 6, reportType 1), signed big-endian hundredths of a degree Celsius.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 6,
+          "lorav:switchField": "reportType",
+          "lorav:switchValue": 1,
+          "lorav:slot": 2,
+          "lorav:byteOffset": 4,
+          "lorav:type": "xsd:short",
+          "lorav:divisor": 100
+        }
+      ]
+    },
+    "humidity": {
+      "type": "number",
+      "title": "Relative humidity",
+      "unit": "%RH",
+      "readOnly": true,
+      "observable": true,
+      "description": "Relative humidity (fPort 6, reportType 1), unsigned big-endian hundredths of a percent.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 6,
+          "lorav:switchField": "reportType",
+          "lorav:switchValue": 1,
+          "lorav:slot": 3,
+          "lorav:byteOffset": 6,
+          "lorav:type": "xsd:unsignedShort",
+          "lorav:divisor": 100
+        }
+      ]
+    }
+  }
+}

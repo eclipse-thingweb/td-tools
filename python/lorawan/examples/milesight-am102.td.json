@@ -1,0 +1,85 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:milesight:am102",
+  "title": "milesight_am102",
+  "description": "Milesight AM102 indoor temperature & humidity sensor (channel/type/value payload).",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime by the Servient; never stored in this TD."
+    }
+  },
+  "security": "otaa_sc",
+  "base": "lorawan://A84041B98D5CB233/{appKey}/device",
+
+  "lorav:endDeviceId": "milesight-am102-01",
+  "lorav:devEUI": "A84041B98D5CB233",
+  "lorav:joinEUI": "0000000000000001",
+  "lorav:macVersion": "1.0.3",
+  "lorav:brand": "Milesight",
+  "lorav:model": "AM102",
+  "lorav:hardwareVersion": "1.0",
+  "lorav:softwareVersion": "1.7",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870",
+
+  "lorav:payloadLayout": "ctv",
+  "lorav:tagFields": [
+    { "name": "channel_id", "type": "u8" },
+    { "name": "channel_type", "type": "u8" }
+  ],
+
+  "properties": {
+    "battery": {
+      "type": "integer",
+      "unit": "%",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "ctv",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:tag": [1, 117],
+          "lorav:type": "xsd:unsignedByte"
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "unit": "Cel",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "ctv",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:tag": [3, 103],
+          "lorav:type": "xsd:short",
+          "lorav:endian": "little",
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "humidity": {
+      "type": "number",
+      "unit": "%RH",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "ctv",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:tag": [4, 104],
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:divisor": 2
+        }
+      ]
+    }
+  }
+}

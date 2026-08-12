@@ -1,0 +1,43 @@
+{
+  "td": "dragino-lht65n.td.json",
+  "description": "fPort-aware Dragino LHT65N vectors, emphasizing the official fPort 2 extension/status branch and fPort 5 device-info branch.",
+  "vectors": [
+    {
+      "name": "port2_ext1_basic_branch",
+      "payload": "0B450A8C02DD010A1E",
+      "fport": 2,
+      "expected": {
+        "retransmissionStatus": 0,
+        "pollMessageStatus": 0,
+        "extensionCode": 1,
+        "batteryVoltage": 2.885,
+        "temperature": 27.0,
+        "humidity": 73.3
+      }
+    },
+    {
+      "name": "port2_ext9_ds_branch",
+      "payload": "07D00A8C02DD090A1E",
+      "fport": 2,
+      "expected": {
+        "retransmissionStatus": 0,
+        "pollMessageStatus": 0,
+        "extensionCode": 9,
+        "batteryVoltage": 2.0,
+        "temperature": 27.0,
+        "humidity": 73.3
+      }
+    },
+    {
+      "name": "port2_ext15_no_sht",
+      "payload": "0B450A8C02DD0F0000",
+      "fport": 2,
+      "expected": {
+        "retransmissionStatus": 0,
+        "pollMessageStatus": 0,
+        "extensionCode": 15,
+        "batteryVoltage": 2.885
+      }
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:dragino:lht65n",
+  "title": "dragino_lht65n",
+  "description": "Dragino LHT65N temperature & humidity sensor. This TD models key fPort-aware uplinks from the official codec: fPort 2 extension/status telemetry (including retransmission/poll/extension status bits and basic battery/temperature/humidity extraction) and fPort 5 device-info telemetry. Unsupported advanced shapes (for example fPort 3 variable-length temperature arrays and extensionCode-specific alternate battery/DS-temperature sources) remain out of scope for this example.",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime by the Servient; never stored in this TD."
+    }
+  },
+  "security": "otaa_sc",
+  "base": "lorawan://A84041B98D5CB233/{appKey}/device",
+
+  "lorav:endDeviceId": "dragino-lht65n-01",
+  "lorav:devEUI": "A84041B98D5CB233",
+  "lorav:joinEUI": "0000000000000000",
+  "lorav:macVersion": "1.0.3",
+  "lorav:brand": "Dragino",
+  "lorav:model": "LHT65N",
+  "lorav:hardwareVersion": "1.0",
+  "lorav:softwareVersion": "1.4",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870",
+
+  "lorav:payloadLayout": "ports",
+
+  "properties": {
+    "retransmissionStatus": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 retransmission status bit (byte 6, bit 7). Official branch of interest decodes sensor values when this is 0.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 6,
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:bitmask": "0x80"
+        }
+      ]
+    },
+    "pollMessageStatus": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 poll-message status bit (byte 6, bit 6). Official branch of interest decodes sensor values when this is 0.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 6,
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:bitmask": "0x40"
+        }
+      ]
+    },
+    "extensionCode": {
+      "type": "integer",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 extension discriminator (byte 6, low nibble). Used to select the temperature/battery decoding path.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 6,
+          "lorav:type": "xsd:unsignedByte",
+          "lorav:bitmask": "0x0F"
+        }
+      ]
+    },
+    "batteryVoltage": {
+      "type": "number",
+      "unit": "V",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 battery voltage (`BatV`) from bytes 0..1 (basic extraction path).",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 0,
+          "lorav:type": "xsd:unsignedShort",
+          "lorav:multiplier": 0.001
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "unit": "Cel",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 SHT temperature (`TempC_SHT`) from bytes 2..3.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 2,
+          "lorav:type": "xsd:short",
+          "lorav:multiplier": 0.01
+        }
+      ]
+    },
+    "humidity": {
+      "type": "number",
+      "unit": "%RH",
+      "readOnly": true,
+      "observable": true,
+      "description": "fPort 2 humidity from bytes 4..5 (basic extraction path).",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:fPort": 2,
+          "lorav:byteOffset": 4,
+          "lorav:type": "xsd:unsignedShort",
+          "lorav:multiplier": 0.1
+        }
+      ]
+    }
+  }
+}

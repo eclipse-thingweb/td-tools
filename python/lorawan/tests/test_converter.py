@@ -46,6 +46,71 @@ def test_dragino_example_uses_ports_layout_for_basic_fport_coverage(lht65n_td):
     ]
 
 
+def _endian_td(*form_endians: str | None) -> dict:
+    """Build a fixed TD with one ``u16`` property per given form byte order."""
+    properties = {}
+    for index, endian in enumerate(form_endians):
+        form: dict = {"lorav:byteOffset": index * 2, "lorav:type": "u16"}
+        if endian is not None:
+            form["lorav:endian"] = endian
+        properties[f"p{index}"] = {"forms": [form]}
+    return {"lorav:payloadLayout": "fixed", "properties": properties}
+
+
+def test_endian_defaults_to_big_when_undeclared():
+    """With no byte order on any form, the LoRaWAN default (big-endian) applies."""
+    schema = td_to_payload_schema(_endian_td(None))
+    assert schema["endian"] == "big"
+    assert schema["fields"][0]["type"] == "u16"  # no prefix needed
+
+
+def test_majority_form_endian_becomes_the_schema_default():
+    """The most common per-form byte order becomes the schema-wide default."""
+    schema = td_to_payload_schema(_endian_td("little", "little", "big"))
+    assert schema["endian"] == "little"
+    # Only the field that disagrees with the default needs a prefix.
+    assert [f["type"] for f in schema["fields"]] == ["u16", "u16", "be_u16"]
+
+
+def test_thing_level_endian_is_rejected():
+    """Byte order is a form-level term; on the Thing it would be silently lost."""
+    td = _endian_td("little")
+    td["lorav:endian"] = "little"
+    with pytest.raises(ConversionError, match="form-level"):
+        td_to_payload_schema(td)
+
+
+def test_invalid_endian_is_rejected():
+    """Any byte order other than 'big' or 'little' is a conversion error."""
+    with pytest.raises(ConversionError, match="endian"):
+        td_to_payload_schema(_endian_td("msb"))
+
+
+def test_unece_unit_code_is_carried_into_the_schema():
+    """``lorav:unece`` passes through to the schema's ``unece`` key.
+
+    No device in the bundled catalog carries a unit code (see the "Known
+    limitations" note in the README), so this guards the term against
+    regressions with an inline Thing Description instead.
+    """
+    td = {
+        "lorav:payloadLayout": "fixed",
+        "properties": {
+            "temperature": {
+                "unit": "Cel",
+                "forms": [
+                    {
+                        "lorav:byteOffset": 0,
+                        "lorav:type": "s16",
+                        "lorav:unece": "CEL",
+                    }
+                ],
+            }
+        },
+    }
+    assert td_to_payload_schema(td)["fields"][0]["unece"] == "CEL"
+
+
 def test_fixed_layout_inserts_padding_for_gaps():
     """A gap between byte offsets is filled with a skip field."""
     td = {

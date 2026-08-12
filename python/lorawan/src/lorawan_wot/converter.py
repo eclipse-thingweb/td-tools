@@ -125,8 +125,17 @@ class _Field:
         return self.form.get(vocab.VAR)
 
     @property
-    def msb(self) -> bool | None:
-        return self.form.get(vocab.MSB)
+    def endian(self) -> str | None:
+        """Byte order override for this value, or ``None`` to inherit the default."""
+        value = self.form.get(vocab.ENDIAN)
+        if value is None:
+            return None
+        if value not in vocab.SUPPORTED_ENDIAN:
+            raise ConversionError(
+                f"Property {self.name!r}: invalid {vocab.ENDIAN!r} {value!r}; "
+                f"expected one of {', '.join(sorted(vocab.SUPPORTED_ENDIAN))}."
+            )
+        return value
 
     @property
     def wire_type(self) -> str:
@@ -240,8 +249,9 @@ class _Field:
             return f"{wire}[{lo}:{hi}]"
 
         # Apply an explicit byte-order prefix only when it differs from default.
-        if self.msb is not None and _endian(self.msb) != default_endian:
-            prefix = "be_" if self.msb else "le_"
+        endian = self.endian
+        if endian is not None and endian != default_endian:
+            prefix = "be_" if endian == vocab.ENDIAN_BIG else "le_"
             return f"{prefix}{wire}"
         return wire
 
@@ -291,6 +301,12 @@ def td_to_payload_schema(td: dict[str, Any]) -> dict[str, Any]:
         raise ConversionError(
             f"Unsupported {vocab.PAYLOAD_LAYOUT!r} {layout!r}; expected one of "
             f"{', '.join(sorted(vocab.SUPPORTED_LAYOUTS))}."
+        )
+
+    if vocab.ENDIAN in td:
+        raise ConversionError(
+            f"{vocab.ENDIAN!r} is a form-level term; move it onto the property "
+            f"forms whose values use that byte order."
         )
 
     fields = _collect_fields(td)
@@ -627,20 +643,18 @@ def _lorawan_forms(forms: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _default_endian(fields: list[_Field]) -> str:
-    """Pick the schema-wide endianness from the property forms.
+    """Pick the schema-wide endianness from the per-form byte orders.
 
-    Defaults to big-endian (the LoRaWAN convention). The most common explicit
-    ``lorav:mostSignificantByte`` value wins so that the majority of fields need
-    no per-field prefix.
+    The schema language carries one document-wide ``endian`` plus a ``be_``/``le_``
+    prefix on individual fields that disagree, so the most common per-form value
+    becomes the schema default and only the minority needs a prefix. With nothing
+    declared -- or on a tie -- the default is big-endian, matching both the LoRaWAN
+    convention and the reference payload schema language.
     """
-    votes = [_endian(f.msb) for f in fields if f.msb is not None]
+    votes = [endian for f in fields if (endian := f.endian) is not None]
     if not votes:
-        return "big"
-    return max(set(votes), key=votes.count)
-
-
-def _endian(msb: bool) -> str:
-    return "big" if msb else "little"
+        return vocab.ENDIAN_BIG
+    return max(set(votes), key=lambda e: (votes.count(e), e == vocab.ENDIAN_BIG))
 
 
 def _default_tag_fields() -> list[dict[str, str]]:

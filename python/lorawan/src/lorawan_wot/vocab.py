@@ -7,8 +7,8 @@ LoRa Alliance Payload Schema language.
 Two namespaces are involved:
 
 * ``lorav:`` -- the LoRaWAN binding vocabulary (this project). Terms appear on a
-  Thing (``lorav:payloadLayout``) and on individual property *forms*
-  (``lorav:fPort``, ``lorav:type``, ``lorav:multiplier`` ...).
+  Thing (``lorav:payloadLayout``, ``lorav:tagFields``) and on individual property
+  *forms* (``lorav:fPort``, ``lorav:type``, ``lorav:endian`` ...).
 * ``xsd:``  -- XML Schema data types, reused by ``lorav:type`` to name the wire
   data type of a value, following the published LoRaWAN binding draft.
 """
@@ -42,9 +42,22 @@ TAG_FIELDS: Final = "lorav:tagFields"
 
 # --- Form-level terms --------------------------------------------------------
 
+#: Byte order of this multi-byte value. Form-level only: the schema-wide
+#: default is derived from the per-form values, so a Thing-level declaration
+#: would be lost and is rejected instead.
+#:
+#: This is *only* about byte order: the payload schema language has no
+#: byte-swap or word-swap concept, so there is nothing else to express here.
+ENDIAN: Final = "lorav:endian"
+
+#: Supported byte orders. ``big`` is the default, matching both the LoRaWAN
+#: convention and the reference payload schema language.
+ENDIAN_BIG: Final = "big"
+ENDIAN_LITTLE: Final = "little"
+SUPPORTED_ENDIAN: Final = frozenset({ENDIAN_BIG, ENDIAN_LITTLE})
+
 FPORT: Final = "lorav:fPort"  # LoRaWAN frame port (routing / branching)
 TYPE: Final = "lorav:type"  # wire data type (xsd:* alias or native)
-MSB: Final = "lorav:mostSignificantByte"  # True => big-endian
 MULTIPLIER: Final = "lorav:multiplier"  # raw * multiplier
 DIVISOR: Final = "lorav:divisor"  # raw / divisor
 OFFSET: Final = "lorav:offset"  # value + offset (after scaling)

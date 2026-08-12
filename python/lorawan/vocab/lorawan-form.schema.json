@@ -25,7 +25,12 @@
         "number"
       ]
     },
-    "lorav:mostSignificantByte": { "type": "boolean" },
+    "lorav:endian": {
+      "type": "string",
+      "enum": ["big", "little"],
+      "default": "big",
+      "description": "Byte order of this multi-byte value. Byte order only; there is no byte- or word-swap mode."
+    },
     "lorav:multiplier": { "type": "number" },
     "lorav:divisor": { "type": "number", "exclusiveMinimum": 0 },
     "lorav:offset": { "type": "number" },

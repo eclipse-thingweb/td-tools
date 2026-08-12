@@ -1,0 +1,74 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:example:generic-lorawan11",
+  "title": "generic_lorawan11_sensor",
+  "description": "Generic LoRaWAN 1.1 sensor demonstrating OTAA with both AppKey and NwkKey (fixed binary uplink layout).",
+  "securityDefinitions": {
+    "appkey_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey (root key). Injected at runtime; never stored in this TD."
+    },
+    "nwkkey_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "nwkKey",
+      "description": "LoRaWAN 1.1 OTAA NwkKey (network root key, required for MAC version 1.1.x). Injected at runtime; never stored in this TD."
+    }
+  },
+  "security": ["appkey_sc", "nwkkey_sc"],
+  "base": "lorawan://70B3D57ED0050001/{appKey}/{nwkKey}/device",
+
+  "lorav:endDeviceId": "generic-lorawan11-01",
+  "lorav:devEUI": "70B3D57ED0050001",
+  "lorav:joinEUI": "0000000000000001",
+  "lorav:macVersion": "1.1.0",
+  "lorav:brand": "Example",
+  "lorav:model": "GLW11",
+  "lorav:hardwareVersion": "1.0",
+  "lorav:softwareVersion": "1.0",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870",
+
+  "lorav:payloadLayout": "fixed",
+
+  "properties": {
+    "battery": {
+      "type": "integer",
+      "unit": "%",
+      "minimum": 0,
+      "maximum": 100,
+      "readOnly": true,
+      "observable": true,
+      "description": "Battery level as a percentage.",
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:byteOffset": 0,
+          "lorav:type": "xsd:unsignedByte"
+        }
+      ]
+    },
+    "temperature": {
+      "type": "number",
+      "unit": "Cel",
+      "readOnly": true,
+      "observable": true,
+      "forms": [
+        {
+          "href": "uplink",
+          "op": ["readproperty", "observeproperty"],
+          "lorav:byteOffset": 1,
+          "lorav:type": "xsd:short",
+          "lorav:multiplier": 0.1
+        }
+      ]
+    }
+  }
+}
