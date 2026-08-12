@@ -196,9 +196,54 @@ def _device_tds() -> list:
 
 _CATALOG = _device_tds()
 
+#: How many device TDs the catalog is expected to contain, pinned deliberately.
+#:
+#: Every test below is parametrized over the catalog, so an empty or shrunken catalog
+#: does not fail anything - it silently runs fewer cases and still reports success. A
+#: bare "is not empty" check does not help either: one TD passes it as happily as two
+#: hundred. Bumping the schema submodule is the case that matters, because a schema
+#: rewritten to use a construct the converter does not support stops converting, and
+#: nothing here would have said so.
+#:
+#: Change this number only in the same commit as the change that moves it, so the diff
+#: shows the coverage cost and a reviewer can weigh it.
+EXPECTED_CATALOG_SIZE = 157
+
 
 def test_catalog_is_not_empty():
-    assert _CATALOG, "no generated device TDs found under examples/devices/"
+    """A distinct message for the case where nothing was generated at all.
+
+    Subsumed by the size check below, but kept because the remedy differs: an empty
+    catalog usually means the generation step did not run (see the README), not that
+    coverage changed.
+    """
+    assert _CATALOG, (
+        "no generated device TDs found under examples/devices/ - run "
+        "`uv run python -m scripts.generate_device_tds` first"
+    )
+
+
+def test_catalog_size_is_pinned():
+    """The catalog must hold exactly the expected number of device TDs.
+
+    Asserted both ways on purpose. A drop means a device that used to convert no
+    longer does; a rise means new coverage. Either way the number is updated by hand,
+    in the commit responsible, rather than drifting unnoticed.
+    """
+    actual = len(_CATALOG)
+    if actual < EXPECTED_CATALOG_SIZE:
+        pytest.fail(
+            f"device catalog shrank: {actual} TDs, expected {EXPECTED_CATALOG_SIZE}. "
+            f"{EXPECTED_CATALOG_SIZE - actual} device schema(s) stopped converting - "
+            "run `uv run python -m scripts.generate_device_tds` and read the skip "
+            "report to see which construct they now use. Lower EXPECTED_CATALOG_SIZE "
+            "only as a deliberate, reviewed decision."
+        )
+    if actual > EXPECTED_CATALOG_SIZE:
+        pytest.fail(
+            f"device catalog grew: {actual} TDs, expected {EXPECTED_CATALOG_SIZE}. "
+            "Raise EXPECTED_CATALOG_SIZE in this commit to lock the new coverage in."
+        )
 
 
 @pytest.mark.parametrize(("td_path", "source_path"), _CATALOG)
