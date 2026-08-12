@@ -79,6 +79,7 @@ PRESENCE_FIELD: Final = "lorav:presenceField"  # name of the flags property
 PRESENCE_BIT: Final = "lorav:presenceBit"  # flags bit gating this property
 SWITCH_FIELD: Final = "lorav:switchField"  # name of the discriminator property
 SWITCH_VALUE: Final = "lorav:switchValue"  # discriminator value selecting this case
+CONST: Final = "lorav:const"  # fixed byte value used when encoding a downlink
 VAR: Final = "lorav:var"  # discriminator alias, referenced as $var by a match block
 PAD_BEFORE: Final = "lorav:padBefore"  # reserved bytes consumed before this field in its group
 

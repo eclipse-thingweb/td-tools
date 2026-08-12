@@ -149,9 +149,15 @@ class _Field:
         ``compute``/``guard``); the reference interpreter evaluates it from other
         already-decoded values rather than reading wire bytes for it.
         """
-        return self.form.get(vocab.TYPE) == vocab.COMPUTED_TYPE or bool(
-            vocab.COMPUTED_TERMS & self.form.keys()
-        )
+        wire = self.form.get(vocab.TYPE)
+        if wire is None:
+            # No wire type at all: derived if it says where its value comes from.
+            return bool(vocab.COMPUTED_TERMS & self.form.keys())
+        # A real wire type means bytes are read, whatever post-processing rides along.
+        # Inferring "computed" from any lorav: descriptor gave a transform-carrying
+        # scalar a byte width of zero, so every field after it read from the wrong
+        # offset and the field itself vanished from the decode.
+        return wire == vocab.COMPUTED_TYPE
 
     @property
     def byte_width(self) -> int:
@@ -218,6 +224,16 @@ class _Field:
             field["lookup"] = {int(key): label for key, label in enum.items()}
         if (valid_range := self.form.get(vocab.VALID_RANGE)) is not None:
             field["valid_range"] = copy.deepcopy(valid_range)
+        if (transform := self.form.get(vocab.TRANSFORM)) is not None:
+            # Post-processing on a wire field. Restored here as well as on the derived
+            # path: without it the field decoded to its raw value (65535 rather than
+            # 327.67 for decentlab's air_temperature), because the stages were dropped
+            # while the bytes were read correctly.
+            field["transform"] = copy.deepcopy(transform)
+        if (const := self.form.get(vocab.CONST)) is not None:
+            # The byte an encoder must emit. Decoding ignores it, so this only has to
+            # survive the round trip.
+            field["value"] = const
 
         return field
 
