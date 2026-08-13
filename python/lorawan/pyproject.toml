@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 lorawan-wot = "lorawan_wot.cli:main"
+sync-examples = "lorawan_wot.sync_examples:main"
 
 [dependency-groups]
 dev = [

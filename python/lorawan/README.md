@@ -32,12 +32,21 @@ Thing Description (.td.json)
 
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.11+.
 
+All commands must be run from the **`python/lorawan/`** subdirectory, where
+`pyproject.toml` lives.
+
 ```bash
+# 0. Enter the project directory
+cd python/lorawan
+
 # 1. Get the LoRa Alliance Payload / MultiTech interpreter (pinned submodule)
 git submodule update --init --recursive
 
 # 2. Create the environment and install dependencies
 uv sync
+
+# 3. Sync curated examples from upstream
+uv run sync-examples
 ```
 
 ## Project layout
@@ -54,10 +63,11 @@ vocab/
   context.jsonld          # JSON-LD context for the lorav: namespace
   lorawan-form.schema.json  # JSON Schema for LoRaWAN property forms
   lorawan-thing.schema.json  # JSON Schema for Thing-level OTAA / onboarding terms
-examples/         # curated TD examples + vectors + generated artifacts
-  devices/        # TD catalog generated from the reference device schemas
-  generated/      # output folder for generated schema/codec artifacts
+examples/         # curated TDs synced from eclipse-thingweb/examples (not checked in)
+  devices/        # TD catalog generated from the reference device schemas (git-ignored)
+  generated/      # output folder for generated schema/codec artifacts (git-ignored)
 scripts/
+  sync_examples.py        # fetch curated *.td.json + *.vectors.json from upstream
   generate_device_tds.py  # batch-generate the examples/devices/ catalog
 tests/            # converter, decode, schema-validation, and catalog tests
 external/device-payload-schema/   # MultiTech interpreter (pinned git submodule)
@@ -194,7 +204,7 @@ For `tlv`/`ctv` you may declare the tag fields at Thing level with
 `lorav:tagFields` (defaults to `channel` + `type`, both `u8`).
 
 
-### Form vocabulary (`lorav:` terms)
+### Form-level vocabulary (`lorav:` terms)
 
 The **Tier** column shows how often each term appears across the bundled
 [device catalog](#device-catalog): **core** is needed by almost every device,
@@ -318,8 +328,14 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
 
 ## Examples
 
-The repository ships **6 curated example pairs** (`*.td.json` + `*.vectors.json`)
-in `examples/`:
+The **6 curated example pairs** (`*.td.json` + `*.vectors.json`) in `examples/`
+are sourced from
+[`eclipse-thingweb/examples/TTC26/examples`](https://github.com/eclipse-thingweb/examples/tree/main/TTC26/examples)
+and are **not checked in** to this repository. Fetch them with:
+
+```bash
+uv run python -m scripts.sync_examples
+```
 
 | File | Layout | Highlights |
 |------|--------|-----------|
@@ -355,11 +371,13 @@ TD can be produced. The generator prints a per-reason report on each run.
 
 ## Development
 
+All commands assume you are in the `python/lorawan/` directory.
+
 ```bash
 uv run python -m scripts.generate_device_tds   # generate examples/devices/ (see below)
-uv run pytest          # run the test suite
-uv run ruff check .    # lint
-uv run ruff format .   # format
+uv run pytest                                  # run the test suite
+uv run ruff check .                            # lint
+uv run ruff format .                           # format
 ```
 
 `examples/devices/` is generated, not checked in, so `tests/test_device_catalog.py`
