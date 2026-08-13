@@ -21,107 +21,111 @@ lorav: a owl:Ontology ;
 
 lorav:payloadLayout a owl:DatatypeProperty ;
     rdfs:label "payload layout" ;
-    rdfs:comment "Overall structure of the device payload: 'fixed', 'ports', 'tlv' or 'ctv'." ;
+    rdfs:comment "Overall structure of the device payload: 'fixed', 'ports', 'tlv' or 'ctv'. Usage: core, required on every Thing." ;
     rdfs:range xsd:string .
 
 lorav:tagFields a owl:DatatypeProperty ;
     rdfs:label "tag fields" ;
-    rdfs:comment "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value." .
+    rdfs:comment "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value. Usage: core for tlv/ctv devices (e.g. Milesight, Elsys)." .
 
 # --- Form-level terms --------------------------------------------------------
 
+lorav:endian a owl:DatatypeProperty ;
+    rdfs:label "byte order" ;
+    rdfs:comment "Byte order of this multi-byte value: 'big' (default) or 'little'. This describes byte order only; the binding has no byte-swap or word-swap mode. Usage: core; big-endian dominates, little-endian is used by Milesight, Digital Matter and Radionode." ;
+    rdfs:range xsd:string .
+
 lorav:fPort a owl:DatatypeProperty ;
     rdfs:label "frame port" ;
-    rdfs:comment "LoRaWAN FPort used to route or branch the payload." ;
+    rdfs:comment "LoRaWAN FPort used to route or branch the payload. Usage: core for 'ports' layouts." ;
     rdfs:range xsd:integer .
 
 lorav:type a owl:DatatypeProperty ;
     rdfs:label "payload data type" ;
-    rdfs:comment "Wire data type of the value, named with an xsd:* alias or a native type (e.g. s16, u8)." .
-
-lorav:mostSignificantByte a owl:DatatypeProperty ;
-    rdfs:label "most significant byte first" ;
-    rdfs:comment "True for big-endian byte order, false for little-endian." ;
-    rdfs:range xsd:boolean .
+    rdfs:comment "Wire data type of the value, named with an xsd:* alias or a native type (e.g. s16, u8). Usage: core, required on every form." .
 
 lorav:multiplier a owl:DatatypeProperty ;
     rdfs:label "multiplier" ;
-    rdfs:comment "Factor multiplied with the raw value to obtain the engineering value." ;
+    rdfs:comment "Factor multiplied with the raw value to obtain the engineering value. Usage: common (e.g. Decentlab, Digital Matter, MClimate)." ;
     rdfs:range xsd:double .
 
 lorav:divisor a owl:DatatypeProperty ;
     rdfs:label "divisor" ;
-    rdfs:comment "Factor the raw value is divided by to obtain the engineering value." ;
+    rdfs:comment "Factor the raw value is divided by to obtain the engineering value. Usage: core, the most common scaling term across vendors." ;
     rdfs:range xsd:double .
 
 lorav:offset a owl:DatatypeProperty ;
     rdfs:label "offset" ;
-    rdfs:comment "Constant added to the value after scaling." ;
+    rdfs:comment "Constant added to the value after scaling. Usage: common (Decentlab, MClimate, RadioBridge)." ;
     rdfs:range xsd:double .
 
 lorav:bitmask a owl:DatatypeProperty ;
     rdfs:label "bitmask" ;
-    rdfs:comment "Hexadecimal mask selecting a contiguous range of bits from the raw value." ;
+    rdfs:comment "Hexadecimal mask selecting a contiguous range of bits from the raw value. Usage: common, for status/flag bytes (Dragino, Digital Matter, MClimate, RadioBridge, RAKwireless)." ;
     rdfs:range xsd:string .
 
 lorav:byteOffset a owl:DatatypeProperty ;
     rdfs:label "byte offset" ;
-    rdfs:comment "Zero-based byte position of the value within a fixed payload layout." ;
+    rdfs:comment "Zero-based byte position of the value within a fixed payload layout. Usage: core for 'fixed' and 'ports' layouts." ;
     rdfs:range xsd:integer .
 
 lorav:length a owl:DatatypeProperty ;
     rdfs:label "length" ;
-    rdfs:comment "Byte length for variable-length types (string, bytes, hex, base64)." ;
+    rdfs:comment "Byte length for variable-length types (string, bytes, hex, base64). Usage: rare (RadioBridge)." ;
     rdfs:range xsd:integer .
 
 lorav:tag a owl:DatatypeProperty ;
     rdfs:label "tag" ;
-    rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value." .
+    rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value. Usage: core for tlv/ctv devices (Milesight, Elsys)." .
 
 lorav:unece a owl:DatatypeProperty ;
     rdfs:label "UN/CEFACT unit code" ;
-    rdfs:comment "UN/CEFACT Recommendation 20 unit code for the value." ;
+    rdfs:comment "UN/CEFACT Recommendation 20 unit code for the value. Usage: supported but unused by the current device catalog, because unit codes live in the reference schema library rather than in the device schemas." ;
     rdfs:range xsd:string .
 
 lorav:enum a owl:DatatypeProperty ;
     rdfs:label "enumeration" ;
-    rdfs:comment "Mapping from raw integer values to labels." .
+    rdfs:comment "Mapping from raw integer values to labels. Usage: common (Makerfabs, MClimate, RadioBridge)." .
+
+lorav:validRange a owl:DatatypeProperty ;
+    rdfs:label "valid range" ;
+    rdfs:comment "Plausibility range [min, max] for the decoded value, used to flag out-of-range readings. Usage: rare (MClimate)." .
 
 # --- Grouping / conditional-presence terms -----------------------------------
 
 lorav:slot a owl:DatatypeProperty ;
     rdfs:label "group slot" ;
-    rdfs:comment "Zero-based order of this property within its group (multi-field TLV case, flagged group or match case)." ;
+    rdfs:comment "Zero-based order of this property within its group (multi-field TLV case, flagged group or match case). Usage: core wherever a group holds more than one value." ;
     rdfs:range xsd:integer .
 
 lorav:presenceField a owl:DatatypeProperty ;
     rdfs:label "presence field" ;
-    rdfs:comment "Name of the flags property whose bit gates whether this property is present in the payload." ;
+    rdfs:comment "Name of the flags property whose bit gates whether this property is present in the payload. Usage: common, concentrated in Decentlab devices." ;
     rdfs:range xsd:string .
 
 lorav:presenceBit a owl:DatatypeProperty ;
     rdfs:label "presence bit" ;
-    rdfs:comment "Index of the bit in the presence field that must be set for this property to appear." ;
+    rdfs:comment "Index of the bit in the presence field that must be set for this property to appear. Usage: common, concentrated in Decentlab devices." ;
     rdfs:range xsd:integer .
 
 lorav:switchField a owl:DatatypeProperty ;
     rdfs:label "switch field" ;
-    rdfs:comment "Name of the discriminator property whose value selects the match case this property belongs to." ;
+    rdfs:comment "Name of the discriminator property whose value selects the match case this property belongs to. Usage: common (Dragino, RadioBridge, Radionode, Netvox)." ;
     rdfs:range xsd:string .
 
 lorav:switchValue a owl:DatatypeProperty ;
     rdfs:label "switch value" ;
-    rdfs:comment "Value of the discriminator property that selects this property's match case." ;
+    rdfs:comment "Value of the discriminator property that selects this property's match case. Usage: common (Dragino, RadioBridge, Radionode, Netvox)." ;
     rdfs:range xsd:integer .
 
 lorav:var a owl:DatatypeProperty ;
     rdfs:label "discriminator alias" ;
-    rdfs:comment "Alias under which a match block references this property (as $var) when the discriminator name differs from the property name." ;
+    rdfs:comment "Alias under which a match block references this property (as $var) when the discriminator name differs from the property name. Usage: rare (RadioBridge, Radionode)." ;
     rdfs:range xsd:string .
 
 lorav:padBefore a owl:DatatypeProperty ;
     rdfs:label "padding before" ;
-    rdfs:comment "Number of reserved bytes consumed before this property within its group (e.g. a skip inside a match case)." ;
+    rdfs:comment "Number of reserved bytes consumed before this property within its group (e.g. a skip inside a match case). Usage: rare (RadioBridge)." ;
     rdfs:range xsd:integer .
 
 # --- Computed / derived-value terms ------------------------------------------
@@ -131,24 +135,24 @@ lorav:padBefore a owl:DatatypeProperty ;
 
 lorav:ref a owl:DatatypeProperty ;
     rdfs:label "input reference" ;
-    rdfs:comment "Name ($field) of the decoded value this computed property derives from." ;
+    rdfs:comment "Name ($field) of the decoded value this computed property derives from. Usage: rare (MClimate, Digital Matter, Decentlab)." ;
     rdfs:range xsd:string .
 
 lorav:polynomial a owl:DatatypeProperty ;
     rdfs:label "polynomial" ;
-    rdfs:comment "Coefficient list [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input value." .
+    rdfs:comment "Coefficient list [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input value. Usage: rare, one device (Decentlab DL-5TM)." .
 
 lorav:transform a owl:DatatypeProperty ;
     rdfs:label "transform" ;
-    rdfs:comment "Ordered post-processing operations (add/div/mult) applied to a derived value." .
+    rdfs:comment "Ordered post-processing operations (add/div/mult) applied to a derived value. Usage: rare (MClimate, Decentlab)." .
 
 lorav:compute a owl:DatatypeProperty ;
     rdfs:label "compute" ;
-    rdfs:comment "Binary operation {op, a, b} combining two values into a derived value." .
+    rdfs:comment "Binary operation {op, a, b} combining two values into a derived value. Usage: rare (MClimate, Decentlab)." .
 
 lorav:guard a owl:DatatypeProperty ;
     rdfs:label "guard" ;
-    rdfs:comment "Conditional gate {when, else} selecting a derived value based on a predicate." .
+    rdfs:comment "Conditional gate {when, else} selecting a derived value based on a predicate. Usage: rare (MClimate, Decentlab)." .
 
 # --- Thing-level OTAA activation / identity terms ----------------------------
 #

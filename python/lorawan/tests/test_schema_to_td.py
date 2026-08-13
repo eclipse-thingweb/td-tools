@@ -47,6 +47,43 @@ def test_fixed_skip_advances_offset_without_a_property():
     assert td["properties"]["value"]["forms"][0][vocab.BYTE_OFFSET] == 2
 
 
+def test_schema_endian_is_recorded_on_each_form():
+    """Byte order is a form-level term, so every value states its own."""
+    schema = {
+        "endian": "little",
+        "fields": [
+            {"name": "a", "type": "u16"},
+            {"name": "b", "type": "u16"},
+            {"name": "c", "type": "be_u16"},
+        ],
+    }
+    td = payload_schema_to_td(schema, source="demo.yaml")
+
+    assert vocab.ENDIAN not in td  # never a Thing-level term
+    assert td["properties"]["a"]["forms"][0][vocab.ENDIAN] == vocab.ENDIAN_LITTLE
+    assert td["properties"]["c"]["forms"][0][vocab.ENDIAN] == vocab.ENDIAN_BIG
+    # Converting back rebuilds the schema-wide default and the odd-one-out prefix.
+    round_tripped = td_to_payload_schema(td)
+    assert round_tripped["endian"] == "little"
+    assert [f["type"] for f in round_tripped["fields"]] == ["u16", "u16", "be_u16"]
+
+
+def test_unece_unit_code_round_trips_through_the_thing_description():
+    """``unece`` survives schema -> TD -> schema.
+
+    No device in the bundled catalog carries a unit code (see the "Known
+    limitations" note in the README), so this uses an inline schema.
+    """
+    schema = {
+        "endian": "big",
+        "fields": [{"name": "temperature", "type": "s16", "div": 10, "unece": "CEL"}],
+    }
+    td = payload_schema_to_td(schema, source="demo.yaml")
+
+    assert td["properties"]["temperature"]["forms"][0][vocab.UNECE] == "CEL"
+    assert td_to_payload_schema(td)["fields"][0]["unece"] == "CEL"
+
+
 def test_tlv_schema_carries_tag_fields_and_tags():
     """A single-field tlv block becomes per-property tags plus tag fields."""
     schema = {

@@ -26,14 +26,34 @@
     "lorav:softwareVersion": { "type": "string" },
     "lorav:region": { "type": "string" },
     "lorav:frequencyPlan": { "type": "string" },
-    "lorav:endDeviceId": { "type": "string" }
+    "lorav:endDeviceId": { "type": "string" },
+
+    "lorav:payloadLayout": {
+      "type": "string",
+      "enum": ["fixed", "ports", "tlv", "ctv"],
+      "description": "Overall structure of the device payload."
+    },
+    "lorav:tagFields": {
+      "type": "array",
+      "minItems": 1,
+      "description": "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" }
+        },
+        "required": ["name", "type"]
+      }
+    }
   },
   "not": {
     "anyOf": [
       { "required": ["lorav:appKey"] },
       { "required": ["lorav:nwkKey"] },
       { "required": ["lorav:appkey"] },
-      { "required": ["lorav:nwkkey"] }
+      { "required": ["lorav:nwkkey"] },
+      { "required": ["lorav:endian"] }
     ]
   },
   "additionalProperties": true

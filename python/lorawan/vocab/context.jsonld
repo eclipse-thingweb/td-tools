@@ -8,7 +8,7 @@
 
     "fPort": "lorav:fPort",
     "type": "lorav:type",
-    "mostSignificantByte": "lorav:mostSignificantByte",
+    "endian": "lorav:endian",
     "multiplier": "lorav:multiplier",
     "divisor": "lorav:divisor",
     "offset": "lorav:offset",
@@ -30,6 +30,7 @@
     "guard": "lorav:guard",
     "unece": "lorav:unece",
     "enum": "lorav:enum",
+    "validRange": "lorav:validRange",
 
     "devEUI": "lorav:devEUI",
     "joinEUI": "lorav:joinEUI",
