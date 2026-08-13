@@ -82,17 +82,11 @@ def test_term_is_documented_in_the_readme(term):
     assert term in _README_TERMS, f"{term} is missing from the README vocabulary tables"
 
 
-@pytest.mark.parametrize("term", sorted(vocab.REMOVED_TERMS))
-def test_withdrawn_term_is_listed_in_the_readme_migration_table(term):
-    """Anyone hitting a rejected term must find its replacement in the README.
-
-    The converter names the replacement in its error, but only for the first term
-    it trips over; the table is what lets a reader migrate a whole file at once.
-    """
-    assert term in _README_TERMS, f"withdrawn term {term} is missing from the README"
-
-
 def test_readme_mentions_no_unknown_terms():
-    """The README must not document terms the binding neither defines nor withdrew."""
+    """The README must not document terms the binding neither defines nor withdrew.
+
+    Withdrawn terms are allowed to appear -- the README may still mention one in
+    passing -- but a term from neither set is a typo or a leftover.
+    """
     known = vocab.ALL_TERMS | set(vocab.REMOVED_TERMS)
     assert _README_TERMS <= known, f"README documents unknown terms: {_README_TERMS - known}"

@@ -46,15 +46,11 @@ def _find_examples_dir() -> Path:
 
 
 def _outdated(examples: Path) -> list[str]:
-    """Names of synced Thing Descriptions still written in the property model.
-
-    A top-level ``properties`` key is the decisive signal: every withdrawn 0.2.x
-    term lived inside a property affordance, so nothing else needs inspecting.
-    """
+    """Names of synced Thing Descriptions that still speak the pre-0.3.0 dialect."""
     return sorted(
         path.name
         for path in examples.glob("*.td.json")
-        if vocab.PROPERTIES in json.loads(path.read_text(encoding="utf-8"))
+        if vocab.uses_withdrawn_vocabulary(json.loads(path.read_text(encoding="utf-8")))
     )
 
 

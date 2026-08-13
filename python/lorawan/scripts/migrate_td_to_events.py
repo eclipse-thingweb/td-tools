@@ -8,9 +8,13 @@ longer where the binding looks for it would decode the wrong bytes silently.
 Refusing is only half an answer, though: every existing Thing Description has to
 get to the new shape somehow, and doing it by hand across hundreds of forms is
 exactly the kind of work that invites transcription errors. This script performs
-the mechanical part, so a human review is a diff rather than a retype. It is
-driven entirely by :data:`lorawan_wot.vocab.REMOVED_TERMS`, so it cannot fall
-behind the vocabulary.
+the mechanical part, so a human review is a diff rather than a retype.
+
+It has to spell the withdrawn term names, since by definition the vocabulary no
+longer defines them. To stop it falling behind, ``tests/test_migration.py``
+asserts that the names it handles are exactly the keys of
+:data:`lorawan_wot.vocab.REMOVED_TERMS` -- withdraw a term without teaching this
+script about it and the suite fails.
 
 What it cannot do is invent information. ``lorav:hardwareVersion`` and
 ``lorav:softwareVersion`` become ``version/model`` and ``version/instance``, and
@@ -65,6 +69,29 @@ _RENAMED_TERMS: dict[str, str] = {
 }
 
 
+def _fold_into_data(key: str, value: Any, data: dict[str, Any]) -> bool:
+    """Rewrite a withdrawn term as its TD-core equivalent on ``data``.
+
+    Returns whether ``key`` was one of them, so callers know not to copy it
+    through. These three describe the decoded value rather than how it is
+    transferred, so they belong on the data schema wherever they were written.
+    The 0.2.x form schema placed them on the form, but hand-written documents put
+    them next to ``type`` and ``unit`` often enough that both spots must be
+    handled -- carrying one through unchanged would produce a "migrated" file the
+    converter still refuses.
+    """
+    if key == "lorav:enum":
+        # JSON object keys are strings; the payload indexes them as integers.
+        data["oneOf"] = [{"const": int(k), "title": label} for k, label in sorted(value.items())]
+    elif key == "lorav:validRange":
+        data["minimum"], data["maximum"] = value
+    elif key == "lorav:unece":
+        data.setdefault("unit", value)  # 'unit' already carries UN/CEFACT codes
+    else:
+        return False
+    return True
+
+
 def _migrate_form(form: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
     """Return ``form`` in the 0.3.0 shape, folding withdrawn terms into ``data``.
 
@@ -85,16 +112,7 @@ def _migrate_form(form: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
             condition[_CONDITION_TERMS[key]] = value
         elif key in _DERIVED_TERMS:
             derived[_DERIVED_TERMS[key]] = value
-        elif key == "lorav:enum":
-            # JSON object keys are strings; the payload indexes them as integers.
-            data["oneOf"] = [
-                {"const": int(k), "title": label} for k, label in sorted(value.items())
-            ]
-        elif key == "lorav:validRange":
-            data["minimum"], data["maximum"] = value
-        elif key == "lorav:unece":
-            data.setdefault("unit", value)  # 'unit' already carries UN/CEFACT codes
-        else:
+        elif not _fold_into_data(key, value, data):
             migrated[key] = value
 
     migrated.setdefault("op", list(vocab.UPLINK_OPS))
@@ -107,17 +125,18 @@ def _migrate_form(form: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _migrate_affordance(affordance: dict[str, Any]) -> dict[str, Any]:
-    """Return a property affordance rebuilt as an event affordance.
+    """Return a 0.2.x property affordance rebuilt as a 0.3.0 event affordance.
 
     A property states its data schema inline; an event nests it under ``data``,
     because the event itself is the notification and the schema describes what
     the notification carries.
     """
-    data = {
-        key: value
-        for key, value in affordance.items()
-        if key not in _AFFORDANCE_KEYS and key not in _PROPERTY_ONLY_KEYS
-    }
+    data: dict[str, Any] = {}
+    for key, value in affordance.items():
+        if key in _AFFORDANCE_KEYS or key in _PROPERTY_ONLY_KEYS:
+            continue
+        if not _fold_into_data(key, value, data):
+            data[key] = value
     forms = [_migrate_form(form, data) for form in affordance.get(vocab.FORMS, [])]
 
     event: dict[str, Any] = {}
@@ -177,15 +196,6 @@ def migrate_td(td: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def needs_migration(td: dict[str, Any]) -> bool:
-    """Return whether ``td`` still uses the property model or a withdrawn term.
-
-    Public because :mod:`scripts.sync_examples` uses it to warn when the pinned
-    upstream examples predate the events model.
-    """
-    return vocab.PROPERTIES in td or any(term in json.dumps(td) for term in vocab.REMOVED_TERMS)
-
-
 def _td_paths(targets: Iterable[str]) -> list[Path]:
     """Expand file and directory arguments into a sorted list of TD paths."""
     paths: set[Path] = set()
@@ -208,7 +218,7 @@ def main(argv: list[str] | None = None) -> int:
     stale: list[Path] = []
     for path in _td_paths(args.targets):
         td = json.loads(path.read_text(encoding="utf-8"))
-        if not needs_migration(td):
+        if not vocab.uses_withdrawn_vocabulary(td):
             continue
         stale.append(path)
         if args.check:

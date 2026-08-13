@@ -27,6 +27,10 @@ Thing Description (.td.json)
 * **One source of truth** – the TD holds both the WoT abstraction *and* the
   payload binding.
 * **No reinvented codec** – decoding is delegated to the referenced interpreter.
+* **Uplinks are events, not properties** – a LoRaWAN device transmits on its own
+  schedule and cannot be polled. Modelling a reading as a property would promise
+  a read operation the radio link cannot perform; an event says what actually
+  happens, which is that a value arrives when the device decides to send it.
 
 ## Setup
 
@@ -47,10 +51,6 @@ uv sync
 
 # 3. Sync curated examples from upstream
 uv run sync-examples
-
-# 4. Upstream still publishes the pre-0.3.0 property model, so step 3 reports
-#    the affected files and exits non-zero. Rewrite them into the events model:
-uv run python -m scripts.migrate_td_to_events examples
 ```
 
 ## Project layout
@@ -75,6 +75,7 @@ scripts/
   generate_device_tds.py  # batch-generate the examples/devices/ catalog
   migrate_td_to_events.py # rewrite a pre-0.3.0 TD into the events model
   vocab_usage_report.py   # count lorav: term usage across every bundled TD
+  update_golden.py        # re-record the golden snapshot
 tests/            # converter, decode, schema-validation, and catalog tests
 external/device-payload-schema/   # MultiTech interpreter (pinned git submodule)
 ```
@@ -383,12 +384,6 @@ uv run python -m scripts.generate_device_tds
 Validation is in `tests/test_device_catalog.py`: TD round-trip must preserve
 decode structure, and TD-based decoding must match source schema decoding.
 
-Of the 158 reference schemas **157 convert**, covering every `fixed`, `ports`
-and TLV layout plus the `flagged`, `match`, `byte_group` and computed shapes.
-The single skip (`hbi/mla20`) is legitimate rather than a regression: it nests a
-`byte_group` inside a length-prefixed TLV case, a shape the bundled reference
-interpreter itself mis-decodes and which ships no test vectors, so no faithful
-TD can be produced. The generator prints a per-reason report on each run.
 
 ## Development
 
@@ -406,6 +401,9 @@ uv run python -m scripts.update_golden         # re-record tests/golden/snapshot
 
 `examples/devices/` is generated, not checked in, so `tests/test_device_catalog.py`
 fails on a fresh clone until you run the generator once.
+
+The golden snapshot pins the decoded output of every bundled TD, so re-recording
+it accepts whatever changed. Read the diff before committing it.
 
 
 ## Scope & roadmap

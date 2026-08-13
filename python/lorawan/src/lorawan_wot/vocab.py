@@ -29,7 +29,8 @@ records the terms that were withdrawn for that reason and what replaced them.
 
 from __future__ import annotations
 
-from typing import Final
+import json
+from typing import Any, Final
 
 #: JSON-LD namespace IRI for the LoRaWAN binding vocabulary.
 LORAWAN_NS: Final = "https://www.w3.org/2024/wot/lorawan#"
@@ -273,6 +274,24 @@ REMOVED_TERMS: Final[dict[str, str]] = {
     "lorav:softwareVersion": "the Thing's 'version/instance'",
     "lorav:endDeviceId": "the Thing's 'id' or 'title'",
 }
+
+
+def uses_withdrawn_vocabulary(td: dict[str, Any]) -> bool:
+    """Return whether ``td`` still speaks the pre-0.3.0 dialect.
+
+    True for a Thing Description that keeps uplinks under ``properties`` or that
+    mentions any :data:`REMOVED_TERMS` entry anywhere. Both the example sync and
+    the migration script have to answer this question, and answering it in two
+    places is how the two drift: one would keep accepting a file the other
+    rejects.
+
+    The term check is a substring match over the serialised document, so a
+    withdrawn term appearing as a *value* also counts. That is deliberate --
+    over-reporting costs a needless migration pass, while under-reporting hands
+    the converter a document it will refuse.
+    """
+    return PROPERTIES in td or any(term in json.dumps(td) for term in REMOVED_TERMS)
+
 
 # --- Term registries ---------------------------------------------------------
 

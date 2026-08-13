@@ -50,4 +50,4 @@ select = ["E", "F", "I", "B", "C4", "UP", "N", "W"]
 testpaths = ["tests"]
 
 [project.urls]
-Source = "https://github.com/eclipse-thingweb/td-tools/tree/main/node/python/lorawan"
+Source = "https://github.com/eclipse-thingweb/td-tools/tree/main/python/lorawan"
