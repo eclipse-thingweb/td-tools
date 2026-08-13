@@ -27,10 +27,6 @@ Thing Description (.td.json)
 * **One source of truth** – the TD holds both the WoT abstraction *and* the
   payload binding.
 * **No reinvented codec** – decoding is delegated to the referenced interpreter.
-* **Uplinks are events, not properties** – a LoRaWAN device transmits on its own
-  schedule and cannot be polled. Modelling a reading as a property would promise
-  a read operation the radio link cannot perform; an event says what actually
-  happens, which is that a value arrives when the device decides to send it.
 
 ## Setup
 
@@ -202,7 +198,7 @@ field descriptor on each event's form.
 }
 ```
 
-Here, `data` says what the value *means*, the form says how
+Here, `data` says what the value *means*, the `form` says how
 it is *transferred*. 
 
 ### Payload layouts
@@ -244,7 +240,7 @@ so you can ignore them until a device needs one.
 | `lorav:padBefore` | Reserved bytes consumed before this value within its group | `skip` inside a case | rare | RadioBridge |
 
 `lorav:multiplier` and `lorav:divisor` are mutually exclusive. Prefer
-`lorav:divisor`: `{"lorav:divisor": 100}` is exact, while the equivalent
+`lorav:divisor`: `{"lorav:divisor": 100}`, while the equivalent
 `{"lorav:multiplier": 0.01}` is not representable in binary floating point and
 accumulates error.
 
@@ -278,10 +274,7 @@ branch between them are expressed by giving several events the same locator:
 | A value is derived rather than read from the wire | `lorav:wireType: "number"` + `lorav:derived` |
 
 `lorav:presentWhen` always names the value it depends on in `field`, then gates
-on either a `bit` of it or an exact `value` — never both. Grouping the condition
-under one term keeps the two halves impossible to separate: a bit index with no
-field to index into is meaningless, and the old flat terms let you write exactly
-that.
+on either a `bit` of it or an exact `value` — never both.
 
 `lorav:bitmask` must select a *contiguous* range of bits. The base value is read
 once and decoded into every event masking it, and bases wider than one byte
@@ -345,8 +338,7 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
 | `AppKey` | OTAA root key — `apikey` scheme `name: "appKey"` | **yes (runtime)** |
 | `NwkKey` | OTAA network root key (1.1.x) — `apikey` scheme `name: "nwkKey"` | **yes (runtime)** |
 
-Device metadata that is not LoRaWAN-specific uses vocabularies that already
-define it, such as `schema:brand` and `schema:model` from [schema.org](https://schema.org),
+Device metadata that is not LoRaWAN-specific uses established vocabularies, such as `schema:brand` and `schema:model` from [schema.org](https://schema.org),
 the Thing's `version` (`model` for hardware, `instance` for firmware), and the
 Thing's `id`/`title` to identify the end device.
 
@@ -357,7 +349,7 @@ Thing's `id`/`title` to identify the end device.
 The **6 curated example pairs** (`*.td.json` + `*.vectors.json`) in `examples/`
 are sourced from
 [`eclipse-thingweb/examples/TTC26/examples`](https://github.com/eclipse-thingweb/examples/tree/main/TTC26/examples)
-and fetched by `uv run sync-examples` rather than checked in here.
+and fetched by `uv run sync-examples`.
 
 | File | Layout | Highlights |
 |------|--------|-----------|
@@ -396,14 +388,10 @@ uv run ruff check .                            # lint
 uv run ruff format .                           # format
 
 uv run python -m scripts.vocab_usage_report    # count lorav: term usage across all TDs
-uv run python -m scripts.update_golden         # re-record tests/golden/snapshot.json
 ```
 
 `examples/devices/` is generated, not checked in, so `tests/test_device_catalog.py`
 fails on a fresh clone until you run the generator once.
-
-The golden snapshot pins the decoded output of every bundled TD, so re-recording
-it accepts whatever changed. Read the diff before committing it.
 
 
 ## Scope & roadmap
