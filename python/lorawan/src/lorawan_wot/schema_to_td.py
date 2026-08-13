@@ -19,6 +19,7 @@ caller can skip it and report it, rather than emitting a lossy Thing Description
 from __future__ import annotations
 
 import ast
+import copy
 import enum
 import re
 from typing import Any
@@ -39,7 +40,9 @@ _KNOWN_FIELD_KEYS: frozenset[str] = frozenset(
         "length",
         "values",
         "lookup",
+        "value",
         "valid_range",
+        "transform",  # post-processing of a value read from the wire
     }
 )
 
@@ -55,19 +58,29 @@ _IGNORABLE_FIELD_KEYS: frozenset[str] = frozenset(
         "raw",
         "comment",
         "var",  # names a field for later $reference; decoding-neutral here
+        "sensor",  # names the sensor a channel belongs to; an annotation like `semantic`
     }
 )
 
 #: Field keys / types that mark a *computed* (derived) value the binding cannot
 #: express, since it is post-processing math rather than a raw wire field.
 _COMPUTED_FIELD_KEYS: frozenset[str] = frozenset(
-    {"ref", "polynomial", "transform", "formula", "compute", "guard", "value"}
+    {"ref", "polynomial", "transform", "formula", "compute", "guard"}
 )
-_COMPUTED_FIELD_TYPES: frozenset[str] = frozenset({"number", "bitfield_string"})
+#: `number` is the derived-value marker and is routed, not rejected. `bitfield_string`
+#: renders packed bits as text and has no form term yet, so it stays out of the subset.
+_UNSUPPORTED_FIELD_TYPES: frozenset[str] = frozenset({"bitfield_string"})
 
 #: Derived-value descriptors the binding *does* support (carried verbatim onto a
-#: ``lorav:`` form). ``formula``/``value`` remain unsupported and keep their
-#: fields out of the convertible subset.
+#: ``lorav:`` form). ``formula`` remains unsupported and keeps its fields out of the
+#: convertible subset.
+#:
+#: ``value`` used to sit here, which cost 45 device schemas - every downlink command
+#: in the library declares its category and command bytes that way. It is not a
+#: derived value at all: the reference interpreter ignores it when decoding, reading
+#: the byte and reporting what the payload actually held. It fixes the byte only when
+#: *encoding*, so it rides on the form as ``lorav:const`` and the field is otherwise
+#: an ordinary scalar.
 _COMPUTED_DESCRIPTORS: frozenset[str] = frozenset(
     {"ref", "polynomial", "transform", "compute", "guard"}
 )
@@ -101,6 +114,8 @@ class SkipReason(enum.Enum):
     MATCH_CASE_KEY = "non-integer match case key"
     TLV_TAG = "unsupported tlv tag key"
     ENUM_TABLE = "unsupported enum table"
+    INTERNAL_REF = "derived field reads a value the TD does not carry"
+    LENGTH_NOT_FIXED = "length is not a fixed byte count (remaining/$var)"
     MALFORMED = "malformed / non-conforming schema"
     OTHER = "other"
 
@@ -135,8 +150,11 @@ def payload_schema_to_td(schema: dict[str, Any], *, source: str) -> dict[str, An
         )
 
     if len(fields) == 1 and isinstance(fields[0], dict) and "tlv" in fields[0]:
-        return _tlv_td(schema, source)
-    return _fixed_td(schema, source)
+        td = _tlv_td(schema, source)
+    else:
+        td = _fixed_td(schema, source)
+    _reject_unresolvable_inputs(td.get("properties") or {})
+    return td
 
 
 # --- layout builders ---------------------------------------------------------
@@ -547,22 +565,102 @@ def _reject_computed(field: dict[str, Any]) -> None:
         raise UnsupportedSchemaError(
             f"field is not a mapping: {field!r}", reason=SkipReason.MALFORMED
         )
-    if field.get("type") in _COMPUTED_FIELD_TYPES:
+    if field.get("type") in _UNSUPPORTED_FIELD_TYPES:
         raise UnsupportedSchemaError(
-            f"computed field type {field.get('type')!r}", reason=SkipReason.COMPUTED
+            f"unsupported field type {field.get('type')!r}", reason=SkipReason.COMPUTED
         )
-    computed = _COMPUTED_FIELD_KEYS & field.keys()
-    if computed:
+    if _is_computed_field(field):
+        # A derived field reaching the scalar path is a routing mistake, not a schema
+        # the binding cannot express: every caller checks _is_computed_field first.
         raise UnsupportedSchemaError(
-            f"computed field uses keys: {sorted(computed)}", reason=SkipReason.COMPUTED
+            f"derived field {field.get('name')!r} reached the scalar path",
+            reason=SkipReason.COMPUTED,
         )
+    if "formula" in field:
+        # A free-text expression the binding has no term for.
+        raise UnsupportedSchemaError("field uses 'formula'", reason=SkipReason.COMPUTED)
 
 
 def _is_computed_field(field: dict[str, Any]) -> bool:
-    """True when a source field is a derived value rather than a raw wire field."""
+    """True when a source field is a derived value rather than a raw wire field.
+
+    A derived value is one with nothing to read: either `type: number` or no type at
+    all, plus a descriptor saying where its value comes from.
+
+    Carrying a descriptor does not make a field derived. `transform` post-processes a
+    value that *was* read from the wire, and this used to treat any field carrying one
+    as derived - so `air_temperature` (a `u16` with `transform: [{div: 100},
+    {add: -327.68}]`) had its wire type replaced by the derived marker and became a
+    zero-byte field. The generated TD then decoded without it entirely: not a skipped
+    schema but a silently wrong one, which the catalog count cannot detect.
+    """
     if not isinstance(field, dict):
         return False
-    return field.get("type") == vocab.COMPUTED_TYPE or bool(_COMPUTED_DESCRIPTORS & field.keys())
+    ftype = field.get("type")
+    if ftype is None:
+        return bool(_COMPUTED_DESCRIPTORS & field.keys())
+    return ftype == vocab.COMPUTED_TYPE
+
+
+def _referenced_names(descriptor: Any) -> set[str]:
+    """Every ``$name`` a derived-value descriptor reads, at any nesting depth."""
+    found: set[str] = set()
+    if isinstance(descriptor, str):
+        if descriptor.startswith("$"):
+            found.add(descriptor[1:])
+    elif isinstance(descriptor, dict):
+        for value in descriptor.values():
+            found |= _referenced_names(value)
+    elif isinstance(descriptor, list):
+        for item in descriptor:
+            found |= _referenced_names(item)
+    return found
+
+
+def _reject_unresolvable_inputs(properties: dict[str, Any]) -> None:
+    """Reject a Thing Description whose derived fields read a value it does not carry.
+
+    A derived field names its inputs with ``$name``. The reverse conversion rebuilds a
+    schema from the properties alone, so an input that is not a property comes back as
+    nothing and the reference interpreter evaluates the field against zero - qingping
+    decoded a temperature of -50 where its schema says 359.5, because ``$_temp_raw``
+    was internal scratch state with no property of its own.
+
+    Checked against the assembled properties rather than by rejecting every internal
+    reference: most internal inputs *are* emitted as properties and resolve correctly.
+    Rejecting the name alone cost 22 schemas to prevent one wrong Thing Description.
+
+    Skipped rather than approximated: a TD that decodes to the wrong number is worse
+    than one that does not exist, and the catalog size cannot detect it.
+    """
+    available = set(properties)
+    # An internal input that is a bit range cannot survive the round trip. The forms are
+    # emitted correctly, but rebuilding flattens the byte_group into top-level bit-range
+    # fields, and the reference interpreter decodes a top-level `_`-prefixed field
+    # without storing it as a variable - so `$_temp_raw` resolves to nothing and
+    # qingping reported -50 degrees where its schema says 359.5. Plain internal scalars
+    # are unaffected and stay convertible.
+    masked_internal = {
+        name
+        for name, prop in properties.items()
+        if name.startswith("_") and any(vocab.BITMASK in form for form in prop.get("forms", []))
+    }
+    missing: dict[str, list[str]] = {}
+    for name, prop in properties.items():
+        for form in prop.get("forms", []):
+            for key in vocab.COMPUTED_TERMS:
+                if key not in form:
+                    continue
+                referenced = _referenced_names(form[key])
+                unresolved = sorted((referenced - available) | (referenced & masked_internal))
+                if unresolved:
+                    missing.setdefault(name, []).extend(unresolved)
+    if missing:
+        detail = "; ".join(f"{n} reads {sorted(set(refs))}" for n, refs in missing.items())
+        raise UnsupportedSchemaError(
+            f"derived field input is not a property: {detail}",
+            reason=SkipReason.INTERNAL_REF,
+        )
 
 
 def _computed_property(field: dict[str, Any], **locator: Any) -> dict[str, Any]:
@@ -774,7 +872,15 @@ def _build_form(
     if "var" in field:
         form[vocab.VAR] = field["var"]
     if "length" in field:
-        form[vocab.LENGTH] = int(field["length"])
+        length = field["length"]
+        if not _is_int_key(length):
+            # `length: remaining` consumes to the end of the payload (PS-014). The
+            # form carries a fixed byte count, so there is nothing to put here.
+            raise UnsupportedSchemaError(
+                f"unsupported length {length!r}",
+                reason=SkipReason.LENGTH_NOT_FIXED,
+            )
+        form[vocab.LENGTH] = int(length)
     enum = _enum(field)
     if enum is not None:
         form[vocab.ENUM] = enum
@@ -782,6 +888,14 @@ def _build_form(
         form[vocab.UNECE] = field["unece"]
     if "valid_range" in field:
         form[vocab.VALID_RANGE] = field["valid_range"]
+    if "transform" in field:
+        # Post-processing of a value read from the wire. The stages run in order after
+        # mult/div/add, so the list is carried as written.
+        form[vocab.TRANSFORM] = copy.deepcopy(field["transform"])
+    if "value" in field:
+        # Decode-neutral - the interpreter reads the byte and reports what the payload
+        # held - so this rides along only to keep a downlink encoder able to fix it.
+        form[vocab.CONST] = field["value"]
     return form
 
 
@@ -839,6 +953,15 @@ def _wot_type(base: str, field: dict[str, Any]) -> str:
     return "integer"
 
 
+def _is_int_key(key: Any) -> bool:
+    """Whether a lookup table key names an integer value."""
+    try:
+        int(key)
+    except (TypeError, ValueError):
+        return False
+    return True
+
+
 def _enum(field: dict[str, Any]) -> dict[int, Any] | None:
     """Canonicalise a ``values``/``lookup`` table to a ``{int: label}`` mapping."""
     raw = field.get("values", field.get("lookup"))
@@ -847,6 +970,15 @@ def _enum(field: dict[str, Any]) -> dict[int, Any] | None:
     if isinstance(raw, list):
         return dict(enumerate(raw))
     if isinstance(raw, dict):
+        # A mapping may carry a `default` label, which applies to every value the
+        # table does not list (PS-269). The form vocabulary has no term for it, so
+        # the field cannot round-trip: dropping the key would silently decode an
+        # unmapped value as absent where the schema names it.
+        if any(not _is_int_key(key) for key in raw):
+            raise UnsupportedSchemaError(
+                f"enum table has a non-integer key: {sorted(map(str, raw))}",
+                reason=SkipReason.ENUM_TABLE,
+            )
         return {int(key): label for key, label in raw.items()}
     raise UnsupportedSchemaError(f"unsupported enum table {raw!r}", reason=SkipReason.ENUM_TABLE)
 
