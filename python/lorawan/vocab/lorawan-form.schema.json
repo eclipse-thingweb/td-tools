@@ -2,18 +2,29 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://www.w3.org/2024/wot/lorawan/lorawan-form.schema.json",
   "title": "LoRaWAN WoT Binding Form",
-  "description": "Validation rules for the LoRaWAN binding terms used on a property form within a Thing Description.",
+  "description": "Validation rules for the LoRaWAN binding terms used on an event form within a Thing Description. A form says how a value is carried in the uplink; what the decoded value means (its type, unit, range and enumeration) belongs to the event's 'data' schema and is not described here.",
   "type": "object",
   "properties": {
+    "op": {
+      "description": "Uplinks are pushed by the device on its own schedule and cannot be polled, so a LoRaWAN form only ever offers the event subscription operations.",
+      "oneOf": [
+        { "enum": ["subscribeevent", "unsubscribeevent"] },
+        {
+          "type": "array",
+          "items": { "enum": ["subscribeevent", "unsubscribeevent"] },
+          "minItems": 1
+        }
+      ]
+    },
     "lorav:fPort": {
       "type": "integer",
       "minimum": 1,
       "maximum": 255,
       "description": "LoRaWAN frame port (routing / branching)."
     },
-    "lorav:type": {
+    "lorav:wireType": {
       "type": "string",
-      "description": "Wire data type, as an xsd:* alias or a native MultiTech type.",
+      "description": "Data type of the value on the wire, as an xsd:* alias or a native MultiTech type. The value 'number' marks a derived value, which occupies no payload bytes.",
       "enum": [
         "xsd:byte", "xsd:short", "xsd:int", "xsd:long",
         "xsd:unsignedByte", "xsd:unsignedShort", "xsd:unsignedInt", "xsd:unsignedLong",
@@ -31,92 +42,120 @@
       "default": "big",
       "description": "Byte order of this multi-byte value. Byte order only; there is no byte- or word-swap mode."
     },
-    "lorav:multiplier": { "type": "number" },
-    "lorav:divisor": { "type": "number", "exclusiveMinimum": 0 },
-    "lorav:offset": { "type": "number" },
+    "lorav:multiplier": {
+      "type": "number",
+      "description": "Factor multiplied with the raw value. Prefer lorav:divisor for decimal scaling."
+    },
+    "lorav:divisor": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Factor the raw value is divided by. Preferred over lorav:multiplier for decimal scaling: a divisor of 100 is exact in binary floating point, whereas the equivalent multiplier 0.01 is not."
+    },
+    "lorav:addend": {
+      "type": "number",
+      "description": "Constant added to the value after scaling."
+    },
     "lorav:bitmask": {
       "type": "string",
       "pattern": "^0[xX][0-9a-fA-F]+$",
       "description": "Hexadecimal mask selecting a contiguous range of bits."
     },
-    "lorav:byteOffset": { "type": "integer", "minimum": 0 },
-    "lorav:length": {
+    "lorav:byteOffset": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Zero-based byte position of the value within a fixed payload layout."
+    },
+    "lorav:byteLength": {
       "type": "integer",
       "minimum": -1,
-      "description": "Byte length for variable-length types (string/bytes/hex/base64); -1 means consume the remaining bytes."
+      "description": "Byte length for variable-length wire types (string/bytes/hex/base64); -1 means consume the remaining bytes."
     },
     "lorav:tag": {
       "type": "array",
       "items": { "type": "integer" },
       "minItems": 1,
-      "description": "Tag value(s), e.g. [channel, type], selecting this value."
+      "description": "Tag value(s), e.g. [channel, type], selecting this value in a tlv/ctv layout."
     },
     "lorav:slot": {
       "type": "integer",
       "minimum": 0,
-      "description": "0-based order of this property within its group (multi-field TLV case, flagged group, or match case)."
-    },
-    "lorav:presenceField": {
-      "type": "string",
-      "description": "Name of the flags property whose bit gates this property's presence (flagged groups)."
-    },
-    "lorav:presenceBit": {
-      "type": "integer",
-      "minimum": 0,
-      "description": "Bit index in the presence field that must be set for this property to appear."
-    },
-    "lorav:switchField": {
-      "type": "string",
-      "description": "Name of the discriminator property whose value selects this property's match case."
-    },
-    "lorav:switchValue": {
-      "type": "integer",
-      "description": "Discriminator value that selects this property's match case."
-    },
-    "lorav:var": {
-      "type": "string",
-      "description": "Discriminator alias for this property, referenced as $var by a match block whose discriminator name differs from the property name."
+      "description": "0-based order of this event within its group (multi-field TLV case, flagged group, or match case)."
     },
     "lorav:padBefore": {
       "type": "integer",
       "minimum": 0,
-      "description": "Reserved bytes consumed (skipped) immediately before this property within its sequential group (e.g. padding inside a match case)."
+      "description": "Reserved bytes consumed (skipped) immediately before this value within its sequential group (e.g. padding inside a match case)."
     },
-    "lorav:unece": { "type": "string" },
-    "lorav:enum": {
+    "lorav:presentWhen": {
       "type": "object",
-      "description": "Mapping from raw integer (as string key) to label."
+      "description": "Condition gating whether this value appears in the payload at all.",
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Name of the value that decides: a flags field (used with 'bit') or a discriminator (used with 'value')."
+        },
+        "bit": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Bit index in the flags field that must be set for this value to appear."
+        },
+        "value": {
+          "type": "integer",
+          "description": "Discriminator value selecting the match case this value belongs to."
+        }
+      },
+      "not": {
+        "description": "A value is gated either by a flag bit or by a discriminator value, never by both.",
+        "required": ["bit", "value"]
+      },
+      "required": ["field"],
+      "additionalProperties": false
     },
-    "lorav:validRange": {
-      "type": "array",
-      "items": { "type": "number" },
-      "minItems": 2,
-      "maxItems": 2,
-      "description": "Plausibility range [min, max]; the interpreter flags decoded values outside it."
-    },
-    "lorav:ref": {
+    "lorav:alias": {
       "type": "string",
-      "description": "Input value of a computed property, a $name reference to another property."
+      "description": "Name under which other blocks reference this value as $alias, when a match block's name for its discriminator differs from the event name."
     },
-    "lorav:polynomial": {
-      "type": "array",
-      "items": { "type": "number" },
-      "description": "Coefficient list evaluated against the referenced input value."
-    },
-    "lorav:transform": {
-      "type": "array",
-      "items": { "type": "object" },
-      "description": "Ordered post-processing operations (add/div/mult/round) for a computed value."
-    },
-    "lorav:compute": {
+    "lorav:derived": {
       "type": "object",
-      "description": "Binary operation {op, a, b} over two values or constants."
-    },
-    "lorav:guard": {
-      "type": "object",
-      "description": "Conditional gate {when: [...], else: value} for a computed value."
+      "description": "Describes a value computed from other decoded values rather than read off the wire.",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Input value, a $name reference to another event."
+        },
+        "polynomial": {
+          "type": "array",
+          "items": { "type": "number" },
+          "description": "Coefficients [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input value."
+        },
+        "compute": {
+          "type": "object",
+          "description": "Binary operation {op, a, b} over two values or constants."
+        },
+        "guard": {
+          "type": "object",
+          "description": "Conditional gate {when: [...], else: value} selecting a value from a predicate."
+        },
+        "transform": {
+          "type": "array",
+          "items": { "type": "object" },
+          "description": "Ordered post-processing operations (add/div/mult/round)."
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
     }
   },
-  "required": ["lorav:type"],
+  "required": ["lorav:wireType"],
+  "not": {
+    "description": "Scaling is stated once, as either a multiplier or a divisor; giving both would leave the order of the two operations undefined.",
+    "required": ["lorav:multiplier", "lorav:divisor"]
+  },
+  "dependencies": {
+    "lorav:derived": {
+      "description": "A derived value carries no payload bytes, so its wire type must be 'number'.",
+      "properties": { "lorav:wireType": { "const": "number" } }
+    }
+  },
   "additionalProperties": true
 }

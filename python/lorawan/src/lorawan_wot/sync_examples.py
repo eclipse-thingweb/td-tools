@@ -5,6 +5,12 @@ maintained in the ``eclipse-thingweb/examples`` repository and are **not**
 checked in to this repo.  Run this script after cloning (or whenever you want
 to pull the latest upstream examples):
 
+Files are copied verbatim.  Upstream may still publish Thing Descriptions in the
+pre-0.3.0 property model, which this binding rejects outright; when that happens
+the sync names the affected files and exits non-zero instead of rewriting them
+on the way in.  Migrating silently would hide the divergence from upstream,
+which is the one thing worth knowing at that point.
+
 Usage::
 
     uv run sync-examples
@@ -14,11 +20,14 @@ Usage::
 
 from __future__ import annotations
 
+import json
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+from lorawan_wot import vocab
 
 REMOTE = "https://github.com/eclipse-thingweb/examples"
 REMOTE_SUBDIR = "TTC26/examples"
@@ -34,6 +43,19 @@ def _find_examples_dir() -> Path:
         return candidate
     # Fallback: cwd/examples (e.g. when invoked from python/lorawan/).
     return Path.cwd() / "examples"
+
+
+def _outdated(examples: Path) -> list[str]:
+    """Names of synced Thing Descriptions still written in the property model.
+
+    A top-level ``properties`` key is the decisive signal: every withdrawn 0.2.x
+    term lived inside a property affordance, so nothing else needs inspecting.
+    """
+    return sorted(
+        path.name
+        for path in examples.glob("*.td.json")
+        if vocab.PROPERTIES in json.loads(path.read_text(encoding="utf-8"))
+    )
 
 
 def main() -> None:
@@ -67,6 +89,18 @@ def main() -> None:
                 copied += 1
 
     print(f"\nDone — {copied} file(s) synced to {local_examples}")
+
+    outdated = _outdated(local_examples)
+    if outdated:
+        print(
+            "\nWARNING: upstream still publishes the pre-0.3.0 property model.\n"
+            f"  Affected: {', '.join(outdated)}\n"
+            "  This binding rejects that shape, so the test suite fails until the\n"
+            "  synced files are rewritten into the events model:\n\n"
+            "      uv run python -m scripts.migrate_td_to_events examples\n",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":

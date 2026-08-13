@@ -22,7 +22,7 @@ build/
 # Temporary local scratch scripts
 /_tmp_*.py
 
-# Curated examples are synced from upstream (not checked in)
+# Curated examples are synced from upstream (not checked in).
 examples/*.td.json
 examples/*.vectors.json
 

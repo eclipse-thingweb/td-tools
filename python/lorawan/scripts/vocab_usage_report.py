@@ -8,6 +8,11 @@ usage instead of guesses.
 The term list is derived from ``vocab`` itself rather than hardcoded, so the
 report can never drift from the vocabulary.
 
+Two terms (``lorav:presentWhen`` and ``lorav:derived``) group several keys into
+one object, so their sub-keys are counted individually as ``term/subkey``:
+knowing a condition is used 400 times says much less than knowing how often it
+gates on a flag bit versus a match value.
+
 Note that ``examples/devices/`` is git-ignored, which makes ad-hoc ``grep``
 counts unreliable; this script walks the working tree directly.
 
@@ -29,14 +34,25 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES_DIR = REPO_ROOT / "examples"
 DEVICES_DIR = EXAMPLES_DIR / "devices"
 
+#: Terms whose value is an object, mapped to the sub-keys worth counting.
+_GROUPED_TERMS: dict[str, tuple[str, ...]] = {
+    vocab.PRESENT_WHEN: (vocab.PW_FIELD, vocab.PW_BIT, vocab.PW_VALUE),
+    vocab.DERIVED: vocab.DERIVED_ORDER,
+}
+
 
 def _terms() -> dict[str, str]:
     """Return ``{term IRI: constant name}`` for every ``lorav:`` term in vocab."""
-    return {
+    by_iri = {
         value: name
         for name, value in vars(vocab).items()
-        if name.isupper() and isinstance(value, str) and value.startswith("lorav:")
+        if name.isupper() and isinstance(value, str) and value in vocab.ALL_TERMS
     }
+    names = {term: by_iri.get(term, term) for term in sorted(vocab.ALL_TERMS)}
+    for term, subkeys in _GROUPED_TERMS.items():
+        for subkey in subkeys:
+            names[f"{term}/{subkey}"] = subkey
+    return names
 
 
 def _count_keys(node: Any, counter: collections.Counter[str]) -> None:
@@ -45,6 +61,9 @@ def _count_keys(node: Any, counter: collections.Counter[str]) -> None:
         for key, value in node.items():
             if key.startswith("lorav:"):
                 counter[key] += 1
+                if isinstance(value, dict) and key in _GROUPED_TERMS:
+                    for subkey in value:
+                        counter[f"{key}/{subkey}"] += 1
             _count_keys(value, counter)
     elif isinstance(node, list):
         for item in node:
@@ -93,10 +112,20 @@ def report() -> None:
         print(f"| `{term}` | {totals[term]} | {len(paths)} | {', '.join(vendors) or '-'} |")
 
     unknown = sorted(set(totals) - set(known))
-    if unknown:
+    withdrawn = [term for term in unknown if term in vocab.REMOVED_TERMS]
+    if withdrawn:
+        # A withdrawn term in a Thing Description is a migration bug, not a
+        # statistic: the converter rejects it, so surface it separately.
+        print()
+        print("Withdrawn terms still present (must be migrated):")
+        for term in withdrawn:
+            print(f"  {term} ({totals[term]}) -> {vocab.REMOVED_TERMS[term]}")
+
+    unrecognised = [term for term in unknown if term not in vocab.REMOVED_TERMS]
+    if unrecognised:
         print()
         print("Terms found in TDs but not defined in vocab.py:")
-        for term in unknown:
+        for term in unrecognised:
             print(f"  {term} ({totals[term]})")
 
     print()

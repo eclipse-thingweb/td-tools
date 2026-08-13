@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://www.w3.org/2024/wot/lorawan/lorawan-thing.schema.json",
   "title": "LoRaWAN WoT Binding Thing Metadata",
-  "description": "Validation rules for the Thing-level LoRaWAN OTAA identity and onboarding terms within a Thing Description. Secrets (AppKey/NwkKey) must NOT appear here; they are declared as 'apikey' security schemes and injected at runtime.",
+  "description": "Validation rules for the Thing-level LoRaWAN OTAA identity and onboarding terms within a Thing Description. Vendor and model are expressed with schema:brand / schema:model and the device revision with TD core's 'version' object, so this binding defines no terms of its own for them. Secrets (AppKey/NwkKey) must NOT appear here; they are declared as 'apikey' security schemes and injected at runtime.",
   "type": "object",
   "properties": {
     "lorav:devEUI": {
@@ -20,13 +20,14 @@
       "pattern": "^1\\.[01]\\.[0-9]+$",
       "description": "LoRaWAN MAC version, e.g. '1.0.3' or '1.1.0'."
     },
-    "lorav:brand": { "type": "string" },
-    "lorav:model": { "type": "string" },
-    "lorav:hardwareVersion": { "type": "string" },
-    "lorav:softwareVersion": { "type": "string" },
-    "lorav:region": { "type": "string" },
-    "lorav:frequencyPlan": { "type": "string" },
-    "lorav:endDeviceId": { "type": "string" },
+    "lorav:region": {
+      "type": "string",
+      "description": "Regulatory region / profile of the device, e.g. 'EU868', 'US915'."
+    },
+    "lorav:frequencyPlan": {
+      "type": "string",
+      "description": "LoRaWAN Network Server frequency plan identifier, e.g. 'EU_863_870_TTN'."
+    },
 
     "lorav:payloadLayout": {
       "type": "string",
@@ -48,12 +49,14 @@
     }
   },
   "not": {
+    "description": "Root keys that must never appear: the OTAA root keys are secrets and belong in security schemes, 'lorav:endian' is per-value and belongs on a form, and 'properties' is the withdrawn pre-events shape (a LoRaWAN device pushes uplinks and cannot be polled, so its values are events).",
     "anyOf": [
       { "required": ["lorav:appKey"] },
       { "required": ["lorav:nwkKey"] },
       { "required": ["lorav:appkey"] },
       { "required": ["lorav:nwkkey"] },
-      { "required": ["lorav:endian"] }
+      { "required": ["lorav:endian"] },
+      { "required": ["properties"] }
     ]
   },
   "additionalProperties": true

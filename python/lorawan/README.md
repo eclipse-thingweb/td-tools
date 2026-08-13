@@ -4,14 +4,14 @@ Describe a LoRaWAN sensor once as a **W3C Web of Things (WoT) Thing Description
 (TD)** and get a working **payload codec** out of it. The generated codec is
 validated against ChirpStack; it should also work in The Things Network (TTN).
 
-The TD carries the payload binding *inside its property forms* (using
+The TD carries the payload binding *inside its event forms* (using
 terms prefixed with `lorav:`). A converter translates that TD into the
 [LoRa Alliance Payload Schema / MultiTech](https://github.com/MultiTechSystems/device-payload-schema)
 language, and the reference interpreter (e.g. ChirpStack) does the actual byte decoding.
 
 ```
 Thing Description (.td.json)
-        │   lorav: terms on each property form
+        │   lorav: terms on each event form
         ▼
   td_to_payload_schema()        ← this project
         │   MultiTech payload schema (YAML/dict)
@@ -47,6 +47,10 @@ uv sync
 
 # 3. Sync curated examples from upstream
 uv run sync-examples
+
+# 4. Upstream still publishes the pre-0.3.0 property model, so step 3 reports
+#    the affected files and exits non-zero. Rewrite them into the events model:
+uv run python -m scripts.migrate_td_to_events examples
 ```
 
 ## Project layout
@@ -61,14 +65,16 @@ src/lorawan_wot/
 vocab/
   ontology.ttl            # RDF vocabulary
   context.jsonld          # JSON-LD context for the lorav: namespace
-  lorawan-form.schema.json  # JSON Schema for LoRaWAN property forms
+  lorawan-form.schema.json  # JSON Schema for LoRaWAN event forms
   lorawan-thing.schema.json  # JSON Schema for Thing-level OTAA / onboarding terms
-examples/         # curated TDs synced from eclipse-thingweb/examples (not checked in)
+examples/         # curated TDs, mirrored from eclipse-thingweb/examples (not checked in)
   devices/        # TD catalog generated from the reference device schemas (git-ignored)
-  generated/      # output folder for generated schema/codec artifacts (git-ignored)
+  generated/      # output folder for generated schema/codec artifacts
 scripts/
   sync_examples.py        # fetch curated *.td.json + *.vectors.json from upstream
   generate_device_tds.py  # batch-generate the examples/devices/ catalog
+  migrate_td_to_events.py # rewrite a pre-0.3.0 TD into the events model
+  vocab_usage_report.py   # count lorav: term usage across every bundled TD
 tests/            # converter, decode, schema-validation, and catalog tests
 external/device-payload-schema/   # MultiTech interpreter (pinned git submodule)
 ```
@@ -165,7 +171,7 @@ can differ from `lorawan-wot decode` in unsupported edge cases; see
 ## How to describe a device in a TD
 
 Add the binding namespace to `@context`, set a Thing-level layout, and put a
-field descriptor on each property's form.
+field descriptor on each event's form.
 
 ```jsonc
 {
@@ -174,15 +180,18 @@ field descriptor on each property's form.
     { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
   ],
   "lorav:payloadLayout": "fixed",          // fixed | ports | tlv | ctv
-  "properties": {
+  "events": {
     "temperature": {
-      "type": "number",
-      "unit": "Cel",
+      "data": {                             // what the notification carries
+        "type": "number",
+        "unit": "Cel"
+      },
       "forms": [
         {
           "href": "uplink",
+          "op": ["subscribeevent", "unsubscribeevent"],
           "lorav:byteOffset": 2,            // where in the payload
-          "lorav:type": "xsd:short",        // wire data type
+          "lorav:wireType": "xsd:short",    // wire data type
           "lorav:endian": "big",            // big (default) | little
           "lorav:multiplier": 0.01          // raw * 0.01
         }
@@ -192,10 +201,13 @@ field descriptor on each property's form.
 }
 ```
 
+Here, `data` says what the value *means*, the form says how
+it is *transferred*. 
+
 ### Payload layouts
 
-| `lorav:payloadLayout` | When to use | Required per-property terms |
-|-----------------------|-------------|-----------------------------|
+| `lorav:payloadLayout` | When to use | Required per-event terms |
+|-----------------------|-------------|--------------------------|
 | `fixed` | Every value sits at a fixed byte position | `lorav:byteOffset` |
 | `ports` | The LoRaWAN `fPort` selects a fixed layout | `lorav:fPort`, `lorav:byteOffset` |
 | `tlv` / `ctv` | Values are tagged (e.g. channel + type) | `lorav:tag` |
@@ -214,53 +226,64 @@ so you can ignore them until a device needs one.
 
 | Term | Meaning | MultiTech | Tier | Seen in |
 |------|---------|-----------|------|---------|
-| `lorav:type` | Wire data type (xsd alias or native, e.g. `xsd:short`, `s16`) | `type` | core | every device |
+| `lorav:wireType` | Wire data type (xsd alias or native, e.g. `xsd:short`, `s16`) | `type` | core | every device |
 | `lorav:endian` | Byte order of this multi-byte value, `"big"` (default) or `"little"` | `endian` | core | every multi-byte value |
 | `lorav:byteOffset` | Byte position in a fixed layout | field order / `skip` padding | core | `fixed` + `ports` devices |
 | `lorav:tag` | Tag selecting a value, e.g. `[3, 103]` | `tlv` case key | core | Milesight, Elsys |
 | `lorav:fPort` | LoRaWAN frame port | `ports` key | core | `ports` devices (e.g. Digital Matter) |
 | `lorav:divisor` | `value = raw / divisor` | `div` | core | most vendors |
-| `lorav:multiplier` | `value = raw * multiplier` | `mult` | common | Decentlab, Digital Matter, MClimate |
+| `lorav:slot` | Order of an event within its group (multi-field TLV / flagged / match) | field order | common | any multi-value group |
+| `lorav:presentWhen` | Condition gating this value: `{ field, bit }` or `{ field, value }` | `flagged` / `match` | common | Decentlab, Dragino, Netvox, RadioBridge, Radionode |
 | `lorav:bitmask` | Extract a contiguous bit range (single- or multi-byte base) | bit range `u8[lo:hi]` | common | Dragino, Digital Matter, MClimate, RadioBridge, RAKwireless |
-| `lorav:offset` | `value = value + offset` (after scaling) | `add` | common | Decentlab, MClimate, RadioBridge |
-| `lorav:slot` | Order of a property within its group (multi-field TLV / flagged / match) | field order | common | any multi-value group |
-| `lorav:enum` | Map raw integers to labels | `lookup` | common | Makerfabs, MClimate, RadioBridge |
-| `lorav:presenceField` | Name of the bit-flags property that gates this property | `flagged.field` | common | Decentlab |
-| `lorav:presenceBit` | Bit index in `presenceField` that must be set for this property to appear | `flagged.groups[*].bit` | common | Decentlab |
-| `lorav:switchField` | Name of the discriminator property that selects this property's case | `match.field` | common | Dragino, Netvox, RadioBridge, Radionode |
-| `lorav:switchValue` | Value of `switchField` under which this property appears | `match.cases` key | common | Dragino, Netvox, RadioBridge, Radionode |
-| `lorav:validRange` | `[min, max]` plausibility range for the decoded value | `valid_range` | rare | MClimate |
-| `lorav:ref` | Input value a computed property derives from, as `$name` | `ref` | rare | Decentlab, Digital Matter, MClimate |
-| `lorav:compute` | Binary operation `{op, a, b}` combining two values | `compute` | rare | Decentlab, MClimate |
-| `lorav:transform` | Ordered post-processing ops (`add`/`div`/`mult`) applied to a derived value | `transform` | rare | Decentlab, MClimate |
-| `lorav:guard` | Conditional gate `{when, else}` selecting a derived value | `guard` | rare | Decentlab, MClimate |
-| `lorav:var` | Discriminator alias, referenced as `$var` when the `match` field name differs from the property name | `var` | rare | RadioBridge, Radionode |
-| `lorav:length` | Byte length for `bytes`/`string`/`hex` (`-1` = consume rest) | `length` | rare | RadioBridge |
-| `lorav:padBefore` | Reserved bytes consumed before this property within its group | `skip` inside a case | rare | RadioBridge |
-| `lorav:polynomial` | Coefficient list evaluated as `c0 + c1*x + c2*x² + …` | `polynomial` | rare | Decentlab DL-5TM |
-| `lorav:unece` | UN/CEFACT unit code | `unece` | rare | none yet (see [Known limitations](#known-limitations)) |
+| `lorav:addend` | `value = value + addend` (after scaling) | `add` | common | Decentlab, MClimate, RadioBridge |
+| `lorav:multiplier` | `value = raw * multiplier` | `mult` | common | Decentlab, Digital Matter, MClimate |
+| `lorav:derived` | Computed value: `{ ref, polynomial, compute, guard, transform }` | `ref`/`polynomial`/… | rare | Decentlab, Digital Matter, MClimate |
+| `lorav:alias` | Name this value is referenced by as `$alias`, when a condition's `field` differs from the event name | `var` | rare | RadioBridge, Radionode |
+| `lorav:byteLength` | Byte length for `bytes`/`string`/`hex` (`-1` = consume rest) | `length` | rare | RadioBridge |
+| `lorav:padBefore` | Reserved bytes consumed before this value within its group | `skip` inside a case | rare | RadioBridge |
 
-Supported `lorav:type` values: the sized XSD types (`xsd:byte`, `xsd:short`,
+`lorav:multiplier` and `lorav:divisor` are mutually exclusive. Prefer
+`lorav:divisor`: `{"lorav:divisor": 100}` is exact, while the equivalent
+`{"lorav:multiplier": 0.01}` is not representable in binary floating point and
+accumulates error.
+
+Supported `lorav:wireType` values: the sized XSD types (`xsd:byte`, `xsd:short`,
 `xsd:int`, `xsd:long`, the `xsd:unsigned*` variants, `xsd:float`, `xsd:double`,
 `xsd:boolean`, `xsd:hexBinary`, `xsd:string`) and the native MultiTech types
 (`u8`–`u64`, `s8`–`s64`, `f16`/`f32`/`f64`, `bool`, `ascii`, `hex`, `bytes`,
-`base64`).
+`base64`), plus `number` for a `lorav:derived` value that occupies no bytes.
+
+#### Terms this binding deliberately does *not* define
+
+| Instead of a `lorav:` term | Use in `data` |
+|----------------------------|---------------|
+| a unit code | `"unit": "Cel"` (already carries UN/CEFACT codes) |
+| a valid range | `"minimum": -40, "maximum": 85` |
+| an enumeration | `"oneOf": [{ "const": 0, "title": "dry" }, …]` |
+| brand / model | `"schema:brand"`, `"schema:model"` on the Thing |
+| hardware / firmware version | the Thing's `"version": { "model": …, "instance": … }` |
 
 ### Grouped and conditional values
 
-One property always describes one value. Payloads that pack values together or
-branch between them are expressed by giving several properties the same locator:
+One event always describes one value. Payloads that pack values together or
+branch between them are expressed by giving several events the same locator:
 
 | Shape | How to express it |
 |-------|-------------------|
 | Several values share one byte or word | Same `lorav:byteOffset`, one `lorav:bitmask` each |
 | Several values share one tag | Same `lorav:tag`, ordered by `lorav:slot` |
-| A value appears only when a flag bit is set | `lorav:presenceField` + `lorav:presenceBit` |
-| A value belongs to one branch of a discriminator | `lorav:switchField` + `lorav:switchValue` |
-| A value is derived rather than read from the wire | `lorav:type: "number"` + `ref`/`polynomial`/`transform`/`compute`/`guard` |
+| A value appears only when a flag bit is set | `lorav:presentWhen: { "field": "flags", "bit": 0 }` |
+| A value belongs to one branch of a discriminator | `lorav:presentWhen: { "field": "event", "value": 1 }` |
+| A value is derived rather than read from the wire | `lorav:wireType: "number"` + `lorav:derived` |
+
+`lorav:presentWhen` always names the value it depends on in `field`, then gates
+on either a `bit` of it or an exact `value` — never both. Grouping the condition
+under one term keeps the two halves impossible to separate: a bit index with no
+field to index into is meaningless, and the old flat terms let you write exactly
+that.
 
 `lorav:bitmask` must select a *contiguous* range of bits. The base value is read
-once and decoded into every property masking it, and bases wider than one byte
+once and decoded into every event masking it, and bases wider than one byte
 (`u16`/`u24`/`u32`) work too, for ranges spanning several bytes.
 
 ## Device onboarding & OTAA security
@@ -314,11 +337,6 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
 | `lorav:devEUI` | 8-byte device identifier (16 hex chars) | no |
 | `lorav:joinEUI` | 8-byte join/app identifier (formerly AppEUI) | no |
 | `lorav:macVersion` | LoRaWAN MAC version, e.g. `1.0.3`, `1.1.0` | no |
-| `lorav:endDeviceId` | Human/LNS end-device identifier | no |
-| `lorav:brand` | End-device brand / vendor | no |
-| `lorav:model` | End-device model | no |
-| `lorav:hardwareVersion` | Hardware revision | no |
-| `lorav:softwareVersion` | Firmware / software version | no |
 | `lorav:region` | Regulatory region / profile (e.g. `EU868`) | no |
 | `lorav:frequencyPlan` | LNS frequency plan id (e.g. `EU_863_870_TTN`) | no |
 | `lorav:payloadLayout` | Payload structure: `fixed`, `ports`, `tlv` or `ctv` | no |
@@ -326,22 +344,25 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
 | `AppKey` | OTAA root key — `apikey` scheme `name: "appKey"` | **yes (runtime)** |
 | `NwkKey` | OTAA network root key (1.1.x) — `apikey` scheme `name: "nwkKey"` | **yes (runtime)** |
 
+Device metadata that is not LoRaWAN-specific uses vocabularies that already
+define it, such as `schema:brand` and `schema:model` from [schema.org](https://schema.org),
+the Thing's `version` (`model` for hardware, `instance` for firmware), and the
+Thing's `id`/`title` to identify the end device.
+
+
+
 ## Examples
 
 The **6 curated example pairs** (`*.td.json` + `*.vectors.json`) in `examples/`
 are sourced from
 [`eclipse-thingweb/examples/TTC26/examples`](https://github.com/eclipse-thingweb/examples/tree/main/TTC26/examples)
-and are **not checked in** to this repository. Fetch them with:
-
-```bash
-uv run python -m scripts.sync_examples
-```
+and fetched by `uv run sync-examples` rather than checked in here.
 
 | File | Layout | Highlights |
 |------|--------|-----------|
 | `examples/adeunis-comfort2.td.json` | `fixed` | Smallest complete example: signed temperature, humidity, battery |
 | `examples/milesight-am102.td.json` | `ctv` | Little-endian channel/type/value; OTAA AppKey (1.0.3) |
-| `examples/em300-zld.td.json` | `tlv` | Tagged uplinks with a `lorav:enum` leak state |
+| `examples/em300-zld.td.json` | `tlv` | Tagged uplinks with a `oneOf`-labelled leak state |
 | `examples/dragino-lht65n.td.json` | `ports` | Two fPorts plus status bits via `lorav:bitmask`; OTAA AppKey (1.0.3). Extension-specific alternate paths are a documented gap |
 | `examples/netvox-r718a.td.json` | `ports` | Validated against `TheThingsNetwork/lorawan-devices` vectors; two fPorts, each branching on a `match` discriminator |
 | `examples/generic-lorawan11.td.json` | `fixed` | LoRaWAN 1.1 OTAA with AppKey **and** NwkKey; onboarding metadata |
@@ -378,11 +399,14 @@ uv run python -m scripts.generate_device_tds   # generate examples/devices/ (see
 uv run pytest                                  # run the test suite
 uv run ruff check .                            # lint
 uv run ruff format .                           # format
+
+uv run python -m scripts.vocab_usage_report    # count lorav: term usage across all TDs
+uv run python -m scripts.update_golden         # re-record tests/golden/snapshot.json
 ```
 
 `examples/devices/` is generated, not checked in, so `tests/test_device_catalog.py`
-fails on a fresh clone until you run the generator once. CI does this before
-running the test suite.
+fails on a fresh clone until you run the generator once.
+
 
 ## Scope & roadmap
 
@@ -397,12 +421,8 @@ running the test suite.
 
 The binding covers most common fixed/ports/TLV layouts, but these gaps remain:
 
-* **No unit codes in the generated catalog** — `lorav:unece` works in both
-  directions, but no reference device schema carries one. UN/CEFACT codes live in
-  the shared schema *library*, which a device would have to pull in via
-  cross-file `$ref`, and none do. Codes you add to a TD by hand are preserved.
 * **Arrays / nested object payloads** — dynamic `repeat` structures and
-  object/array field values are not representable as flat TD properties.
+  object/array field values are not representable as flat TD events.
 * **Legacy computed-field forms** — the structured descriptors
   (`ref`/`polynomial`/`transform`/`compute`/`guard`) are supported, but raw
   `formula`/literal-`value` expressions in source schemas are not converted.

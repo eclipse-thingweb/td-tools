@@ -26,8 +26,8 @@ pytestmark = pytest.mark.skipif(
     reason="no golden snapshot recorded; run `python -m scripts.update_golden`",
 )
 
-#: The curated examples are synced from upstream rather than checked in, so the
-#: parts of the snapshot built from them are only comparable once they are present.
+#: The curated examples are mirrored from upstream, so the parts of the snapshot
+#: built from them are only comparable once they are present on disk.
 _EXAMPLES_MISSING = pytest.mark.skipif(
     not any(EXAMPLES_DIR.glob("*.td.json")),
     reason="curated examples not synced; run `uv run sync-examples`",
