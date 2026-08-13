@@ -356,10 +356,15 @@ TD can be produced. The generator prints a per-reason report on each run.
 ## Development
 
 ```bash
+uv run python -m scripts.generate_device_tds   # generate examples/devices/ (see below)
 uv run pytest          # run the test suite
 uv run ruff check .    # lint
 uv run ruff format .   # format
 ```
+
+`examples/devices/` is generated, not checked in, so `tests/test_device_catalog.py`
+fails on a fresh clone until you run the generator once. CI does this before
+running the test suite.
 
 ## Scope & roadmap
 
