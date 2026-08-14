@@ -1,0 +1,524 @@
+{
+  "payload_schemas": {
+    "adeunis-comfort2": {
+      "name": "urn_dev_adeunis_comfort2",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "adeunis comfort2",
+      "fields": [
+        {
+          "name": "frameCode",
+          "type": "u8"
+        },
+        {
+          "name": "statusByte",
+          "type": "u8"
+        },
+        {
+          "name": "temperature",
+          "type": "s16",
+          "div": 10,
+          "unit": "°C"
+        },
+        {
+          "name": "humidity",
+          "type": "u8",
+          "unit": "%"
+        }
+      ]
+    },
+    "dragino-lht65n": {
+      "name": "urn_dev_dragino_lht65n",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "dragino_lht65n",
+      "ports": {
+        "2": {
+          "fields": [
+            {
+              "name": "batteryVoltage",
+              "type": "u16",
+              "mult": 0.001,
+              "unit": "V"
+            },
+            {
+              "name": "temperature",
+              "type": "s16",
+              "mult": 0.01,
+              "unit": "Cel"
+            },
+            {
+              "name": "humidity",
+              "type": "u16",
+              "mult": 0.1,
+              "unit": "%RH"
+            },
+            {
+              "name": "extensionCode",
+              "type": "u8[0:3]",
+              "consume": 0
+            },
+            {
+              "name": "pollMessageStatus",
+              "type": "u8[6:6]",
+              "consume": 0
+            },
+            {
+              "name": "retransmissionStatus",
+              "type": "u8[7:7]",
+              "consume": 1
+            }
+          ]
+        }
+      }
+    },
+    "em300-zld": {
+      "name": "urn_dev_milesight_em300_zld",
+      "version": 1,
+      "endian": "little",
+      "direction": "uplink",
+      "description": "milesight em300 zld",
+      "fields": [
+        {
+          "tlv": {
+            "tag_fields": [
+              {
+                "name": "channel_id",
+                "type": "u8"
+              },
+              {
+                "name": "channel_type",
+                "type": "u8"
+              }
+            ],
+            "tag_key": [
+              "channel_id",
+              "channel_type"
+            ],
+            "cases": {
+              "[1, 117]": [
+                {
+                  "name": "battery",
+                  "type": "u8"
+                }
+              ],
+              "[3, 103]": [
+                {
+                  "name": "temperature",
+                  "type": "s16",
+                  "div": 10
+                }
+              ],
+              "[4, 104]": [
+                {
+                  "name": "humidity",
+                  "type": "u8",
+                  "div": 2
+                }
+              ],
+              "[5, 0]": [
+                {
+                  "name": "leakage_status",
+                  "type": "u8",
+                  "lookup": {
+                    "0": "normal",
+                    "1": "leak"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "generic-lorawan11": {
+      "name": "urn_dev_example_generic_lorawan11",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "generic_lorawan11_sensor",
+      "fields": [
+        {
+          "name": "battery",
+          "type": "u8",
+          "unit": "%",
+          "valid_range": [
+            0,
+            100
+          ]
+        },
+        {
+          "name": "temperature",
+          "type": "s16",
+          "mult": 0.1,
+          "unit": "Cel"
+        }
+      ]
+    },
+    "milesight-am102": {
+      "name": "urn_dev_milesight_am102",
+      "version": 1,
+      "endian": "little",
+      "direction": "uplink",
+      "description": "milesight_am102",
+      "fields": [
+        {
+          "tlv": {
+            "tag_fields": [
+              {
+                "name": "channel_id",
+                "type": "u8"
+              },
+              {
+                "name": "channel_type",
+                "type": "u8"
+              }
+            ],
+            "tag_key": [
+              "channel_id",
+              "channel_type"
+            ],
+            "cases": {
+              "[1, 117]": [
+                {
+                  "name": "battery",
+                  "type": "u8",
+                  "unit": "%"
+                }
+              ],
+              "[3, 103]": [
+                {
+                  "name": "temperature",
+                  "type": "s16",
+                  "div": 10,
+                  "unit": "Cel"
+                }
+              ],
+              "[4, 104]": [
+                {
+                  "name": "humidity",
+                  "type": "u8",
+                  "div": 2,
+                  "unit": "%RH"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "netvox-r718a": {
+      "name": "urn_dev_netvox_r718a",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "netvox_r718a",
+      "ports": {
+        "6": {
+          "fields": [
+            {
+              "name": "_pad_0",
+              "type": "skip",
+              "length": 2
+            },
+            {
+              "name": "reportType",
+              "type": "u8"
+            },
+            {
+              "match": {
+                "field": "$reportType",
+                "cases": {
+                  "1": [
+                    {
+                      "name": "batteryVoltage",
+                      "type": "u8[0:6]",
+                      "div": 10,
+                      "consume": 0,
+                      "unit": "V"
+                    },
+                    {
+                      "name": "lowBattery",
+                      "type": "u8[7:7]",
+                      "consume": 1,
+                      "valid_range": [
+                        0,
+                        1
+                      ]
+                    },
+                    {
+                      "name": "temperature",
+                      "type": "s16",
+                      "div": 100,
+                      "unit": "Cel"
+                    },
+                    {
+                      "name": "humidity",
+                      "type": "u16",
+                      "div": 100,
+                      "unit": "%RH"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "decoded": {
+    "adeunis-comfort2-frame_0x4c_with_timestamp": {
+      "frameCode": 76,
+      "statusByte": 150,
+      "temperature": 19.7,
+      "humidity": 31
+    },
+    "adeunis-comfort2-frame_0x4c_single_sample_no_timestamp": {
+      "frameCode": 76,
+      "statusByte": 146,
+      "temperature": 19.7,
+      "humidity": 31
+    },
+    "dragino-lht65n-port2_ext1_basic_branch": {
+      "batteryVoltage": 2.8850000000000002,
+      "temperature": 27.0,
+      "humidity": 73.3,
+      "extensionCode": 1,
+      "pollMessageStatus": 0,
+      "retransmissionStatus": 0
+    },
+    "dragino-lht65n-port2_ext9_ds_branch": {
+      "batteryVoltage": 2.0,
+      "temperature": 27.0,
+      "humidity": 73.3,
+      "extensionCode": 9,
+      "pollMessageStatus": 0,
+      "retransmissionStatus": 0
+    },
+    "dragino-lht65n-port2_ext15_no_sht": {
+      "batteryVoltage": 2.8850000000000002,
+      "temperature": 27.0,
+      "humidity": 73.3,
+      "extensionCode": 15,
+      "pollMessageStatus": 0,
+      "retransmissionStatus": 0
+    },
+    "em300-zld-nominal_reading": {
+      "temperature": 31.4,
+      "humidity": 33.5,
+      "leakage_status": "normal"
+    },
+    "generic-lorawan11-nominal_reading": {
+      "battery": 85,
+      "temperature": 23.5,
+      "_quality": {
+        "battery": "good"
+      }
+    },
+    "generic-lorawan11-negative_temperature": {
+      "battery": 20,
+      "temperature": -5.0,
+      "_quality": {
+        "battery": "good"
+      }
+    },
+    "milesight-am102-battery_temp_humidity": {
+      "battery": 90,
+      "temperature": 28.3,
+      "humidity": 40.0
+    },
+    "milesight-am102-negative_temperature": {
+      "temperature": -2.5
+    },
+    "netvox-r718a-official_status_report": {
+      "reportType": 1,
+      "batteryVoltage": 3.6,
+      "lowBattery": 0,
+      "temperature": 25.38,
+      "humidity": 68.0
+    },
+    "netvox-r718a-negative_temperature": {
+      "reportType": 1,
+      "batteryVoltage": 3.6,
+      "lowBattery": 0,
+      "temperature": -5.0,
+      "humidity": 50.0
+    },
+    "netvox-r718a-low_battery_flag": {
+      "reportType": 1,
+      "batteryVoltage": 3.6,
+      "lowBattery": 1,
+      "temperature": 25.38,
+      "humidity": 68.0
+    }
+  },
+  "catalog": {
+    "scanned": 158,
+    "generated": 157,
+    "skipped": {
+      "mixed/unsupported field shape": 1
+    },
+    "schema_digests": {
+      "decentlab/dl-5tm.yaml": "bb7fa33be9e1635bdb27bc42fc9829bd6af2b61cd11ad39de19d64a8b68f223f",
+      "decentlab/dl-alb.yaml": "0dc2533aa7fa7d5a9d2b7d0ddb8152d4e47a54ccbc5c1a54465ef394786c3762",
+      "decentlab/dl-atm22.yaml": "619c7f2d1782751d7d72c2b0bbc37d2d6f817c2a83ce5282f945e5e987b2338f",
+      "decentlab/dl-atm41.yaml": "9f2ec8e96b3b81462a07006cc70a0c8d39538566bd5fd1a162c3124257b221eb",
+      "decentlab/dl-atm41g2.yaml": "239f76deda668b8ed83a59bd4c8c80b45e4dcfb48a9d054c67a256689e362b7f",
+      "decentlab/dl-blg.yaml": "54b3a6d0e6813dd4caa5eb611de8ba29d1b650cac46d8e99d7f1bcf2ea81fb43",
+      "decentlab/dl-ctd10.yaml": "51665c7ac742adfb5621050f34d12c8706d1403e10b822a7b2bb849678c63a5e",
+      "decentlab/dl-cws.yaml": "bd5ddf274bef90db495a761009d7d317103dfbc7ea654c66be46227d46b1ca2c",
+      "decentlab/dl-cws2.yaml": "fd9283b212ba42ec5c18a810811c791e49659f21790fc72ef8305063088683fb",
+      "decentlab/dl-dlr2-002.yaml": "f2956013d238341fe158f6f11c8ae753371cac5f3e3b244a50da11b68556b45c",
+      "decentlab/dl-dlr2-003.yaml": "1a3bf5805775438fbc6d85a86df8151af2fddab5146d7be1f0ea09d78109d5a8",
+      "decentlab/dl-dlr2-004-10.yaml": "3c3817d8b672cc555153b837966a7bf29f1f88f50cbbaa0a52e08e74683af54b",
+      "decentlab/dl-dlr2-005.yaml": "5815d8dd28d2eac1400a6d5bc3603379804d3369c738907f590e711d615595ea",
+      "decentlab/dl-dlr2-006.yaml": "9f9a8d44bb4a112bab93eff0d47f747be652e675a88c55a8a7c680a8486bf509",
+      "decentlab/dl-dlr2-008-2000.yaml": "1949010b735161192aba9f58e0e64cfd0407fda6bc5480ec8a3562b6fe41fdb0",
+      "decentlab/dl-dlr2-009-2000.yaml": "b41b5eda7c28c3b2aec96cb77f1a03e8d132855a07b69db57b2c0868fe442d40",
+      "decentlab/dl-dlr2-010.yaml": "c02c13a75d259988121d9ac8afa760f4f376f7519b52d3f3e26995511829565c",
+      "decentlab/dl-dlr2-011.yaml": "8c9ff559718fc890e51840b086ba2fae76cc0583ac3bcd30dd28699ae71fd254",
+      "decentlab/dl-dlr2-012.yaml": "db4604cfa0f5679277cb4d32ac4c4ef78d0729666fee7beafb8ba6e31b8d61ee",
+      "decentlab/dl-ds18.yaml": "4dd5bc914019447f3a71d1d2662aa307ee31adbc78f1182b1c0c13cb0d6933d6",
+      "decentlab/dl-dws-232263168-0000302459-1370.yaml": "7f444c6197544c2687465f519a4f62f723aac629947483c9ef793b7562b7703c",
+      "decentlab/dl-gmm.yaml": "0705765c3bfd8163001b34fc8bf8a9784bd600b9de776e5aab0adeda311f2ad3",
+      "decentlab/dl-iam.yaml": "76220f337f5a354276d380a382d2f2ca8edbb2e834e82f26d8aa141b67a05ef2",
+      "decentlab/dl-ifd.yaml": "32a368de92ee7d7389a2d5c2827ad236697590f9469413fba2c69f1abdd5e57a",
+      "decentlab/dl-ilt.yaml": "ad025a11982101a9902c113ad528c87ca234216baa65dbbb035d696ddfce954a",
+      "decentlab/dl-isd.yaml": "52d37f547a4f5a03e960676bf8e120b06b9ed3b41048111b82e4b4cd4bdd1f9c",
+      "decentlab/dl-isf.yaml": "7c89bcdc02af0be0cc8f6a3f49f5a403b4123aaf02879ff85f7cff596d39f0b6",
+      "decentlab/dl-itst.yaml": "18e94b7b87d7dcbae03ceb3751f5742889abfe8f6c3acd18377dc84048c91c5a",
+      "decentlab/dl-kl66-1538372-464859.yaml": "e2f92787ce3d45ccf98672c15756cb7c85c9b0e0bc9171c1b597b5f1120da9c3",
+      "decentlab/dl-lid.yaml": "903b078160842ae83e379ece410daf7135d1c1e7bd63ed9ee1b3cb6555838e11",
+      "decentlab/dl-lp8p.yaml": "d2311978ea54874f9cac24f9d707ebe5f4c55009098d9e929323c05bf0327a31",
+      "decentlab/dl-lpw.yaml": "2141cc985a9529e21fc502b84738ff2a719c06c4d2cd303c5832057f57fb2786",
+      "decentlab/dl-lws.yaml": "b832af605bcce15c1dbe4ca047bf8a9a6dc0740b31dae7e4cf5b89f096a8a0db",
+      "decentlab/dl-mbx.yaml": "e5300980d283ff5c5eae97fe2cee616094555d9e09620dbbca961cdff5d96d34",
+      "decentlab/dl-mes5.yaml": "070a29cde5685700f3492304aadc2350bb2546f2e81380b9ddf4a12b610a87e5",
+      "decentlab/dl-ntu.yaml": "f63b159a13feb9b0edeade9a578c7071ec210442beceac0e633b90bc2e2a5b64",
+      "decentlab/dl-optod.yaml": "124ac80c411c2ee40f652ddfafb6cb453265e54de826b22d7a6822552a952dbe",
+      "decentlab/dl-par.yaml": "d25bcd0a0f2b6b1cd3a688d1d4dd4e429fd7b323169fa69e893653f096c2aadf",
+      "decentlab/dl-pheht.yaml": "599d5b599fa5c281381c6011f495c95e4ef634cf37dc00bb28c18d78c79452e2",
+      "decentlab/dl-pm.yaml": "dbc7c40f9472f99303a241c0c17477f60d3e0d1ee4f842e8372e2df21a591e6a",
+      "decentlab/dl-pr21-1-10.yaml": "c05d8202d87b54757f3fde5b6283e7a7f07139eda7aa80ebe859abe190370e6f",
+      "decentlab/dl-pr26-0-1.yaml": "d7853cac671e03be72015f398992f4a439a657eda4d4db3de97966af4f7475eb",
+      "decentlab/dl-pr36-8192.yaml": "366b3054d2a7f9160693d8ba5ee9cbd5df6a8640cba3fbf0fac558355dbf4542",
+      "decentlab/dl-pr36ctd-8192-1024.yaml": "458389d6fe18b02f92c4b84e0f5894ec44d6bd13103525cbdb84179132645198",
+      "decentlab/dl-pyr.yaml": "130dce3da40904e7b07747b0cfb5836c946950ad4d70b2ec3ada06713b5e4743",
+      "decentlab/dl-rad.yaml": "45404f39c88cbd3606d5da45cf0ff433fcc274b2c016c004aebf2dd3c1aaccb3",
+      "decentlab/dl-rhc.yaml": "ea842aa274ab8a4253f721dc987e022542b197c5eda60f7eb61aa64c667f1a08",
+      "decentlab/dl-sdd.yaml": "740ef7d3d6cbea87a324bc655ca99b165c7bc680c455461f4700802922614c19",
+      "decentlab/dl-sht35.yaml": "af3483ab5753364231c8712da9d17ccfd30180fa46c9a65e3f2ae51d7eb30218",
+      "decentlab/dl-smtp.yaml": "55e4155ff7a465823632ed1f00188fc81110443b60faff73d6500a48a87ad8d9",
+      "decentlab/dl-tbrg-01.yaml": "2f402568fb0f1784a645068cf41fb3fcfa467dbd7e0b315f97b7de647ba95b76",
+      "decentlab/dl-tp.yaml": "225f192bb99f3416e15a0b4bce09ec804bddccf0743323bb14eb89b4144eb89d",
+      "decentlab/dl-trs11.yaml": "177c5cbab7bab66c8f6e5b11847b7cbb7b1133f07fa9b19a209f05f2a27f5eb5",
+      "decentlab/dl-trs12.yaml": "a2200c8f31c9c366cf5b1ad728d1ccad447c74e0f22ac9b56b2fb06eecc59400",
+      "decentlab/dl-trs21.yaml": "8817f3369849e06cf57585b39073fddcc342d011d29f31832c23a581e380bcdb",
+      "decentlab/dl-wrm.yaml": "e0a2bd07fc30113296d618e7337574b584e561eb9b548cb1c83cfe085533f935",
+      "decentlab/dl-zn1.yaml": "607a3cd8350ef24825bf91c58df353e359cdf773caeaf2d4d0307f15e67f4bb0",
+      "decentlab/dl-zn2.yaml": "ce00162a0fc73905aee7cec1fd2edbf866133e955ec36e049e37b9b6d3c71fe2",
+      "digital-matter/oyster.yaml": "42e4e20b9efdde63eaeccca42e151b0f6f6138479e2b0b50c9f6fb964de3d8e4",
+      "dragino/laq4.yaml": "e913170946f74e08e01442a235607fbb154511b256b09721ab40403efb3c70fc",
+      "elsys/ers.yaml": "ac3d1412cb131e3c4c115f6d0312f80b68f9ef9f982cf9b370e28ef9fa413125",
+      "makerfabs/4-channel-adc.yaml": "b2b0b2040604a7fd106effdf94a8c4bfb3c6f616cd707ccc51f12c47eb96e731",
+      "makerfabs/ath20.yaml": "6a97ba032c460e55494c92550064d03f6d560988c2e77a5e20ecd9bb6749f481",
+      "makerfabs/gps-tracker.yaml": "09be6070013dd34e3ca675cbe485cfa0185d4c1773deadf093bb4b9543ddfd81",
+      "makerfabs/leaf-moisture-sn-3001.yaml": "47660af8f7f0b577a566c02a451155bb3e9af88448a2cc3ad83794df3e01fa20",
+      "makerfabs/pipe-pressure.yaml": "be6be24b567dcba8633c1e94655ae69a55d50a029bd1b9a179f30fd9e94aba80",
+      "makerfabs/soil-monitor.yaml": "eefb4e81f17b92623533158815f492baeba599c501f44e327c1a43762481a909",
+      "mclimate/flood-sensor.yaml": "c452a14afaaf1ea1f1ea5af18f224a6d3758539d35783bb3031cec131d0b2985",
+      "mclimate/t-valve.yaml": "5988378ad1e789db307958a0360c45744f9478de42e63e36827c496cb0ad5dcd",
+      "mclimate/vicki.yaml": "764775357ead93b3273475489c3ea1ebc0bb6a4d5245c8b0b91ef9ead1eda03b",
+      "milesight/am102.yaml": "96a6f6dd5dee3bdbb41c02094b586facfb323eb8aae65e31fdd3c5f81f48f53c",
+      "milesight/am102l.yaml": "d6fa7ad241e26bf8e266432414deeef75979a8a08bc19d186bd9847b0a54e933",
+      "milesight/am103.yaml": "0a21706dcb0cf3b88e1eaddea2e3fb93eda9af643966ec04c29bf85c144cc4e4",
+      "milesight/am103l.yaml": "39cf7bd3fa2c18a96099cc11809e2245d35152ed9a5f96747ff1a26dae9bfd2c",
+      "milesight/am104.yaml": "ed3310bfd06ef5970d318ca203052c23d4ff27c763044966b8c62c5c37f72fc3",
+      "milesight/am107.yaml": "7ca67d22c5b139fecd5d7636c2aed69e35245ff2e6712f81d143c8899fe41211",
+      "milesight/am307.yaml": "7208eba5a423cf480196717f357fd2f93cec95c6c3ad90f6fa19aa9503e6d26e",
+      "milesight/am307l.yaml": "4efbc8d376258e6cbbe638f09bdc9f9b37df73485b4cc8590996ec4fcbdd5b27",
+      "milesight/am308.yaml": "6cfb021d06f4bd1edd25ec2d1d9b1f77b2a010fd1c51e8683895a9c672d75469",
+      "milesight/am308l.yaml": "db3ac723173f7b1265cca3762077b80d53ec64ba91c6d11e6fa00ce0f8750fd4",
+      "milesight/am319.yaml": "3218fb640b5f25d80985ab171d48da56a7abc8a07c14740250f43a5aa4c1e621",
+      "milesight/am319l.yaml": "5459545834a3d99d6ac4251fc76b9b11769329305b1bcfa07ba2f3b6453b9f4a",
+      "milesight/at101-fh.yaml": "3f18fa656ab20df07561652659f7c3ed9ea77aafbb79d0b3d540e11c1fc5fc90",
+      "milesight/at101.yaml": "e35d74fd255731ca3e8301017923cf8ef251746b721532cc89adab27f879e40c",
+      "milesight/ct101.yaml": "ac8645da58437b83e5b56b2f024bab02999ffc1656e30724f8849921a106ba62",
+      "milesight/ct103.yaml": "723495ec909ba2a6b9902f388986255999c910f33e60169c119aa84365f2aa3a",
+      "milesight/ct105.yaml": "b4b11642caa5e107c31e5fa74de7f9ecc9f80c2ece849d98458c51240aa8d147",
+      "milesight/ct303.yaml": "b3ab3211985da6d3bd9604c784bd34b8245f47bcee77ff0a55d9650229f83129",
+      "milesight/ct305.yaml": "6d7bf289da74e148e893df4cc90b68e9c6636278839e37316ee3ee0a864f5ccc",
+      "milesight/ct310.yaml": "74ecf4b745f20535738fbf6f4171b570e93426be701099b096c0e4315b80b02c",
+      "milesight/em300-di.yaml": "c72400ead8f3a9c6b2b8093681829a82946fe6d6521929fa209d1b819e1a08f7",
+      "milesight/em300-mcs.yaml": "9ccfde9a9512efcfc531f3f5d2a2bffe3259d47dd086b61908660a6c96e10a13",
+      "milesight/em300-mld.yaml": "c81dc2a8011263234d77c9b45f7af35f1189654cb9ff3bc67f7758285de576ce",
+      "milesight/em300-sld.yaml": "44b40db9cc932b416bdacf67ea06b38297cf807d6ae2d6a9a4441d1735490749",
+      "milesight/em300-th.yaml": "597d4b60492a46f66146ab500a7b1634696fbe40c515ff71c157172fe21eccbf",
+      "milesight/em300-zld.yaml": "399f87dcde33d4d777a7b17f2923aa5eee701d2d45c7175964129e5de0ceb261",
+      "milesight/em310-tilt.yaml": "77f1fbef463b97b079668a132b05a9d97891f1d0eca9df62c156d8734858104e",
+      "milesight/em310-udl.yaml": "2aef72288d3caed2b7b777ee9b2f9881f26191d75856f8b71b389a3c29bf0a1a",
+      "milesight/em320-th.yaml": "8c0a9ab033ee2c804bc9ffe2f3dde674a59fb249453ef1e93b798e8257ef8276",
+      "milesight/em320-tilt.yaml": "da3e9ce97b6ce0476d72afa0af44f0589192c130559f0f623c0bba614acc9c16",
+      "milesight/em400-mud.yaml": "87aff039edc56c58d58cede1b9e385da5f516d318b5c88eb40ea642eecd240dd",
+      "milesight/em400-tld.yaml": "e08103800ec1f6f45f37044d0c2203e0cdef7369f1506be17756a3cd05fe8237",
+      "milesight/em400-udl.yaml": "c8cf1dca5bf220d48d1a25db2c0920815285572d0a165d3a6e3c3ae441f6cc13",
+      "milesight/em410-rdl.yaml": "342056ecbe5e5c7d2e290c69f1256163bd025413c813ae057a6b60ecd2fb2a6a",
+      "milesight/em500-co2.yaml": "0617d2290df9904e5ad70f17cd26ebf7d0673e1747bc9ca686a6bc4cba9e682e",
+      "milesight/em500-lgt.yaml": "3466b825d581c90bd5b929ec0a7802775629226b9d42b2c2d8172ff15ad1687c",
+      "milesight/em500-pp.yaml": "1faa6b722c52f986579ffc9b855696dd6428ff1cb9fe02b7ac1fcf6af4f27011",
+      "milesight/em500-pt100.yaml": "2d847cf439b73de96fc3a76caee83ea852bd4a19d24ef55d8f1d5e2d44f94777",
+      "milesight/em500-smt.yaml": "c1d8296d1a0cae0f9186d95016e30b56a08ac5956d687c7f8368ad9031b7b921",
+      "milesight/em500-smtc.yaml": "58e91e15d911e336237447e25a3bb01146e563c5b56956b512a55201901f07c2",
+      "milesight/em500-swl.yaml": "d7381efa280c083341a933bbef6c6a81a1d5861649c2ac189a7aa50ecfb0408f",
+      "milesight/em500-udl.yaml": "8fce773c4845329ece63cc519c4580dd73c1107659a5abefaf9b83fde37efbf7",
+      "milesight/gs101.yaml": "ff249294b3aec592d81577233879e870479c17dffbe955f6d5e2c520a200b7ce",
+      "milesight/gs301.yaml": "6a5af1f7f38195a9f06db4d229fdc84857f8e103ad5242480d574ea09e3b7df5",
+      "milesight/ts101.yaml": "6a5098d44dc608a4add6adccdf6c9b805979e84f2a82be3af668c0b778b31efc",
+      "milesight/ts201.yaml": "e27ecfb6a80821a9b8c56975e10c4c012f2999d1d728f1db9d77e1d16df204ad",
+      "milesight/ts201v2.yaml": "d46e09a7a1e5123323adff469814aba8c15b1756f24b7946ced0ea3238795941",
+      "milesight/ts30x.yaml": "62c3daf62b45fe899923ef3273a2bd16067e15a2b30f7f564c4eacff804019f5",
+      "milesight/uc100.yaml": "1c2973eaaef5e48e3df532a1857427e9338bd70fc5bb2710b699b9788927d0bb",
+      "milesight/uc1114.yaml": "ad41205159cf48112978c86214c3625a68a278821fdb47d9e2add44394023d9e",
+      "milesight/uc1152.yaml": "24163b5012b407245187bbcc60276700822e2016a3c345782b795cdf87052be5",
+      "milesight/uc300.yaml": "939d7179b1c07a328bf9d161dff3f44f0c358a45482d5cd07247a660064212b6",
+      "milesight/uc50x.yaml": "bcfb4228fa684814070f4c5ab4b497aa83c59f106cc65698a6d69e3636029658",
+      "milesight/uc51x.yaml": "88e10bad2b6ac15f40cfe40f22421c1fcdf051b2fa9793ea86537652c4b7b116",
+      "milesight/vs121.yaml": "3e30da96bc9396b61f23a3dceddfb9afd10613791b97347391873cddc15ff8e5",
+      "milesight/vs135.yaml": "28ba66d01e7c12d7dd373a90bf9517000b3cbe09e8e31fb9d2f9b516e6ba02a5",
+      "milesight/vs321.yaml": "827057a757da1b198dd93b2e5415e37ac4159e4674d32e2d8afc66f70db41fcd",
+      "milesight/vs330.yaml": "9913be4228daf3087efee8295c39071a94e881dfef847c7a2764d7736eafb334",
+      "milesight/vs340.yaml": "894a5bcbd212e48861c98cb6a9fd7c514d1b70670ffdc232a8a425fee2f55c06",
+      "milesight/vs341.yaml": "ba2331d95022c4cb04ea49dfb9bc908ca7807898609b7849bedd928ce275cda4",
+      "milesight/vs350.yaml": "9147278272db47a1d6f147c0a5681d7e23c7ed8043bf3ce0369a661eeb34ba6b",
+      "milesight/vs351.yaml": "1c6aafa15fe0a363ea508179681c505e13f16855f366cdb718d31e836d554643",
+      "milesight/vs360.yaml": "2044fa3f84b668ba9df24c245142b2653863d2e04ca48178886970e87376d1f3",
+      "milesight/vs370.yaml": "e4df709fa1cce14ec99482c271cda81a0726cb4a7dba420794e189adc4dd0859",
+      "milesight/vs373.yaml": "83682858152522541256f0719e6b02fccdd42181fd6ee9ba2f5ea36cdce63141",
+      "milesight/ws101.yaml": "bf623d299569f6823f40056627fecc5a98cb724742313728855a4c546a2d475a",
+      "milesight/ws136.yaml": "71c1d6b146650fb323b4438e287d7bd3e9e42a08ef4d43234bb38c2ac50bb98f",
+      "milesight/ws156.yaml": "e7d90cc0cc57f5ab5c3ea54f345b28870c0b4e144709d67223462d477475c011",
+      "milesight/ws201.yaml": "b714dc41ad761a6a4c43eaf7ff068c32bf5b04490d09d67e8fc9a6213cf16399",
+      "milesight/ws202.yaml": "afe754d9b28f14dde9d0898c8cdb7e8793980f0bdf22dc683732005d86a2ba85",
+      "milesight/ws203.yaml": "e5f640f4bfaff3f9ab36301b935f51d2daae9f28f40b7692ee9adec9a6cff5b6",
+      "milesight/ws301.yaml": "738cf378d3c9ef88c3c2c1d7affd07ee5f670361890c3909ae877441244b8c23",
+      "milesight/ws302.yaml": "73d5532ca825066acc7c51b3b6e706911e2047485e479280fc7b1a7b8e0e18e1",
+      "milesight/ws303.yaml": "1459a1b18b4217d70c0d90b70006ea317627d70a72ecd72e61fb803330976c0e",
+      "milesight/ws50x.yaml": "5d1344c0ac65f9b54624bdf4b1fdeb3164465949da3215bcf958fef1610c5746",
+      "milesight/ws515.yaml": "ed2b9b19eb49bbc75e50da4dcbb7d3d698a62dae0ffd39a08dbc2369c6878f21",
+      "milesight/ws52x.yaml": "120fcc7b3cc589beac67b2f4d459fe236ef0e74d569915f391301f395f18acdf",
+      "milesight/ws558.yaml": "cb5e22e4ca62db8d947fc400a70ba75408da54651be8d92aed5eb9cedc18da08",
+      "milesight/wt101.yaml": "29466768bf77ed6fa462956b56541abdff12fba8a9157847e7b79e99d034f847",
+      "milesight/wt201v1.yaml": "414c80b6663c4b7198109d48db6680897ee3e1a0259363d3f211bd6fd2675a6b",
+      "milesight/wt201v2.yaml": "dde8e5e83d30cd6a4c508efc4610b2894072b30060dc5d70f3aead953e36f5bb",
+      "milesight/wts305.yaml": "64eb4e08cc4715cc1e55e91e17aa37abce058203df695ea6ab65c9cef7e3afe7",
+      "milesight/wts505.yaml": "7d7227fef0d06696dd1907325f6de0c56e87ce9c57a0b3c22b3689b0afa550c9",
+      "milesight/wts506.yaml": "8c08bb4f2560f7220d53a3ddad859786ec700e26fdbf98ddf65e3ee809db7459",
+      "radio-bridge/rbs30x.yaml": "166b7a9ee889b439b0cbdf9ef81673bcd04bd4095cefcd6f638de9b4a89194fb",
+      "radionode/rn320bth.yaml": "a4d66a334943177e2bbe5b649b71df9fc2215fdc08cededc24c4014d4d11edae",
+      "rakwireless/qingping.yaml": "58e690384a9b97914b54fddcbaaa25b03ab12b289d73ee3e190f901977057a13"
+    }
+  }
+}

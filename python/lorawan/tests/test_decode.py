@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import pytest
 
+from lorawan_wot import vocab
 from lorawan_wot.decode import decode_uplink
 
 from .conftest import EXAMPLES_DIR, load_json, vector_files
@@ -39,13 +40,13 @@ def test_decode_matches_expected(td, payload, fport, expected):
 
 
 def test_decoded_values_satisfy_td_types():
-    """Decoded numbers must be consistent with each property's TD data type."""
+    """Decoded numbers must be consistent with each event's declared data type."""
     spec = load_json(EXAMPLES_DIR / "dragino-lht65n.vectors.json")
     td = load_json(EXAMPLES_DIR / spec["td"])
     first = spec["vectors"][0]
     data = decode_uplink(td, first["payload"], fport=first.get("fport"))
     for name, value in data.items():
-        declared = td["properties"][name]["type"]
+        declared = td[vocab.EVENTS][name][vocab.DATA]["type"]
         if declared == "integer":
             assert isinstance(value, int)
         elif declared == "number":

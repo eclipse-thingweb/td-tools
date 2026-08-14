@@ -6,11 +6,12 @@ import copy
 
 import pytest
 
+from lorawan_wot import vocab
 from lorawan_wot.converter import ConversionError, td_to_payload_schema
 
 
 def test_tlv_layout_builds_tag_cases(am102_td):
-    """A ctv/tlv TD becomes a single tlv block keyed by each property's tag."""
+    """A ctv/tlv TD becomes a single tlv block keyed by each event's tag."""
     schema = td_to_payload_schema(am102_td)
 
     assert schema["endian"] == "little"
@@ -18,7 +19,7 @@ def test_tlv_layout_builds_tag_cases(am102_td):
 
     tlv = schema["fields"][0]["tlv"]
     assert tlv["tag_key"] == ["channel_id", "channel_type"]
-    # Each property lands in a case keyed by the string form of its tag array.
+    # Each event lands in a case keyed by the string form of its tag array.
     assert tlv["cases"]["[3, 103]"][0] == {
         "name": "temperature",
         "type": "s16",
@@ -46,13 +47,83 @@ def test_dragino_example_uses_ports_layout_for_basic_fport_coverage(lht65n_td):
     ]
 
 
+def _endian_td(*form_endians: str | None) -> dict:
+    """Build a fixed TD with one ``u16`` event per given form byte order."""
+    events = {}
+    for index, endian in enumerate(form_endians):
+        form: dict = {"lorav:byteOffset": index * 2, "lorav:wireType": "u16"}
+        if endian is not None:
+            form["lorav:endian"] = endian
+        events[f"p{index}"] = {"forms": [form]}
+    return {"lorav:payloadLayout": "fixed", "events": events}
+
+
+def test_endian_defaults_to_big_when_undeclared():
+    """With no byte order on any form, the LoRaWAN default (big-endian) applies."""
+    schema = td_to_payload_schema(_endian_td(None))
+    assert schema["endian"] == "big"
+    assert schema["fields"][0]["type"] == "u16"  # no prefix needed
+
+
+def test_majority_form_endian_becomes_the_schema_default():
+    """The most common per-form byte order becomes the schema-wide default."""
+    schema = td_to_payload_schema(_endian_td("little", "little", "big"))
+    assert schema["endian"] == "little"
+    # Only the field that disagrees with the default needs a prefix.
+    assert [f["type"] for f in schema["fields"]] == ["u16", "u16", "be_u16"]
+
+
+def test_thing_level_endian_is_rejected():
+    """Byte order is a form-level term; on the Thing it would be silently lost."""
+    td = _endian_td("little")
+    td["lorav:endian"] = "little"
+    with pytest.raises(ConversionError, match="form-level"):
+        td_to_payload_schema(td)
+
+
+def test_invalid_endian_is_rejected():
+    """Any byte order other than 'big' or 'little' is a conversion error."""
+    with pytest.raises(ConversionError, match="endian"):
+        td_to_payload_schema(_endian_td("msb"))
+
+
+def test_withdrawn_property_shape_is_rejected_with_a_migration_hint():
+    """A pre-events Thing Description must fail loudly, not decode silently.
+
+    Uplinks are pushed by the device and cannot be polled, so values moved from
+    ``properties`` to ``events``. Accepting the old shape would mean guessing at
+    a data schema that is no longer where the binding looks for it.
+    """
+    td = {
+        "lorav:payloadLayout": "fixed",
+        "properties": {
+            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
+        },
+    }
+    with pytest.raises(ConversionError, match="events"):
+        td_to_payload_schema(td)
+
+
+@pytest.mark.parametrize("term", sorted(vocab.REMOVED_TERMS))
+def test_withdrawn_term_is_rejected_with_its_replacement_named(term):
+    """Every withdrawn term names what replaced it, wherever it appears."""
+    td = {
+        "lorav:payloadLayout": "fixed",
+        "events": {
+            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8", term: "x"}]},
+        },
+    }
+    with pytest.raises(ConversionError, match=vocab.REMOVED_TERMS[term].split()[0]):
+        td_to_payload_schema(td)
+
+
 def test_fixed_layout_inserts_padding_for_gaps():
     """A gap between byte offsets is filled with a skip field."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u8"}]},
-            "b": {"forms": [{"lorav:byteOffset": 3, "lorav:type": "u8"}]},
+        "events": {
+            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
+            "b": {"forms": [{"lorav:byteOffset": 3, "lorav:wireType": "u8"}]},
         },
     }
     fields = td_to_payload_schema(td)["fields"]
@@ -64,8 +135,8 @@ def test_fixed_layout_skips_leading_header_bytes():
     """A payload header before the first field becomes leading skip padding."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "value": {"forms": [{"lorav:byteOffset": 3, "lorav:type": "u8"}]},
+        "events": {
+            "value": {"forms": [{"lorav:byteOffset": 3, "lorav:wireType": "u8"}]},
         },
     }
     fields = td_to_payload_schema(td)["fields"]
@@ -74,24 +145,26 @@ def test_fixed_layout_skips_leading_header_bytes():
     assert fields[1]["name"] == "value"
 
 
-def test_enum_becomes_decodable_lookup_table():
-    """``lorav:enum`` maps to a ``lookup`` table (which the interpreter applies).
+def test_one_of_becomes_decodable_lookup_table():
+    """A ``oneOf`` of ``const``/``title`` maps to a ``lookup`` table.
 
-    The reference interpreter only honours ``values`` on dedicated ``type: enum``
-    fields; on a plain field a categorical mapping must use ``lookup``. JSON object
-    keys arrive as strings and must be coerced back to ints for integer indexing.
+    The categorical mapping is stated with TD core's own data-schema terms rather
+    than a binding term of our own. The reference interpreter only honours
+    ``values`` on dedicated ``type: enum`` fields, so on a plain field it must be
+    emitted as ``lookup``.
     """
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "hemisphere": {
-                "forms": [
-                    {
-                        "lorav:byteOffset": 0,
-                        "lorav:type": "u8",
-                        "lorav:enum": {"0": "N", "1": "S"},
-                    }
-                ]
+                "data": {
+                    "type": "integer",
+                    "oneOf": [
+                        {"const": 0, "title": "N"},
+                        {"const": 1, "title": "S"},
+                    ],
+                },
+                "forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}],
             },
         },
     }
@@ -100,13 +173,41 @@ def test_enum_becomes_decodable_lookup_table():
     assert field["lookup"] == {0: "N", 1: "S"}
 
 
+def test_minimum_and_maximum_become_a_valid_range():
+    """TD core's ``minimum``/``maximum`` carry the plausibility range."""
+    td = {
+        "lorav:payloadLayout": "fixed",
+        "events": {
+            "temperature": {
+                "data": {"type": "number", "minimum": -40, "maximum": 85},
+                "forms": [{"lorav:byteOffset": 0, "lorav:wireType": "s16"}],
+            },
+        },
+    }
+    assert td_to_payload_schema(td)["fields"][0]["valid_range"] == [-40, 85]
+
+
+def test_unit_is_read_from_the_event_data_schema():
+    """The unit belongs to the decoded value, so it lives on ``data``."""
+    td = {
+        "lorav:payloadLayout": "fixed",
+        "events": {
+            "temperature": {
+                "data": {"type": "number", "unit": "Cel"},
+                "forms": [{"lorav:byteOffset": 0, "lorav:wireType": "s16"}],
+            },
+        },
+    }
+    assert td_to_payload_schema(td)["fields"][0]["unit"] == "Cel"
+
+
 def test_ports_layout_groups_by_fport():
-    """A ports TD groups properties under their frame port."""
+    """A ports TD groups events under their frame port."""
     td = {
         "lorav:payloadLayout": "ports",
-        "properties": {
-            "a": {"forms": [{"lorav:fPort": 1, "lorav:byteOffset": 0, "lorav:type": "u8"}]},
-            "b": {"forms": [{"lorav:fPort": 2, "lorav:byteOffset": 0, "lorav:type": "u16"}]},
+        "events": {
+            "a": {"forms": [{"lorav:fPort": 1, "lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
+            "b": {"forms": [{"lorav:fPort": 2, "lorav:byteOffset": 0, "lorav:wireType": "u16"}]},
         },
     }
     ports = td_to_payload_schema(td)["ports"]
@@ -116,18 +217,18 @@ def test_ports_layout_groups_by_fport():
 
 
 def test_scaling_terms_map_to_mult_div_add():
-    """multiplier/divisor/offset map onto mult/div/add."""
+    """multiplier/divisor/addend map onto mult/div/add."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "v": {
                 "forms": [
                     {
                         "lorav:byteOffset": 0,
-                        "lorav:type": "u16",
+                        "lorav:wireType": "u16",
                         "lorav:multiplier": 2,
                         "lorav:divisor": 10,
-                        "lorav:offset": -5,
+                        "lorav:addend": -5,
                     }
                 ]
             }
@@ -141,27 +242,27 @@ def test_scaling_terms_map_to_mult_div_add():
 
 def test_missing_layout_raises():
     with pytest.raises(ConversionError, match="payloadLayout"):
-        td_to_payload_schema({"properties": {}})
+        td_to_payload_schema({"events": {}})
 
 
 def test_unknown_layout_raises():
     with pytest.raises(ConversionError, match="Unsupported"):
-        td_to_payload_schema({"lorav:payloadLayout": "weird", "properties": {}})
+        td_to_payload_schema({"lorav:payloadLayout": "weird", "events": {}})
 
 
 def test_missing_type_raises():
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {"a": {"forms": [{"lorav:byteOffset": 0, "lorav:fPort": 1}]}},
+        "events": {"a": {"forms": [{"lorav:byteOffset": 0, "lorav:fPort": 1}]}},
     }
-    with pytest.raises(ConversionError, match="lorav:type"):
+    with pytest.raises(ConversionError, match="lorav:wireType"):
         td_to_payload_schema(td)
 
 
 def test_unsized_xsd_type_raises():
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {"a": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "xsd:integer"}]}},
+        "events": {"a": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "xsd:integer"}]}},
     }
     with pytest.raises(ConversionError, match="sized type"):
         td_to_payload_schema(td)
@@ -171,12 +272,12 @@ def test_multibyte_bitmask_emits_bit_range():
     """A bitmask over a multi-byte unsigned base emits a ``uN[lo:hi]`` bit range."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "a": {
                 "forms": [
                     {
                         "lorav:byteOffset": 0,
-                        "lorav:type": "xsd:unsignedShort",
+                        "lorav:wireType": "xsd:unsignedShort",
                         "lorav:bitmask": "0x3FFF",
                     }
                 ]
@@ -192,12 +293,12 @@ def test_bitmask_on_signed_type_raises():
     """A bitmask is only valid on unsigned base types."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "a": {
                 "forms": [
                     {
                         "lorav:byteOffset": 0,
-                        "lorav:type": "s16",
+                        "lorav:wireType": "s16",
                         "lorav:bitmask": "0x3FFF",
                     }
                 ]
@@ -211,12 +312,12 @@ def test_bitmask_on_signed_type_raises():
 def test_noncontiguous_bitmask_raises():
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "a": {
                 "forms": [
                     {
                         "lorav:byteOffset": 0,
-                        "lorav:type": "u8",
+                        "lorav:wireType": "u8",
                         "lorav:bitmask": "0x05",
                     }
                 ]
@@ -230,7 +331,7 @@ def test_noncontiguous_bitmask_raises():
 def test_fixed_layout_requires_byte_offset():
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {"a": {"forms": [{"lorav:type": "u8"}]}},
+        "events": {"a": {"forms": [{"lorav:wireType": "u8"}]}},
     }
     with pytest.raises(ConversionError, match="byteOffset"):
         td_to_payload_schema(td)
@@ -239,9 +340,9 @@ def test_fixed_layout_requires_byte_offset():
 def test_overlapping_offsets_raise():
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u16"}]},
-            "b": {"forms": [{"lorav:byteOffset": 1, "lorav:type": "u8"}]},
+        "events": {
+            "a": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u16"}]},
+            "b": {"forms": [{"lorav:byteOffset": 1, "lorav:wireType": "u8"}]},
         },
     }
     with pytest.raises(ConversionError, match="overlaps"):
@@ -256,24 +357,24 @@ def test_input_td_is_not_mutated(am102_td):
 
 
 def test_shared_byte_bitfields_consume_once():
-    """Two masked properties on one byte read it once; only the last consumes."""
+    """Two masked events on one byte read it once; only the last consumes."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "voltage": {
                 "forms": [
                     {
                         "lorav:byteOffset": 0,
-                        "lorav:type": "u8",
+                        "lorav:wireType": "u8",
                         "lorav:bitmask": "0x7F",
                         "lorav:divisor": 10,
                     }
                 ]
             },
             "lowBattery": {
-                "forms": [{"lorav:byteOffset": 0, "lorav:type": "u8", "lorav:bitmask": "0x80"}]
+                "forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8", "lorav:bitmask": "0x80"}]
             },
-            "next": {"forms": [{"lorav:byteOffset": 1, "lorav:type": "u8"}]},
+            "next": {"forms": [{"lorav:byteOffset": 1, "lorav:wireType": "u8"}]},
         },
     }
     fields = td_to_payload_schema(td)["fields"]
@@ -289,14 +390,14 @@ def test_shared_byte_bitfields_consume_once():
 
 
 def test_shared_byte_requires_bitmask_on_all_members():
-    """A property sharing a byte without a bitmask is an error, not an overlap."""
+    """An event sharing a byte without a bitmask is an error, not an overlap."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
+        "events": {
             "flag": {
-                "forms": [{"lorav:byteOffset": 0, "lorav:type": "u8", "lorav:bitmask": "0x80"}]
+                "forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8", "lorav:bitmask": "0x80"}]
             },
-            "whole": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u8"}]},
+            "whole": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
         },
     }
     with pytest.raises(ConversionError, match="bitmask"):
@@ -304,24 +405,26 @@ def test_shared_byte_requires_bitmask_on_all_members():
 
 
 def test_flagged_members_become_a_flagged_block():
-    """Properties carrying presence terms assemble into a trailing flagged block."""
+    """Events gated by a flag bit assemble into a trailing flagged block."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "flags": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u16"}]},
+        "events": {
+            "flags": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u16"}]},
             "moisture": {
                 "forms": [
                     {
-                        "lorav:presenceField": "flags",
-                        "lorav:presenceBit": 0,
-                        "lorav:type": "u16",
+                        "lorav:presentWhen": {"field": "flags", "bit": 0},
+                        "lorav:wireType": "u16",
                         "lorav:divisor": 50,
                     }
                 ]
             },
             "battery": {
                 "forms": [
-                    {"lorav:presenceField": "flags", "lorav:presenceBit": 1, "lorav:type": "u16"}
+                    {
+                        "lorav:presentWhen": {"field": "flags", "bit": 1},
+                        "lorav:wireType": "u16",
+                    }
                 ]
             },
         },
@@ -336,19 +439,25 @@ def test_flagged_members_become_a_flagged_block():
 
 
 def test_match_members_become_a_match_block():
-    """Properties carrying switch terms assemble into a trailing match block."""
+    """Events gated by a discriminator value assemble into a trailing match block."""
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "event": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u8"}]},
+        "events": {
+            "event": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
             "reset_reason": {
                 "forms": [
-                    {"lorav:switchField": "event", "lorav:switchValue": 0, "lorav:type": "u8"}
+                    {
+                        "lorav:presentWhen": {"field": "event", "value": 0},
+                        "lorav:wireType": "u8",
+                    }
                 ]
             },
             "alarm_code": {
                 "forms": [
-                    {"lorav:switchField": "event", "lorav:switchValue": 1, "lorav:type": "u8"}
+                    {
+                        "lorav:presentWhen": {"field": "event", "value": 1},
+                        "lorav:wireType": "u8",
+                    }
                 ]
             },
         },
@@ -371,16 +480,15 @@ def test_match_case_members_sharing_a_byte_offset_use_shared_byte():
     """
     td = {
         "lorav:payloadLayout": "fixed",
-        "properties": {
-            "event": {"forms": [{"lorav:byteOffset": 0, "lorav:type": "u8"}]},
+        "events": {
+            "event": {"forms": [{"lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
             "volt": {
                 "forms": [
                     {
-                        "lorav:switchField": "event",
-                        "lorav:switchValue": 1,
+                        "lorav:presentWhen": {"field": "event", "value": 1},
                         "lorav:slot": 0,
                         "lorav:byteOffset": 1,
-                        "lorav:type": "u8",
+                        "lorav:wireType": "u8",
                         "lorav:bitmask": "0x7F",
                     }
                 ]
@@ -388,11 +496,10 @@ def test_match_case_members_sharing_a_byte_offset_use_shared_byte():
             "lowBattery": {
                 "forms": [
                     {
-                        "lorav:switchField": "event",
-                        "lorav:switchValue": 1,
+                        "lorav:presentWhen": {"field": "event", "value": 1},
                         "lorav:slot": 1,
                         "lorav:byteOffset": 1,
-                        "lorav:type": "u8",
+                        "lorav:wireType": "u8",
                         "lorav:bitmask": "0x80",
                     }
                 ]
@@ -400,10 +507,9 @@ def test_match_case_members_sharing_a_byte_offset_use_shared_byte():
             "next_byte": {
                 "forms": [
                     {
-                        "lorav:switchField": "event",
-                        "lorav:switchValue": 1,
+                        "lorav:presentWhen": {"field": "event", "value": 1},
                         "lorav:slot": 2,
-                        "lorav:type": "u8",
+                        "lorav:wireType": "u8",
                     }
                 ]
             },
@@ -423,20 +529,19 @@ def test_ports_layout_supports_a_match_block_per_port():
     """
     td = {
         "lorav:payloadLayout": "ports",
-        "properties": {
-            "event": {"forms": [{"lorav:fPort": 6, "lorav:byteOffset": 0, "lorav:type": "u8"}]},
+        "events": {
+            "event": {"forms": [{"lorav:fPort": 6, "lorav:byteOffset": 0, "lorav:wireType": "u8"}]},
             "reset_reason": {
                 "forms": [
                     {
                         "lorav:fPort": 6,
-                        "lorav:switchField": "event",
-                        "lorav:switchValue": 0,
-                        "lorav:type": "u8",
+                        "lorav:presentWhen": {"field": "event", "value": 0},
+                        "lorav:wireType": "u8",
                     }
                 ]
             },
             "other_port_field": {
-                "forms": [{"lorav:fPort": 7, "lorav:byteOffset": 0, "lorav:type": "u8"}]
+                "forms": [{"lorav:fPort": 7, "lorav:byteOffset": 0, "lorav:wireType": "u8"}]
             },
         },
     }

@@ -8,7 +8,12 @@ shapes the forward converter can faithfully round-trip:
 * ``plain``/fixed -- a flat ordered list of named fields (sequential offsets,
   ``skip`` padding allowed).
 * single-field ``tlv`` -- a ``tag_fields`` block whose every case maps to exactly
-  one field (one WoT property per tag).
+  one field (one WoT event per tag).
+
+Every decoded value becomes an *event*, not a property: a LoRaWAN device pushes
+uplinks on its own schedule and cannot be polled, so there is no value to read on
+demand. The wire encoding lands on the event's form and the meaning of the
+decoded value on its ``data`` schema.
 
 Anything outside that subset (``flagged`` groups, ``byte_group``, ``match``,
 multi-field ``tlv`` cases, computed ``ref``/``formula`` fields, ``tag_size`` style
@@ -26,7 +31,8 @@ from typing import Any
 from lorawan_wot import vocab
 from lorawan_wot.converter import _WIRE_WIDTH
 
-#: Field keys whose meaning the binding can express on a ``lorav:`` form.
+#: Field keys whose meaning the binding can express on an event's form or data
+#: schema.
 _KNOWN_FIELD_KEYS: frozenset[str] = frozenset(
     {
         "name",
@@ -35,7 +41,6 @@ _KNOWN_FIELD_KEYS: frozenset[str] = frozenset(
         "div",
         "add",
         "unit",
-        "unece",
         "length",
         "values",
         "lookup",
@@ -54,6 +59,7 @@ _IGNORABLE_FIELD_KEYS: frozenset[str] = frozenset(
         "resolution",
         "raw",
         "comment",
+        "unece",  # UN/CEFACT unit code; TD core's ``unit`` carries the unit
         "var",  # names a field for later $reference; decoding-neutral here
     }
 )
@@ -148,29 +154,29 @@ def _fixed_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     Besides plain scalar fields the list may contain grouped/conditional
     sub-structures: ``byte_group`` (bitfields packed into shared bytes),
     ``flagged`` (groups gated by a flags bit) and ``match`` (cases selected by a
-    discriminator). Each contributes one WoT property per decoded value, located
+    discriminator). Each contributes one WoT event per decoded value, located
     by the relevant ``lorav:`` grouping term rather than a byte offset.
     """
-    endian_big = _endian_is_big(schema)
-    properties: dict[str, Any] = {}
-    _emit_fixed_fields(schema["fields"], properties, endian_big)
-    if not properties:
+    default_endian = _schema_endian(schema)
+    events: dict[str, Any] = {}
+    _emit_fixed_fields(schema["fields"], events, default_endian)
+    if not events:
         raise UnsupportedSchemaError(
             "fixed layout has no decodable fields", reason=SkipReason.MALFORMED
         )
-    return _assemble_td(schema, source, vocab.LAYOUT_FIXED, properties)
+    return _assemble_td(schema, source, vocab.LAYOUT_FIXED, events)
 
 
 def _ports_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     """Build a ``ports``-layout Thing Description from a per-fPort field map.
 
     Each entry of ``ports`` is a fixed layout decoded when the uplink arrives on
-    that frame port; every property in a port carries ``lorav:fPort``. A value
+    that frame port; every event form in a port carries ``lorav:fPort``. A value
     reported on more than one port (e.g. ``latitude`` in two formats) becomes a
-    single WoT property with one form per port.
+    single WoT event with one form per port.
     """
-    endian_big = _endian_is_big(schema)
-    properties: dict[str, Any] = {}
+    default_endian = _schema_endian(schema)
+    events: dict[str, Any] = {}
     for raw_port, port_def in schema["ports"].items():
         port = _port_number(raw_port)
         fields = port_def.get("fields") if isinstance(port_def, dict) else port_def
@@ -178,12 +184,12 @@ def _ports_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
             raise UnsupportedSchemaError(
                 f"port {raw_port!r} has no 'fields' list", reason=SkipReason.MALFORMED
             )
-        _emit_fixed_fields(fields, properties, endian_big, fport=port)
-    if not properties:
+        _emit_fixed_fields(fields, events, default_endian, fport=port)
+    if not events:
         raise UnsupportedSchemaError(
             "ports layout has no decodable fields", reason=SkipReason.MALFORMED
         )
-    return _assemble_td(schema, source, vocab.LAYOUT_PORTS, properties)
+    return _assemble_td(schema, source, vocab.LAYOUT_PORTS, events)
 
 
 def _port_number(raw: Any) -> int:
@@ -202,9 +208,9 @@ def _port_number(raw: Any) -> int:
 
 
 def _emit_fixed_fields(
-    fields: list[Any], properties: dict[str, Any], endian_big: bool, *, fport: int | None = None
+    fields: list[Any], events: dict[str, Any], default_endian: str, *, fport: int | None = None
 ) -> None:
-    """Walk a flat field list, storing one property per decoded value.
+    """Walk a flat field list, storing one event per decoded value.
 
     ``fport`` (when set) tags every form for a ``ports`` layout. The cursor and
     computed-slot counters are local to this list, so each port starts at byte 0.
@@ -218,14 +224,14 @@ def _emit_fixed_fields(
             )
         if "byte_group" in field:
             offset = _emit_byte_group(
-                field["byte_group"], properties, endian_big, offset, fport=fport
+                field["byte_group"], events, default_endian, offset, fport=fport
             )
             continue
         if "flagged" in field and not field.get("type"):
-            _emit_flagged(field["flagged"], properties, endian_big, fport=fport)
+            _emit_flagged(field["flagged"], events, default_endian, fport=fport)
             continue
         if "match" in field and not field.get("type"):
-            _emit_match(field["match"], properties, endian_big, fport=fport)
+            _emit_match(field["match"], events, default_endian, fport=fport)
             continue
         if "name" not in field:
             raise UnsupportedSchemaError(
@@ -239,27 +245,27 @@ def _emit_fixed_fields(
             # A derived value occupies no payload bytes; it sits at the current
             # cursor (so it sorts before the next raw field there) and a slot
             # keeps consecutive derived values in source order.
-            prop = _computed_property(field, byte_offset=offset, slot=computed_slot, fport=fport)
-            _store_property(properties, field.get("name"), prop)
+            event = _computed_event(field, byte_offset=offset, slot=computed_slot, fport=fport)
+            _store_event(events, field.get("name"), event)
             computed_slot += 1
             continue
-        base, prop = _scalar_property(field, endian_big, byte_offset=offset, fport=fport)
-        _store_property(properties, field["name"], prop)
+        base, event = _scalar_event(field, default_endian, byte_offset=offset, fport=fport)
+        _store_event(events, field["name"], event)
         offset += _byte_width(base, field)
 
 
 def _emit_flagged(
     flagged_def: dict[str, Any],
-    properties: dict[str, Any],
-    endian_big: bool,
+    events: dict[str, Any],
+    default_endian: str,
     *,
     fport: int | None = None,
 ) -> None:
-    """Emit one WoT property per field of every ``flagged`` group.
+    """Emit one WoT event per field of every ``flagged`` group.
 
-    Each property records the flags field name (``lorav:presenceField``) and the
-    bit that gates it (``lorav:presenceBit``); members of a multi-field group are
-    ordered by ``lorav:slot``.
+    Each form records, under ``lorav:presentWhen``, the flags field name and the
+    bit that gates it; members of a multi-field group are ordered by
+    ``lorav:slot``.
     """
     flag_field = str(flagged_def.get("field", "")).lstrip("$")
     if not flag_field:
@@ -275,33 +281,33 @@ def _emit_flagged(
         for index, field in enumerate(group_fields):
             slot = index if multi else None
             if _is_computed_field(field):
-                prop = _computed_property(
+                event = _computed_event(
                     field, presence_field=flag_field, presence_bit=bit, slot=slot, fport=fport
                 )
             else:
-                _, prop = _scalar_property(
+                _, event = _scalar_event(
                     field,
-                    endian_big,
+                    default_endian,
                     presence_field=flag_field,
                     presence_bit=bit,
                     slot=slot,
                     fport=fport,
                 )
-            _store_property(properties, field.get("name"), prop)
+            _store_event(events, field.get("name"), event)
 
 
 def _emit_match(
     match_def: dict[str, Any],
-    properties: dict[str, Any],
-    endian_big: bool,
+    events: dict[str, Any],
+    default_endian: str,
     *,
     fport: int | None = None,
 ) -> None:
-    """Emit one WoT property per field of every ``match`` case.
+    """Emit one WoT event per field of every ``match`` case.
 
-    Each property records the discriminator field name (``lorav:switchField``)
-    and the value selecting its case (``lorav:switchValue``); members of a
-    multi-field case are ordered by ``lorav:slot``.
+    Each form records, under ``lorav:presentWhen``, the discriminator field name
+    and the value selecting its case; members of a multi-field case are ordered
+    by ``lorav:slot``.
     """
     switch_field = str(match_def.get("field", "")).lstrip("$")
     if not switch_field:
@@ -336,7 +342,7 @@ def _emit_match(
             pad_before = pending_pad or None
             pending_pad = 0
             if _is_computed_field(field):
-                prop = _computed_property(
+                event = _computed_event(
                     field,
                     switch_field=switch_field,
                     switch_value=value,
@@ -345,16 +351,16 @@ def _emit_match(
                     pad_before=pad_before,
                 )
             else:
-                _, prop = _scalar_property(
+                _, event = _scalar_event(
                     field,
-                    endian_big,
+                    default_endian,
                     switch_field=switch_field,
                     switch_value=value,
                     slot=slot,
                     fport=fport,
                     pad_before=pad_before,
                 )
-            _store_property(properties, field.get("name"), prop)
+            _store_event(events, field.get("name"), event)
         if pending_pad:
             # A case ending in reserved bytes has no field to attach them to;
             # this shape is not represented (no device in the corpus needs it).
@@ -366,16 +372,16 @@ def _emit_match(
 
 def _emit_byte_group(
     byte_group: Any,
-    properties: dict[str, Any],
-    endian_big: bool,
+    events: dict[str, Any],
+    default_endian: str,
     offset: int,
     *,
     fport: int | None = None,
 ) -> int:
-    """Emit a WoT property per bitfield of a ``byte_group`` and advance the cursor.
+    """Emit a WoT event per bitfield of a ``byte_group`` and advance the cursor.
 
     A ``byte_group`` packs several bit-range fields (``uN[lo:hi]``) into ``size``
-    shared bytes. Each becomes a masked property sharing the group's byte offset
+    shared bytes. Each becomes a masked event sharing the group's byte offset
     (the existing ``lorav:bitmask`` + shared-offset mechanism). A multi-byte group
     (``size`` > 1) uses a wider base type whose width matches ``size`` (e.g. a
     3-byte group with ``u24[lo:hi]`` ranges). Returns the new cursor position.
@@ -393,7 +399,7 @@ def _emit_byte_group(
         _check_field_keys(field)
         base, bitmask = _parse_bitrange(field["type"])
         form = _build_form(field, base, None, byte_offset=offset, bitmask=bitmask, fport=fport)
-        _store_property(properties, field.get("name"), _build_property(field, base, form))
+        _store_event(events, field.get("name"), _build_event(field, base, form))
     return offset + size
 
 
@@ -439,76 +445,80 @@ def _tlv_td(schema: dict[str, Any], source: str) -> dict[str, Any]:
     block = schema["fields"][0]["tlv"]
     tag_fields = _resolve_tag_fields(block)
 
-    endian_big = _endian_is_big(schema)
-    properties: dict[str, Any] = {}
+    default_endian = _schema_endian(schema)
+    events: dict[str, Any] = {}
     for key, case_fields in (block.get("cases") or {}).items():
         if not isinstance(case_fields, list) or not case_fields:
             raise UnsupportedSchemaError(f"empty tlv case {key!r}", reason=SkipReason.MALFORMED)
         tag = _parse_tag(key)
         # A case may carry several fields (a multi-field TLV channel): each
-        # becomes its own WoT property sharing the tag, ordered by lorav:slot.
+        # becomes its own WoT event sharing the tag, ordered by lorav:slot.
         multi = len(case_fields) > 1
         for index, field in enumerate(case_fields):
             slot = index if multi else None
             if _is_computed_field(field):
-                # A derived value inside a case maps to a computed property,
+                # A derived value inside a case maps to a computed event,
                 # mirroring the forward converter which emits computed fields
                 # in tlv cases as well.
-                prop = _computed_property(field, tag=tag, slot=slot)
+                event = _computed_event(field, tag=tag, slot=slot)
             else:
-                _, prop = _scalar_property(field, endian_big, tag=tag, slot=slot)
-            _store_property(properties, field.get("name"), prop)
+                _, event = _scalar_event(field, default_endian, tag=tag, slot=slot)
+            _store_event(events, field.get("name"), event)
 
-    if not properties:
+    if not events:
         raise UnsupportedSchemaError("tlv block has no cases", reason=SkipReason.MALFORMED)
-    td = _assemble_td(schema, source, vocab.LAYOUT_TLV, properties)
+    td = _assemble_td(schema, source, vocab.LAYOUT_TLV, events)
     td[vocab.TAG_FIELDS] = [dict(tag_field) for tag_field in tag_fields]
     return td
 
 
-# --- field/property helpers --------------------------------------------------
+# --- field/event helpers -----------------------------------------------------
 
 
-def _scalar_property(
-    field: dict[str, Any], endian_big: bool, **locator: Any
+def _scalar_event(
+    field: dict[str, Any], default_endian: str, **locator: Any
 ) -> tuple[str, dict[str, Any]]:
-    """Build a WoT property for one named scalar field, validating its keys.
+    """Build a WoT event for one named scalar field, validating its keys.
 
     ``locator`` carries the positioning terms for this field's form
     (``byte_offset`` / ``tag`` / ``slot`` / ``presence_field`` / ``presence_bit``
-    / ``switch_field`` / ``switch_value``). Returns ``(base_wire_type, property)``.
+    / ``switch_field`` / ``switch_value``). Returns ``(base_wire_type, event)``.
     """
     _reject_computed(field)
     _check_field_keys(field)
-    base, msb = _parse_type(field["type"])
-    form = _build_form(field, base, _coalesce_msb(msb, endian_big), **locator)
-    return base, _build_property(field, base, form)
+    base, endian = _parse_type(field["type"])
+    form = _build_form(field, base, _form_endian(endian, default_endian), **locator)
+    return base, _build_event(field, base, form)
 
 
-def _store_property(properties: dict[str, Any], name: Any, prop: dict[str, Any]) -> None:
-    """Register a property, merging a recurring name into extra forms.
+def _store_event(events: dict[str, Any], name: Any, event: dict[str, Any]) -> None:
+    """Register an event, merging a recurring name into extra forms.
 
-    WoT property keys must be unique. When a field name recurs under a *distinct*
+    WoT affordance keys must be unique. When a field name recurs under a *distinct*
     locator -- e.g. the same measurement reported under two different tlv tags
     (``temperature`` in ``[3, 103]`` and ``[131, 103]``) -- the new descriptor is
-    appended as an additional form on the existing property rather than rejected.
+    appended as an additional form on the existing event rather than rejected.
     A recurrence with an *identical* locator is a genuine collision and still
     raises, since the interpreter would silently overwrite one value with another.
+
+    This merging is why the payload locators live on the form and not in the
+    event's ``data``: one value reported from two places is one event with two
+    forms, which is exactly the distinction a form is for.
     """
     if not isinstance(name, str) or not name:
         raise UnsupportedSchemaError(
             f"field has no usable name: {name!r}", reason=SkipReason.MALFORMED
         )
-    if name in properties:
-        existing = properties[name]
-        new_form = prop["forms"][0]
-        if any(_form_locator(form) == _form_locator(new_form) for form in existing["forms"]):
+    if name in events:
+        existing = events[name]
+        new_form = event[vocab.FORMS][0]
+        if any(_form_locator(form) == _form_locator(new_form) for form in existing[vocab.FORMS]):
             raise UnsupportedSchemaError(
                 f"duplicate field name {name!r}", reason=SkipReason.DUPLICATE_NAME
             )
-        existing["forms"].append(new_form)
+        existing[vocab.FORMS].append(new_form)
         return
-    properties[name] = prop
+    events[name] = event
 
 
 def _form_locator(form: dict[str, Any]) -> tuple[Any, ...]:
@@ -519,14 +529,14 @@ def _form_locator(form: dict[str, Any]) -> tuple[Any, ...]:
     overwrite) share a locator and are correctly flagged as a real collision.
     """
     tag = form.get(vocab.TAG)
+    condition = form.get(vocab.PRESENT_WHEN) or {}
     return (
         tuple(tag) if tag is not None else None,
         form.get(vocab.FPORT),
         form.get(vocab.BYTE_OFFSET),
-        form.get(vocab.PRESENCE_FIELD),
-        form.get(vocab.PRESENCE_BIT),
-        form.get(vocab.SWITCH_FIELD),
-        form.get(vocab.SWITCH_VALUE),
+        condition.get(vocab.PW_FIELD),
+        condition.get(vocab.PW_BIT),
+        condition.get(vocab.PW_VALUE),
         form.get(vocab.BITMASK),
     )
 
@@ -565,8 +575,8 @@ def _is_computed_field(field: dict[str, Any]) -> bool:
     return field.get("type") == vocab.COMPUTED_TYPE or bool(_COMPUTED_DESCRIPTORS & field.keys())
 
 
-def _computed_property(field: dict[str, Any], **locator: Any) -> dict[str, Any]:
-    """Build a WoT property for a computed/derived field (zero payload bytes).
+def _computed_event(field: dict[str, Any], **locator: Any) -> dict[str, Any]:
+    """Build a WoT event for a computed/derived field (zero payload bytes).
 
     The derived-value descriptors (``ref``/``polynomial``/``transform``/
     ``compute``/``guard``) are carried verbatim onto the form so the forward
@@ -579,22 +589,10 @@ def _computed_property(field: dict[str, Any], **locator: Any) -> dict[str, Any]:
             reason=SkipReason.COMPUTED,
         )
     form = _build_computed_form(field, **locator)
-    prop: dict[str, Any] = {
-        "type": "number",
-        "readOnly": True,
-        "observable": True,
-        "forms": [form],
-    }
-    if "unit" in field:
-        prop["unit"] = field["unit"]
-    _apply_valid_range(prop, field)
-    if isinstance(field.get("description"), str):
-        prop["description"] = field["description"]
-    return prop
+    return _event(_data_schema("number", field), form, field)
 
 
-def _build_computed_form(
-    field: dict[str, Any],
+def _uplink_form(
     *,
     byte_offset: int | None = None,
     tag: list[int] | None = None,
@@ -606,8 +604,15 @@ def _build_computed_form(
     fport: int | None = None,
     pad_before: int | None = None,
 ) -> dict[str, Any]:
-    """Assemble a LoRaWAN binding form for a computed/derived field."""
-    form: dict[str, Any] = {"href": "uplink", "op": ["readproperty", "observeproperty"]}
+    """Start a LoRaWAN uplink form carrying only the value's *locator* terms.
+
+    The locator says where the value sits and under what condition it appears;
+    what the bytes mean is added by the caller. Shared by the raw-field and
+    derived-value builders so the two cannot disagree on how a locator is
+    written -- notably on folding the four conditional-presence arguments into a
+    single ``lorav:presentWhen`` object.
+    """
+    form: dict[str, Any] = {"href": vocab.UPLINK_HREF, "op": list(vocab.UPLINK_OPS)}
     if fport is not None:
         form[vocab.FPORT] = fport
     if byte_offset is not None:
@@ -618,30 +623,37 @@ def _build_computed_form(
         form[vocab.SLOT] = slot
     if pad_before is not None:
         form[vocab.PAD_BEFORE] = pad_before
+
+    # A value is gated either by a flag bit or by a discriminator value, never by
+    # both; one object with the relevant key set says so, where four independent
+    # sibling terms could not.
+    condition: dict[str, Any] = {}
     if presence_field is not None:
-        form[vocab.PRESENCE_FIELD] = presence_field
+        condition[vocab.PW_FIELD] = presence_field
     if presence_bit is not None:
-        form[vocab.PRESENCE_BIT] = presence_bit
+        condition[vocab.PW_BIT] = presence_bit
     if switch_field is not None:
-        form[vocab.SWITCH_FIELD] = switch_field
+        condition[vocab.PW_FIELD] = switch_field
     if switch_value is not None:
-        form[vocab.SWITCH_VALUE] = switch_value
-    form[vocab.TYPE] = vocab.COMPUTED_TYPE
-    if "ref" in field:
-        form[vocab.REF] = field["ref"]
-    if "polynomial" in field:
-        form[vocab.POLYNOMIAL] = field["polynomial"]
-    if "compute" in field:
-        form[vocab.COMPUTE] = field["compute"]
-    if "guard" in field:
-        form[vocab.GUARD] = field["guard"]
-    if "transform" in field:
-        form[vocab.TRANSFORM] = field["transform"]
+        condition[vocab.PW_VALUE] = switch_value
+    if condition:
+        form[vocab.PRESENT_WHEN] = condition
+
+    return form
+
+
+def _build_computed_form(field: dict[str, Any], **locator: Any) -> dict[str, Any]:
+    """Assemble a LoRaWAN binding form for a computed/derived field."""
+    form = _uplink_form(**locator)
+    form[vocab.WIRE_TYPE] = vocab.COMPUTED_TYPE
+
+    # Each descriptor keeps its source key name inside ``lorav:derived``, so the
+    # forward converter can hand them back to the interpreter untouched.
+    derived = {key: field[key] for key in vocab.DERIVED_ORDER if key in field}
+    if derived:
+        form[vocab.DERIVED] = derived
+
     _store_scaling(form, field)
-    if "unece" in field:
-        form[vocab.UNECE] = field["unece"]
-    if "valid_range" in field:
-        form[vocab.VALID_RANGE] = field["valid_range"]
     return form
 
 
@@ -692,23 +704,23 @@ def _parse_bitrange(raw: Any) -> tuple[str, str]:
     return base, f"0x{mask:0{width_bytes * 2}X}"
 
 
-def _parse_type(raw: Any) -> tuple[str, bool | None]:
-    """Split a wire type into its base type and explicit endianness (if any)."""
+def _parse_type(raw: Any) -> tuple[str, str | None]:
+    """Split a wire type into its base type and explicit byte order (if any)."""
     if not isinstance(raw, str):
         raise UnsupportedSchemaError(f"non-string field type {raw!r}", reason=SkipReason.WIRE_TYPE)
-    msb: bool | None = None
+    endian: str | None = None
     base = raw
     if base.startswith("be_"):
-        msb, base = True, base[3:]
+        endian, base = vocab.ENDIAN_BIG, base[3:]
     elif base.startswith("le_"):
-        msb, base = False, base[3:]
+        endian, base = vocab.ENDIAN_LITTLE, base[3:]
     if "[" in base:
         raise UnsupportedSchemaError(
             f"bit-range type {raw!r} is not supported", reason=SkipReason.BIT_RANGE
         )
     if base not in vocab.NATIVE_WIRE_TYPES:
         raise UnsupportedSchemaError(f"unsupported wire type {raw!r}", reason=SkipReason.WIRE_TYPE)
-    return base, msb
+    return base, endian
 
 
 def _byte_width(base: str, field: dict[str, Any]) -> int:
@@ -727,103 +739,80 @@ def _byte_width(base: str, field: dict[str, Any]) -> int:
 def _build_form(
     field: dict[str, Any],
     base: str,
-    msb: bool | None,
+    endian: str | None,
     *,
-    byte_offset: int | None = None,
-    tag: list[int] | None = None,
-    slot: int | None = None,
-    presence_field: str | None = None,
-    presence_bit: int | None = None,
-    switch_field: str | None = None,
-    switch_value: int | None = None,
     bitmask: str | None = None,
-    fport: int | None = None,
-    pad_before: int | None = None,
+    **locator: Any,
 ) -> dict[str, Any]:
-    """Assemble one LoRaWAN binding form for a field.
+    """Assemble one LoRaWAN binding form for a raw wire field.
 
-    The keyword arguments are the field's *locator* terms -- how the value is
-    positioned/selected in the payload (byte offset, tlv tag, group slot, flagged
-    presence, match switch) -- plus an optional bit-range ``bitmask``.
+    ``locator`` carries the field's positioning terms (see :func:`_uplink_form`);
+    ``bitmask`` optionally narrows the value to a bit range. Only how the value is
+    *transferred* lands on the form -- what it means goes in the event's data
+    schema, built by :func:`_build_event`.
     """
-    form: dict[str, Any] = {"href": "uplink", "op": ["readproperty", "observeproperty"]}
-    if fport is not None:
-        form[vocab.FPORT] = fport
-    if byte_offset is not None:
-        form[vocab.BYTE_OFFSET] = byte_offset
-    if tag is not None:
-        form[vocab.TAG] = tag
-    if slot is not None:
-        form[vocab.SLOT] = slot
-    if pad_before is not None:
-        form[vocab.PAD_BEFORE] = pad_before
-    if presence_field is not None:
-        form[vocab.PRESENCE_FIELD] = presence_field
-    if presence_bit is not None:
-        form[vocab.PRESENCE_BIT] = presence_bit
-    if switch_field is not None:
-        form[vocab.SWITCH_FIELD] = switch_field
-    if switch_value is not None:
-        form[vocab.SWITCH_VALUE] = switch_value
-    form[vocab.TYPE] = base
+    form = _uplink_form(**locator)
+    form[vocab.WIRE_TYPE] = base
     if bitmask is not None:
         form[vocab.BITMASK] = bitmask
-    if msb is not None:
-        form[vocab.MSB] = msb
+    if endian is not None:
+        form[vocab.ENDIAN] = endian
     _store_scaling(form, field)
     if "var" in field:
-        form[vocab.VAR] = field["var"]
+        form[vocab.ALIAS] = field["var"]
     if "length" in field:
-        form[vocab.LENGTH] = int(field["length"])
-    enum = _enum(field)
-    if enum is not None:
-        form[vocab.ENUM] = enum
-    if "unece" in field:
-        form[vocab.UNECE] = field["unece"]
-    if "valid_range" in field:
-        form[vocab.VALID_RANGE] = field["valid_range"]
+        form[vocab.BYTE_LENGTH] = int(field["length"])
     return form
 
 
-#: Source scaling keys mapped to their ``lorav:`` form term. Preserving the
-#: source key order matters: the interpreter applies ``mult``/``div``/``add`` in
-#: field-key order, so the order must survive the round-trip through the form.
-_SCALING_TERMS: dict[str, str] = {
-    "mult": vocab.MULTIPLIER,
-    "div": vocab.DIVISOR,
-    "add": vocab.OFFSET,
-}
-
-
 def _store_scaling(form: dict[str, Any], field: dict[str, Any]) -> None:
-    """Copy scaling modifiers onto ``form`` in the field's source key order."""
+    """Copy scaling modifiers onto ``form`` in the field's source key order.
+
+    Preserving the source key order matters: the interpreter applies
+    ``mult``/``div``/``add`` in field-key order, so the order must survive the
+    round-trip through the form.
+    """
     for key in field:
-        term = _SCALING_TERMS.get(key)
+        term = vocab.SCALE_TERMS_BY_FIELD_KEY.get(key)
         if term is not None:
             form[term] = field[key]
 
 
-def _build_property(field: dict[str, Any], base: str, form: dict[str, Any]) -> dict[str, Any]:
-    """Wrap a form in a read-only, observable WoT property affordance."""
-    prop: dict[str, Any] = {
-        "type": _wot_type(base, field),
-        "readOnly": True,
-        "observable": True,
-        "forms": [form],
-    }
-    if "unit" in field:
-        prop["unit"] = field["unit"]
-    _apply_valid_range(prop, field)
+def _build_event(field: dict[str, Any], base: str, form: dict[str, Any]) -> dict[str, Any]:
+    """Wrap a form in a WoT event affordance describing one uplinked value.
+
+    The value is an *event* rather than a property because a LoRaWAN device
+    transmits on its own schedule and cannot be polled, so there is nothing to
+    read on demand and no ``readproperty`` to offer.
+    """
+    return _event(_data_schema(_wot_type(base, field), field), form, field)
+
+
+def _event(data: dict[str, Any], form: dict[str, Any], field: dict[str, Any]) -> dict[str, Any]:
+    """Assemble an event affordance from its data schema and one form."""
+    event: dict[str, Any] = {vocab.DATA: data, vocab.FORMS: [form]}
     if isinstance(field.get("description"), str):
-        prop["description"] = field["description"]
-    return prop
+        event["description"] = field["description"]
+    return event
 
 
-def _apply_valid_range(prop: dict[str, Any], field: dict[str, Any]) -> None:
-    """Reflect a ``valid_range`` ``[min, max]`` as WoT ``minimum``/``maximum``."""
+def _data_schema(wot_type: str, field: dict[str, Any]) -> dict[str, Any]:
+    """Describe the decoded value using TD core's data-schema terms.
+
+    Everything TD core can already say is said here rather than in a ``lorav:``
+    term of our own: ``unit`` for the unit, ``minimum``/``maximum`` for the
+    plausibility range, and ``oneOf`` entries of ``const`` plus ``title`` for a
+    categorical lookup table.
+    """
+    data: dict[str, Any] = {"type": wot_type}
+    if "unit" in field:
+        data["unit"] = field["unit"]
     rng = field.get("valid_range")
     if isinstance(rng, (list, tuple)) and len(rng) == 2:
-        prop["minimum"], prop["maximum"] = rng[0], rng[1]
+        data["minimum"], data["maximum"] = rng[0], rng[1]
+    if (enum := _enum(field)) is not None:
+        data["oneOf"] = [{"const": value, "title": label} for value, label in enum.items()]
+    return data
 
 
 def _wot_type(base: str, field: dict[str, Any]) -> str:
@@ -873,9 +862,9 @@ def _parse_tag(key: Any) -> list[int]:
 
 
 def _assemble_td(
-    schema: dict[str, Any], source: str, layout: str, properties: dict[str, Any]
+    schema: dict[str, Any], source: str, layout: str, events: dict[str, Any]
 ) -> dict[str, Any]:
-    """Build the Thing Description skeleton around the decoded properties."""
+    """Build the Thing Description skeleton around the decoded events."""
     name = schema.get("name") or _slug(source)
     title = name.replace("_", " ").strip() or name
     td: dict[str, Any] = {
@@ -889,24 +878,29 @@ def _assemble_td(
         "securityDefinitions": {"nosec_sc": {"scheme": "nosec"}},
         "security": "nosec_sc",
         vocab.PAYLOAD_LAYOUT: layout,
-        "properties": properties,
+        vocab.EVENTS: events,
     }
     if isinstance(schema.get("description"), str):
         td["description"] = schema["description"]
     return td
 
 
-def _endian_is_big(schema: dict[str, Any]) -> bool:
-    """Resolve the schema-wide endianness (LoRaWAN defaults to big-endian)."""
-    endian = schema.get("endian", "big")
-    if endian not in ("big", "little"):
+def _schema_endian(schema: dict[str, Any]) -> str:
+    """Resolve the schema-wide byte order (LoRaWAN defaults to big-endian)."""
+    endian = schema.get("endian", vocab.ENDIAN_BIG)
+    if endian not in vocab.SUPPORTED_ENDIAN:
         raise UnsupportedSchemaError(f"unknown endian {endian!r}", reason=SkipReason.MALFORMED)
-    return endian == "big"
+    return endian
 
 
-def _coalesce_msb(field_msb: bool | None, endian_big: bool) -> bool:
-    """A field inherits the schema endianness unless it overrides it explicitly."""
-    return endian_big if field_msb is None else field_msb
+def _form_endian(field_endian: str | None, default_endian: str) -> str:
+    """Resolve the byte order to record on a form.
+
+    ``lorav:endian`` is a form-level term, so each value states its own byte
+    order: either the ``be_``/``le_`` prefix on its wire type, or the schema-wide
+    default when the type carries no prefix.
+    """
+    return default_endian if field_endian is None else field_endian
 
 
 def _slug(raw: str) -> str:

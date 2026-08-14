@@ -10,6 +10,7 @@
 [![AsyncAPI Converter CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-async-api-converter.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-async-api-converter.yaml)
 [![OpenAPI Converter CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-open-api-converter.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-open-api-converter.yaml)
 [![JSON Spell Checker CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-json-spell-checker.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-json-spell-checker.yaml)
+[![LoRaWAN CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/python-ci-lorawan.yml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/python-ci-lorawan.yml)
 [![TD Utils CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-td-utils.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-td-utils.yaml)
 [![Thing Model CI Pipeline](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-thing-model.yaml/badge.svg)](https://github.com/eclipse-thingweb/td-tools/actions/workflows/ci-thing-model.yaml)
 
@@ -27,6 +28,7 @@ Tools in this repository:
 -   [AsyncAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/async-api-converter): Converting TDs to AsyncAPI documents when the TD uses MQTT binding
 -   [Code Generation Tool](https://github.com/eclipse-thingweb/td-tools/tree/main/node/code-gen): Generating code snippets for interacting with Thing Descriptions (TD) in multiple programming languages
 -   [JSON Spell Checker](https://github.com/eclipse-thingweb/td-tools/tree/main/node/json-spell-checker): Checking errors in JSON documents (e.g. TDs) when there is a JSON Schema available (e.g. TD JSON Schema). This is not limited to TDs only.
+-   [LoRaWAN Binding](https://github.com/eclipse-thingweb/td-tools/tree/main/python/lorawan): Describing a LoRaWAN payload binding inside a TD, converting it to a LoRa-Alliance payload schema, decoding uplinks and generating ChirpStack/TTN JavaScript codecs (Python)
 -   [OpenAPI Converter](https://github.com/eclipse-thingweb/td-tools/tree/main/node/open-api-converter): Converting TDs to OpenAPI documents when the TD uses HTTP binding
 -   [Thing Model Tooling](https://github.com/eclipse-thingweb/td-tools/tree/main/node/thing-model): Tooling to use Thing Models, such as resolving dependencies and imports.
 

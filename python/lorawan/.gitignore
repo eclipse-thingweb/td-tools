@@ -22,6 +22,13 @@ build/
 # Temporary local scratch scripts
 /_tmp_*.py
 
+# Curated examples are synced from upstream (not checked in).
+examples/*.td.json
+examples/*.vectors.json
+
 # Generated codec artifacts (reproducible via `lorawan-wot convert` / generators)
-examples/generated/
-examples/devices/
+# Folder skeletons are tracked via .gitkeep; only their contents are ignored.
+examples/generated/*
+!examples/generated/.gitkeep
+examples/devices/*
+!examples/devices/.gitkeep

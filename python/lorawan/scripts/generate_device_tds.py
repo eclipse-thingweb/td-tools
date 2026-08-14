@@ -15,6 +15,7 @@ from __future__ import annotations
 import collections
 import json
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -35,27 +36,45 @@ def _skip_bucket(exc: UnsupportedSchemaError) -> str:
     return exc.reason.value
 
 
-def generate() -> int:
-    """Generate all supported device TDs; return the number written."""
+def convert_catalog() -> tuple[dict[str, dict[str, Any]], dict[str, list[str]], int]:
+    """Convert every reference device schema without writing anything to disk.
+
+    Returns ``(tds, skipped, scanned)``: ``tds`` maps each device schema's
+    catalog-relative POSIX path to its Thing Description, ``skipped`` buckets the
+    unconvertible schemas by :class:`~lorawan_wot.schema_to_td.SkipReason` label,
+    and ``scanned`` counts the schema files examined.
+
+    Kept separate from :func:`generate` so callers that only need the conversion
+    result -- the golden-snapshot builder in ``tests/snapshot.py``, for instance --
+    share this walk instead of reimplementing it and drifting from it.
+    """
     schema_paths = sorted(DEVICES_DIR.rglob("*.yaml"))
-    generated: list[Path] = []
+    tds: dict[str, dict[str, Any]] = {}
     skipped: dict[str, list[str]] = collections.defaultdict(list)
 
     for schema_path in schema_paths:
-        rel = schema_path.relative_to(DEVICES_DIR)
+        rel = schema_path.relative_to(DEVICES_DIR).as_posix()
         schema = yaml.safe_load(schema_path.read_text(encoding="utf-8"))
         try:
-            td = payload_schema_to_td(schema, source=schema_path.name)
+            tds[rel] = payload_schema_to_td(schema, source=schema_path.name)
         except UnsupportedSchemaError as exc:
-            skipped[_skip_bucket(exc)].append(str(rel).replace("\\", "/"))
-            continue
+            skipped[_skip_bucket(exc)].append(rel)
 
-        out_path = OUTPUT_DIR / rel.with_suffix(".td.json")
+    return tds, skipped, len(schema_paths)
+
+
+def generate() -> int:
+    """Generate all supported device TDs; return the number written."""
+    tds, skipped, scanned = convert_catalog()
+    generated: list[Path] = []
+
+    for rel, td in tds.items():
+        out_path = OUTPUT_DIR / Path(rel).with_suffix(".td.json")
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(td, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         generated.append(out_path)
 
-    _report(len(schema_paths), generated, skipped)
+    _report(scanned, generated, skipped)
     return len(generated)
 
 

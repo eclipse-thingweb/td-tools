@@ -13,7 +13,7 @@ _FORM_SCHEMA = load_json(VOCAB_DIR / "lorawan-form.schema.json")
 _THING_SCHEMA = load_json(VOCAB_DIR / "lorawan-thing.schema.json")
 
 _LORAWAN_TERMS = {
-    vocab.TYPE,
+    vocab.WIRE_TYPE,
     vocab.FPORT,
     vocab.BYTE_OFFSET,
     vocab.TAG,
@@ -24,10 +24,10 @@ def _lorawan_forms():
     """Yield every LoRaWAN-bearing form across all example Thing Descriptions."""
     for td_path in EXAMPLES_DIR.glob("*.td.json"):
         td = load_json(td_path)
-        for prop_name, affordance in td.get("properties", {}).items():
-            for form in affordance.get("forms", []):
+        for event_name, affordance in td.get(vocab.EVENTS, {}).items():
+            for form in affordance.get(vocab.FORMS, []):
                 if _LORAWAN_TERMS & form.keys():
-                    yield pytest.param(form, id=f"{td_path.stem}-{prop_name}")
+                    yield pytest.param(form, id=f"{td_path.stem}-{event_name}")
 
 
 @pytest.mark.parametrize("form", list(_lorawan_forms()))

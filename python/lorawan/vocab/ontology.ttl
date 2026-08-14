@@ -12,143 +12,108 @@
 # A converter maps each term onto the MultiTech / LoRa Alliance Payload Schema
 # language so a reference codec can be generated and executed.
 #
+# Uplinked values are modelled as WoT *events*, not properties: a LoRaWAN device
+# transmits on its own schedule and cannot be polled, so there is no value to
+# read on demand. Accordingly the form-level terms below sit on an event's form,
+# and what the decoded value *means* (its unit, range and enumeration) is left to
+# TD core's data-schema terms on the event's `data`.
+#
 
 lorav: a owl:Ontology ;
     rdfs:label "LoRaWAN Binding Vocabulary" ;
-    rdfs:comment "Vocabulary for describing LoRaWAN payload bindings in WoT Thing Descriptions." .
+    rdfs:comment "Vocabulary for describing LoRaWAN payload bindings in WoT Thing Descriptions." ;
+    owl:versionInfo "0.3.0" .
 
 # --- Thing-level terms -------------------------------------------------------
 
 lorav:payloadLayout a owl:DatatypeProperty ;
     rdfs:label "payload layout" ;
-    rdfs:comment "Overall structure of the device payload: 'fixed', 'ports', 'tlv' or 'ctv'." ;
+    rdfs:comment "Overall structure of the device payload: 'fixed', 'ports', 'tlv' or 'ctv'. Usage: core, required on every Thing." ;
     rdfs:range xsd:string .
 
 lorav:tagFields a owl:DatatypeProperty ;
     rdfs:label "tag fields" ;
-    rdfs:comment "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value." .
+    rdfs:comment "For 'tlv'/'ctv' layouts, the leading tag field(s) (e.g. channel + type) that select a value. Usage: core for tlv/ctv devices (e.g. Milesight, Elsys)." .
 
 # --- Form-level terms --------------------------------------------------------
 
+lorav:endian a owl:DatatypeProperty ;
+    rdfs:label "byte order" ;
+    rdfs:comment "Byte order of this multi-byte value: 'big' (default) or 'little'. This describes byte order only; the binding has no byte-swap or word-swap mode. Usage: core; big-endian dominates, little-endian is used by Milesight, Digital Matter and Radionode." ;
+    rdfs:range xsd:string .
+
 lorav:fPort a owl:DatatypeProperty ;
     rdfs:label "frame port" ;
-    rdfs:comment "LoRaWAN FPort used to route or branch the payload." ;
+    rdfs:comment "LoRaWAN FPort used to route or branch the payload. Usage: core for 'ports' layouts." ;
     rdfs:range xsd:integer .
 
-lorav:type a owl:DatatypeProperty ;
-    rdfs:label "payload data type" ;
-    rdfs:comment "Wire data type of the value, named with an xsd:* alias or a native type (e.g. s16, u8)." .
-
-lorav:mostSignificantByte a owl:DatatypeProperty ;
-    rdfs:label "most significant byte first" ;
-    rdfs:comment "True for big-endian byte order, false for little-endian." ;
-    rdfs:range xsd:boolean .
+lorav:wireType a owl:DatatypeProperty ;
+    rdfs:label "wire data type" ;
+    rdfs:comment "Data type of the value *on the wire*, named with an xsd:* alias or a native type (e.g. s16, u8). Distinct from the event data schema's 'type', which gives the type of the decoded value. Usage: core, required on every form." .
 
 lorav:multiplier a owl:DatatypeProperty ;
     rdfs:label "multiplier" ;
-    rdfs:comment "Factor multiplied with the raw value to obtain the engineering value." ;
+    rdfs:comment "Factor multiplied with the raw value to obtain the engineering value. Mutually exclusive with lorav:divisor. Usage: common (e.g. Decentlab, Digital Matter, MClimate)." ;
     rdfs:range xsd:double .
 
 lorav:divisor a owl:DatatypeProperty ;
     rdfs:label "divisor" ;
-    rdfs:comment "Factor the raw value is divided by to obtain the engineering value." ;
+    rdfs:comment "Factor the raw value is divided by to obtain the engineering value. Preferred over lorav:multiplier for decimal scaling, since a divisor such as 100 is exactly representable in binary floating point while the equivalent multiplier 0.01 is not. Mutually exclusive with lorav:multiplier. Usage: core, the most common scaling term across vendors." ;
     rdfs:range xsd:double .
 
-lorav:offset a owl:DatatypeProperty ;
-    rdfs:label "offset" ;
-    rdfs:comment "Constant added to the value after scaling." ;
+lorav:addend a owl:DatatypeProperty ;
+    rdfs:label "addend" ;
+    rdfs:comment "Constant added to the value after scaling. Named 'addend' rather than 'offset' to avoid confusion with lorav:byteOffset, which is a payload position rather than an arithmetic term. Usage: common (Decentlab, MClimate, RadioBridge)." ;
     rdfs:range xsd:double .
 
 lorav:bitmask a owl:DatatypeProperty ;
     rdfs:label "bitmask" ;
-    rdfs:comment "Hexadecimal mask selecting a contiguous range of bits from the raw value." ;
+    rdfs:comment "Hexadecimal mask selecting a contiguous range of bits from the raw value. Usage: common, for status/flag bytes (Dragino, Digital Matter, MClimate, RadioBridge, RAKwireless)." ;
     rdfs:range xsd:string .
 
 lorav:byteOffset a owl:DatatypeProperty ;
     rdfs:label "byte offset" ;
-    rdfs:comment "Zero-based byte position of the value within a fixed payload layout." ;
+    rdfs:comment "Zero-based byte position of the value within a fixed payload layout. Usage: core for 'fixed' and 'ports' layouts." ;
     rdfs:range xsd:integer .
 
-lorav:length a owl:DatatypeProperty ;
-    rdfs:label "length" ;
-    rdfs:comment "Byte length for variable-length types (string, bytes, hex, base64)." ;
+lorav:byteLength a owl:DatatypeProperty ;
+    rdfs:label "byte length" ;
+    rdfs:comment "Byte length for variable-length wire types (string, bytes, hex, base64). Named 'byteLength' to state the unit of the count. Usage: rare (RadioBridge)." ;
     rdfs:range xsd:integer .
 
 lorav:tag a owl:DatatypeProperty ;
     rdfs:label "tag" ;
-    rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value." .
-
-lorav:unece a owl:DatatypeProperty ;
-    rdfs:label "UN/CEFACT unit code" ;
-    rdfs:comment "UN/CEFACT Recommendation 20 unit code for the value." ;
-    rdfs:range xsd:string .
-
-lorav:enum a owl:DatatypeProperty ;
-    rdfs:label "enumeration" ;
-    rdfs:comment "Mapping from raw integer values to labels." .
+    rdfs:comment "For 'tlv'/'ctv' layouts, the tag value(s) (e.g. [channel, type]) selecting this value. Usage: core for tlv/ctv devices (Milesight, Elsys)." .
 
 # --- Grouping / conditional-presence terms -----------------------------------
 
 lorav:slot a owl:DatatypeProperty ;
     rdfs:label "group slot" ;
-    rdfs:comment "Zero-based order of this property within its group (multi-field TLV case, flagged group or match case)." ;
+    rdfs:comment "Zero-based order of this event within its group (multi-field TLV case, flagged group or match case). Usage: core wherever a group holds more than one value." ;
     rdfs:range xsd:integer .
-
-lorav:presenceField a owl:DatatypeProperty ;
-    rdfs:label "presence field" ;
-    rdfs:comment "Name of the flags property whose bit gates whether this property is present in the payload." ;
-    rdfs:range xsd:string .
-
-lorav:presenceBit a owl:DatatypeProperty ;
-    rdfs:label "presence bit" ;
-    rdfs:comment "Index of the bit in the presence field that must be set for this property to appear." ;
-    rdfs:range xsd:integer .
-
-lorav:switchField a owl:DatatypeProperty ;
-    rdfs:label "switch field" ;
-    rdfs:comment "Name of the discriminator property whose value selects the match case this property belongs to." ;
-    rdfs:range xsd:string .
-
-lorav:switchValue a owl:DatatypeProperty ;
-    rdfs:label "switch value" ;
-    rdfs:comment "Value of the discriminator property that selects this property's match case." ;
-    rdfs:range xsd:integer .
-
-lorav:var a owl:DatatypeProperty ;
-    rdfs:label "discriminator alias" ;
-    rdfs:comment "Alias under which a match block references this property (as $var) when the discriminator name differs from the property name." ;
-    rdfs:range xsd:string .
 
 lorav:padBefore a owl:DatatypeProperty ;
     rdfs:label "padding before" ;
-    rdfs:comment "Number of reserved bytes consumed before this property within its group (e.g. a skip inside a match case)." ;
+    rdfs:comment "Number of reserved bytes consumed before this event's value within its group (e.g. a skip inside a match case). Usage: rare (RadioBridge)." ;
     rdfs:range xsd:integer .
+
+lorav:presentWhen a owl:DatatypeProperty ;
+    rdfs:label "presence condition" ;
+    rdfs:comment "Condition gating whether this value appears in the payload at all, as an object {field, bit | value}: 'field' names the value that decides, 'bit' selects a flag bit of it, and 'value' selects a match case of it. At most one of 'bit' or 'value' applies, which is why these are one object rather than four independent terms whose valid combinations could not be stated. Usage: common (Decentlab for flag bits, Dragino/RadioBridge/Radionode for match cases)." .
+
+lorav:alias a owl:DatatypeProperty ;
+    rdfs:label "reference alias" ;
+    rdfs:comment "Name under which other blocks reference this value as $alias, needed when a match block's name for its discriminator differs from the event name. Kept separate from lorav:presentWhen because it describes a value that other values are gated by, rather than a value that is itself gated. Usage: rare (RadioBridge, Radionode)." ;
+    rdfs:range xsd:string .
 
 # --- Computed / derived-value terms ------------------------------------------
 #
-# A computed property (lorav:type 'number') carries no payload bytes; the
-# reference interpreter derives its value from other decoded fields.
+# A derived value (lorav:wireType 'number') carries no payload bytes; the
+# reference interpreter computes it from other already-decoded values.
 
-lorav:ref a owl:DatatypeProperty ;
-    rdfs:label "input reference" ;
-    rdfs:comment "Name ($field) of the decoded value this computed property derives from." ;
-    rdfs:range xsd:string .
-
-lorav:polynomial a owl:DatatypeProperty ;
-    rdfs:label "polynomial" ;
-    rdfs:comment "Coefficient list [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input value." .
-
-lorav:transform a owl:DatatypeProperty ;
-    rdfs:label "transform" ;
-    rdfs:comment "Ordered post-processing operations (add/div/mult) applied to a derived value." .
-
-lorav:compute a owl:DatatypeProperty ;
-    rdfs:label "compute" ;
-    rdfs:comment "Binary operation {op, a, b} combining two values into a derived value." .
-
-lorav:guard a owl:DatatypeProperty ;
-    rdfs:label "guard" ;
-    rdfs:comment "Conditional gate {when, else} selecting a derived value based on a predicate." .
+lorav:derived a owl:DatatypeProperty ;
+    rdfs:label "derived value" ;
+    rdfs:comment "Describes a value computed from other decoded values rather than read off the wire, as an object with any of: 'ref' (a $name reference to the input value), 'polynomial' (coefficients [c0, c1, ...] evaluated as c0 + c1*x + c2*x^2 + ... over the input), 'compute' ({op, a, b}, a binary operation combining two values), 'guard' ({when, else}, a predicate selecting between values) and 'transform' (ordered add/div/mult post-processing). Grouped into one object because these keys are meaningful only together and only for a derived value. Usage: rare (MClimate, Decentlab, Digital Matter)." .
 
 # --- Thing-level OTAA activation / identity terms ----------------------------
 #
@@ -174,26 +139,10 @@ lorav:macVersion a owl:DatatypeProperty ;
     rdfs:range xsd:string .
 
 # --- Thing-level onboarding / device-repository metadata ---------------------
-
-lorav:brand a owl:DatatypeProperty ;
-    rdfs:label "end-device brand" ;
-    rdfs:comment "Brand or vendor of the end device." ;
-    rdfs:range xsd:string .
-
-lorav:model a owl:DatatypeProperty ;
-    rdfs:label "end-device model" ;
-    rdfs:comment "Model name of the end device." ;
-    rdfs:range xsd:string .
-
-lorav:hardwareVersion a owl:DatatypeProperty ;
-    rdfs:label "hardware version" ;
-    rdfs:comment "Hardware revision of the end device." ;
-    rdfs:range xsd:string .
-
-lorav:softwareVersion a owl:DatatypeProperty ;
-    rdfs:label "software version" ;
-    rdfs:comment "Firmware/software version running on the end device." ;
-    rdfs:range xsd:string .
+#
+# Vendor and model are schema.org's job (schema:brand, schema:model) and the
+# firmware/hardware revision is TD core's 'version' object, so only the two terms
+# that are genuinely LoRaWAN-specific are defined here.
 
 lorav:region a owl:DatatypeProperty ;
     rdfs:label "region" ;
@@ -205,7 +154,115 @@ lorav:frequencyPlan a owl:DatatypeProperty ;
     rdfs:comment "LoRaWAN Network Server frequency plan identifier, e.g. 'EU_863_870_TTN'." ;
     rdfs:range xsd:string .
 
+# --- Withdrawn terms ---------------------------------------------------------
+#
+# A published vocabulary is a contract: deleting an IRI outright would leave
+# already-published Thing Descriptions pointing at something undefined. These
+# terms are therefore retained and marked owl:deprecated, each naming what
+# replaced it. The converter rejects them by name with the same migration hint,
+# so an old Thing Description fails loudly instead of decoding the wrong bytes.
+
+lorav:type a owl:DatatypeProperty ;
+    rdfs:label "payload data type (withdrawn)" ;
+    rdfs:comment "Renamed to lorav:wireType, to separate the wire type from the decoded value's data-schema 'type'." ;
+    owl:deprecated true .
+
+lorav:offset a owl:DatatypeProperty ;
+    rdfs:label "offset (withdrawn)" ;
+    rdfs:comment "Renamed to lorav:addend, to separate the scaling constant from the payload position lorav:byteOffset." ;
+    owl:deprecated true .
+
+lorav:length a owl:DatatypeProperty ;
+    rdfs:label "length (withdrawn)" ;
+    rdfs:comment "Renamed to lorav:byteLength, to state the unit of the count." ;
+    owl:deprecated true .
+
+lorav:presenceField a owl:DatatypeProperty ;
+    rdfs:label "presence field (withdrawn)" ;
+    rdfs:comment "Replaced by the 'field' key of lorav:presentWhen." ;
+    owl:deprecated true .
+
+lorav:presenceBit a owl:DatatypeProperty ;
+    rdfs:label "presence bit (withdrawn)" ;
+    rdfs:comment "Replaced by the 'bit' key of lorav:presentWhen." ;
+    owl:deprecated true .
+
+lorav:switchField a owl:DatatypeProperty ;
+    rdfs:label "switch field (withdrawn)" ;
+    rdfs:comment "Replaced by the 'field' key of lorav:presentWhen." ;
+    owl:deprecated true .
+
+lorav:switchValue a owl:DatatypeProperty ;
+    rdfs:label "switch value (withdrawn)" ;
+    rdfs:comment "Replaced by the 'value' key of lorav:presentWhen." ;
+    owl:deprecated true .
+
+lorav:var a owl:DatatypeProperty ;
+    rdfs:label "discriminator alias (withdrawn)" ;
+    rdfs:comment "Renamed to lorav:alias." ;
+    owl:deprecated true .
+
+lorav:ref a owl:DatatypeProperty ;
+    rdfs:label "input reference (withdrawn)" ;
+    rdfs:comment "Replaced by the 'ref' key of lorav:derived." ;
+    owl:deprecated true .
+
+lorav:polynomial a owl:DatatypeProperty ;
+    rdfs:label "polynomial (withdrawn)" ;
+    rdfs:comment "Replaced by the 'polynomial' key of lorav:derived." ;
+    owl:deprecated true .
+
+lorav:transform a owl:DatatypeProperty ;
+    rdfs:label "transform (withdrawn)" ;
+    rdfs:comment "Replaced by the 'transform' key of lorav:derived." ;
+    owl:deprecated true .
+
+lorav:compute a owl:DatatypeProperty ;
+    rdfs:label "compute (withdrawn)" ;
+    rdfs:comment "Replaced by the 'compute' key of lorav:derived." ;
+    owl:deprecated true .
+
+lorav:guard a owl:DatatypeProperty ;
+    rdfs:label "guard (withdrawn)" ;
+    rdfs:comment "Replaced by the 'guard' key of lorav:derived." ;
+    owl:deprecated true .
+
+lorav:validRange a owl:DatatypeProperty ;
+    rdfs:label "valid range (withdrawn)" ;
+    rdfs:comment "Replaced by TD core's 'minimum' and 'maximum' on the event's data schema." ;
+    owl:deprecated true .
+
+lorav:enum a owl:DatatypeProperty ;
+    rdfs:label "enumeration (withdrawn)" ;
+    rdfs:comment "Replaced by TD core's 'oneOf' entries of 'const' plus 'title' on the event's data schema." ;
+    owl:deprecated true .
+
+lorav:unece a owl:DatatypeProperty ;
+    rdfs:label "UN/CEFACT unit code (withdrawn)" ;
+    rdfs:comment "Replaced by TD core's 'unit' on the event's data schema; no device in the reference catalog ever carried this term." ;
+    owl:deprecated true .
+
+lorav:brand a owl:DatatypeProperty ;
+    rdfs:label "end-device brand (withdrawn)" ;
+    rdfs:comment "Replaced by schema:brand, which consumers already understand." ;
+    owl:deprecated true .
+
+lorav:model a owl:DatatypeProperty ;
+    rdfs:label "end-device model (withdrawn)" ;
+    rdfs:comment "Replaced by schema:model, which consumers already understand." ;
+    owl:deprecated true .
+
+lorav:hardwareVersion a owl:DatatypeProperty ;
+    rdfs:label "hardware version (withdrawn)" ;
+    rdfs:comment "Replaced by the 'hardware' entry of TD core's 'version' object." ;
+    owl:deprecated true .
+
+lorav:softwareVersion a owl:DatatypeProperty ;
+    rdfs:label "software version (withdrawn)" ;
+    rdfs:comment "Replaced by the 'software' entry of TD core's 'version' object." ;
+    owl:deprecated true .
+
 lorav:endDeviceId a owl:DatatypeProperty ;
-    rdfs:label "end-device ID" ;
-    rdfs:comment "Human-readable end-device identifier used when registering with the Network Server." ;
-    rdfs:range xsd:string .
+    rdfs:label "end-device ID (withdrawn)" ;
+    rdfs:comment "Replaced by TD core's 'id' and 'title'." ;
+    owl:deprecated true .

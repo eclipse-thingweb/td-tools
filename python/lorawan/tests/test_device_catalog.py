@@ -23,6 +23,7 @@ import jsonschema
 import pytest
 import yaml
 
+from lorawan_wot import vocab
 from lorawan_wot.converter import _WIRE_WIDTH, td_to_payload_schema
 from lorawan_wot.decode import decode_with_schema
 
@@ -214,8 +215,8 @@ def test_generated_td_round_trips(td_path, source_path):
 def test_generated_td_forms_validate(td_path, source_path):
     """Every LoRaWAN form in the generated TD matches the form JSON Schema."""
     td = load_json(td_path)
-    for affordance in td["properties"].values():
-        for form in affordance["forms"]:
+    for affordance in td[vocab.EVENTS].values():
+        for form in affordance[vocab.FORMS]:
             jsonschema.validate(instance=form, schema=_FORM_SCHEMA)
 
 
