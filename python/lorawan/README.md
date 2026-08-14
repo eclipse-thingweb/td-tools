@@ -7,7 +7,7 @@ validated against ChirpStack; it should also work in The Things Network (TTN).
 The TD carries the payload binding *inside its event forms* (using
 terms prefixed with `lorav:`). A converter translates that TD into the
 [LoRa Alliance Payload Schema / MultiTech](https://github.com/MultiTechSystems/device-payload-schema)
-language, and the reference interpreter (e.g. ChirpStack) does the actual byte decoding.
+language, where the reference interpreter converts it into decoding functions. These functions can then be used in the LoRaWAN network server (e.g. ChirpStack / TTN) for actual byte decoding.
 
 ```
 Thing Description (.td.json)
@@ -17,6 +17,9 @@ Thing Description (.td.json)
         │   MultiTech payload schema (YAML/dict)
         ▼
   Referenced SchemaInterpreter   ← pinned git submodule
+        │
+        ▼
+  Decoder functions   ← LoRaWAN network server (ChirpStack / TTN)
         │
         ▼
   Decoded values  { "temperature": 28.3, ... }
@@ -126,18 +129,7 @@ with open(source_path, encoding="utf-8") as fp:
     generated_td = payload_schema_to_td(yaml.safe_load(fp), source="ath20.yaml")
 ```
 
-### Generate a Thing Description from a payload schema
-
-The reverse of `convert`: turn an existing LoRa Alliance / MultiTech payload
-schema into a starter Thing Description.
-
-```bash
-uv run lorawan-wot generate external/device-payload-schema/schemas/devices/makerfabs/ath20.yaml -o examples/devices/makerfabs/ath20.td.json
-```
-
-This is how the bundled [device catalog](#device-catalog) is produced.
-
-## Generate a ChirpStack / TTN JavaScript codec
+### Generate a ChirpStack / TTN JavaScript codec
 
 `lorawan-wot decode` uses the Python reference interpreter. To run a codec inside
 a network server instead, feed the converted schema to one of the two generator
@@ -165,6 +157,17 @@ functions** (or the equivalent TTN payload formatter). The generated JavaScript
 can differ from `lorawan-wot decode` in unsupported edge cases; see
 [Known limitations](#known-limitations).
 
+### Generate a Thing Description from a payload schema
+
+The reverse of `convert`: turn an existing LoRa Alliance / MultiTech payload
+schema into a starter Thing Description.
+
+```bash
+uv run lorawan-wot generate external/device-payload-schema/schemas/devices/makerfabs/ath20.yaml -o examples/devices/makerfabs/ath20.td.json
+```
+
+This is how the bundled [device catalog](#device-catalog) is produced.
+
 ## How to describe a device in a TD
 
 Add the binding namespace to `@context`, set a Thing-level layout, and put a
@@ -176,6 +179,24 @@ field descriptor on each event's form.
     "https://www.w3.org/2022/wot/td/v1.1",
     { "lorav": "https://www.w3.org/2024/wot/lorawan#" }
   ],
+  "@type": "Thing",
+  "id": "urn:dev:example:env-sensor",
+  "title": "Environmental Sensor",
+  "description": "Environmental Sensor with temperature, humidity, and battery packed at fixed byte positions.",
+  "securityDefinitions": {
+    "otaa_sc": {
+      "scheme": "apikey",
+      "in": "uri",
+      "name": "appKey",
+      "description": "LoRaWAN OTAA AppKey. Injected at runtime."
+    }
+  },
+  "security": "otaa_sc",
+  "lorav:devEUI": "0000000000000001",
+  "lorav:joinEUI": "0000000000000000",
+  "lorav:macVersion": "1.0.3",
+  "lorav:region": "EU868",
+  "lorav:frequencyPlan": "EU_863_870",
   "lorav:payloadLayout": "fixed",          // fixed | ports | tlv | ctv
   "events": {
     "temperature": {
@@ -201,6 +222,25 @@ field descriptor on each event's form.
 Here, `data` says what the value *means*, the `form` says how
 it is *transferred*. 
 
+
+### Thing-level vocabulary
+
+| Term | Meaning | Secret? |
+|------|---------|---------|
+| `lorav:devEUI` | 8-byte device identifier (16 hex chars) | no |
+| `lorav:joinEUI` | 8-byte join/app identifier (formerly AppEUI) | no |
+| `lorav:macVersion` | LoRaWAN MAC version, e.g. `1.0.3`, `1.1.0` | no |
+| `lorav:region` | Regulatory region / profile (e.g. `EU868`) | no |
+| `lorav:frequencyPlan` | LNS frequency plan id (e.g. `EU_863_870_TTN`) | no |
+| `lorav:payloadLayout` | Payload structure: `fixed`, `ports`, `tlv` or `ctv` | no |
+| `lorav:tagFields` | Tag field definitions for `tlv`/`ctv` layouts | no |
+| `AppKey` | OTAA root key — `apikey` scheme `name: "appKey"` | **yes (runtime)** |
+| `NwkKey` | OTAA network root key (1.1.x) — `apikey` scheme `name: "nwkKey"` | **yes (runtime)** |
+
+Device metadata that is not LoRaWAN-specific uses established vocabularies, such as `schema:brand` and `schema:model` from [schema.org](https://schema.org),
+the Thing's `version` (`model` for hardware, `instance` for firmware), and the
+Thing's `id`/`title` to identify the end device.
+
 ### Payload layouts
 
 | `lorav:payloadLayout` | When to use | Required per-event terms |
@@ -211,7 +251,6 @@ it is *transferred*.
 
 For `tlv`/`ctv` you may declare the tag fields at Thing level with
 `lorav:tagFields` (defaults to `channel` + `type`, both `u8`).
-
 
 ### Form-level vocabulary (`lorav:` terms)
 
@@ -260,7 +299,7 @@ Supported `lorav:wireType` values: the sized XSD types (`xsd:byte`, `xsd:short`,
 | brand / model | `"schema:brand"`, `"schema:model"` on the Thing |
 | hardware / firmware version | the Thing's `"version": { "model": …, "instance": … }` |
 
-### Grouped and conditional values
+#### Grouped and conditional values
 
 One event always describes one value. Payloads that pack values together or
 branch between them are expressed by giving several events the same locator:
@@ -323,24 +362,6 @@ Version 1.1.x uses two root keys, so declare two `apikey` schemes and require bo
   "lorav:joinEUI": "0000000000000001"
 }
 ```
-
-### Thing-level vocabulary
-
-| Term | Meaning | Secret? |
-|------|---------|---------|
-| `lorav:devEUI` | 8-byte device identifier (16 hex chars) | no |
-| `lorav:joinEUI` | 8-byte join/app identifier (formerly AppEUI) | no |
-| `lorav:macVersion` | LoRaWAN MAC version, e.g. `1.0.3`, `1.1.0` | no |
-| `lorav:region` | Regulatory region / profile (e.g. `EU868`) | no |
-| `lorav:frequencyPlan` | LNS frequency plan id (e.g. `EU_863_870_TTN`) | no |
-| `lorav:payloadLayout` | Payload structure: `fixed`, `ports`, `tlv` or `ctv` | no |
-| `lorav:tagFields` | Tag field definitions for `tlv`/`ctv` layouts | no |
-| `AppKey` | OTAA root key — `apikey` scheme `name: "appKey"` | **yes (runtime)** |
-| `NwkKey` | OTAA network root key (1.1.x) — `apikey` scheme `name: "nwkKey"` | **yes (runtime)** |
-
-Device metadata that is not LoRaWAN-specific uses established vocabularies, such as `schema:brand` and `schema:model` from [schema.org](https://schema.org),
-the Thing's `version` (`model` for hardware, `instance` for firmware), and the
-Thing's `id`/`title` to identify the end device.
 
 
 
