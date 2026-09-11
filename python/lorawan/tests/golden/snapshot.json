@@ -19,12 +19,20 @@
           "name": "temperature",
           "type": "s16",
           "div": 10,
-          "unit": "Cel"
+          "unit": "Cel",
+          "valid_range": [
+            -20,
+            60
+          ]
         },
         {
           "name": "humidity",
           "type": "u8",
-          "unit": "%RH"
+          "unit": "%RH",
+          "valid_range": [
+            0,
+            85
+          ]
         }
       ]
     },
@@ -47,13 +55,21 @@
               "name": "temperature",
               "type": "s16",
               "mult": 0.01,
-              "unit": "Cel"
+              "unit": "Cel",
+              "valid_range": [
+                -40,
+                85
+              ]
             },
             {
               "name": "humidity",
               "type": "u16",
               "mult": 0.1,
-              "unit": "%RH"
+              "unit": "%RH",
+              "valid_range": [
+                0,
+                96
+              ]
             },
             {
               "name": "extensionCode",
@@ -94,7 +110,11 @@
           "name": "temperature",
           "type": "s16",
           "mult": 0.1,
-          "unit": "Cel"
+          "unit": "Cel",
+          "valid_range": [
+            -40,
+            85
+          ]
         }
       ]
     },
@@ -129,7 +149,11 @@
           "name": "sensorTemperature",
           "type": "u8",
           "div": 10,
-          "unit": "Cel"
+          "unit": "Cel",
+          "valid_range": [
+            0,
+            50
+          ]
         },
         {
           "name": "pressEvent",
@@ -173,7 +197,11 @@
                   "name": "temperature",
                   "type": "s16",
                   "div": 10,
-                  "unit": "Cel"
+                  "unit": "Cel",
+                  "valid_range": [
+                    -30,
+                    70
+                  ]
                 }
               ],
               "[4, 104]": [
@@ -181,7 +209,11 @@
                   "name": "humidity",
                   "type": "u8",
                   "div": 2,
-                  "unit": "%RH"
+                  "unit": "%RH",
+                  "valid_range": [
+                    0,
+                    100
+                  ]
                 }
               ]
             }
@@ -225,7 +257,11 @@
                   "name": "temperature",
                   "type": "s16",
                   "div": 10,
-                  "unit": "Cel"
+                  "unit": "Cel",
+                  "valid_range": [
+                    -30,
+                    70
+                  ]
                 }
               ],
               "[4, 104]": [
@@ -233,7 +269,11 @@
                   "name": "humidity",
                   "type": "u8",
                   "div": 2,
-                  "unit": "%RH"
+                  "unit": "%RH",
+                  "valid_range": [
+                    0,
+                    100
+                  ]
                 }
               ],
               "[5, 0]": [
@@ -294,13 +334,21 @@
                       "name": "temperature",
                       "type": "s16",
                       "div": 100,
-                      "unit": "Cel"
+                      "unit": "Cel",
+                      "valid_range": [
+                        -40,
+                        55
+                      ]
                     },
                     {
                       "name": "humidity",
                       "type": "u16",
                       "div": 100,
-                      "unit": "%RH"
+                      "unit": "%RH",
+                      "valid_range": [
+                        0,
+                        100
+                      ]
                     }
                   ]
                 }
@@ -316,13 +364,21 @@
       "frameCode": 76,
       "statusByte": 150,
       "temperature": 19.7,
-      "humidity": 31
+      "humidity": 31,
+      "_quality": {
+        "temperature": "good",
+        "humidity": "good"
+      }
     },
     "adeunis-comfort2-frame_0x4c_single_sample_no_timestamp": {
       "frameCode": 76,
       "statusByte": 146,
       "temperature": 19.7,
-      "humidity": 31
+      "humidity": 31,
+      "_quality": {
+        "temperature": "good",
+        "humidity": "good"
+      }
     },
     "dragino-lht65n-port2_ext1_basic_branch": {
       "batteryVoltage": 2.8850000000000002,
@@ -330,7 +386,11 @@
       "humidity": 73.3,
       "extensionCode": 1,
       "pollMessageStatus": 0,
-      "retransmissionStatus": 0
+      "retransmissionStatus": 0,
+      "_quality": {
+        "temperature": "good",
+        "humidity": "good"
+      }
     },
     "dragino-lht65n-port2_ext9_ds_branch": {
       "batteryVoltage": 2,
@@ -338,7 +398,11 @@
       "humidity": 73.3,
       "extensionCode": 9,
       "pollMessageStatus": 0,
-      "retransmissionStatus": 0
+      "retransmissionStatus": 0,
+      "_quality": {
+        "temperature": "good",
+        "humidity": "good"
+      }
     },
     "dragino-lht65n-port2_ext15_no_sht": {
       "batteryVoltage": 2.8850000000000002,
@@ -346,20 +410,26 @@
       "humidity": 73.3,
       "extensionCode": 15,
       "pollMessageStatus": 0,
-      "retransmissionStatus": 0
+      "retransmissionStatus": 0,
+      "_quality": {
+        "temperature": "good",
+        "humidity": "good"
+      }
     },
     "generic-lorawan11-nominal_reading": {
       "battery": 85,
       "temperature": 23.5,
       "_quality": {
-        "battery": "good"
+        "battery": "good",
+        "temperature": "good"
       }
     },
     "generic-lorawan11-negative_temperature": {
       "battery": 20,
       "temperature": -5,
       "_quality": {
-        "battery": "good"
+        "battery": "good",
+        "temperature": "good"
       }
     },
     "mclimate-mc-button-single_press_connected": {
@@ -367,28 +437,40 @@
       "batteryVoltage": 2.4000000000000004,
       "thermistorProperlyConnected": true,
       "sensorTemperature": 24.8,
-      "pressEvent": 1
+      "pressEvent": 1,
+      "_quality": {
+        "sensorTemperature": "good"
+      }
     },
     "mclimate-mc-button-double_press_disconnected": {
       "frameType": 1,
       "batteryVoltage": 2.6,
       "thermistorProperlyConnected": false,
       "sensorTemperature": 24.4,
-      "pressEvent": 2
+      "pressEvent": 2,
+      "_quality": {
+        "sensorTemperature": "good"
+      }
     },
     "mclimate-mc-button-triple_press_zero_temp": {
       "frameType": 1,
       "batteryVoltage": 2,
       "thermistorProperlyConnected": true,
       "sensorTemperature": 0,
-      "pressEvent": 3
+      "pressEvent": 3,
+      "_quality": {
+        "sensorTemperature": "good"
+      }
     },
     "mclimate-mc-button-triple_press_temp": {
       "frameType": 1,
       "batteryVoltage": 2.968,
       "thermistorProperlyConnected": true,
       "sensorTemperature": 15.5,
-      "pressEvent": 3
+      "pressEvent": 3,
+      "_quality": {
+        "sensorTemperature": "good"
+      }
     },
     "milesight-em300-th-temperature_humidity": {
       "temperature": 24.8,

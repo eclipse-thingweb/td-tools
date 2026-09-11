@@ -48,6 +48,7 @@
   "lorav:frequencyPlan": "EU_863_870",
   "lorav:payloadLayout": "fixed",
   "lorav:defaultEventingFrequencyMinutes": 10,
+  "brick:hasLocation": { "@id": "urn:example:location:TTC_fair" },
   "brick:hasPoint": [
     { "@id": "urn:dev:example:generic-lorawan11#temperature" }
   ],
@@ -82,7 +83,9 @@
         "type": "number",
         "unit": "Cel",
         "qudt:unit": "qunit:DEG_C",
-        "qudt:hasQuantityKind": "quantitykind:Temperature"
+        "qudt:hasQuantityKind": "quantitykind:Temperature",
+        "minimum": -40,
+        "maximum": 85
       },
       "forms": [
         {

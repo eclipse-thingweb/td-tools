@@ -26,6 +26,7 @@ def test_tlv_layout_builds_tag_cases(em300th_td):
         "type": "s16",
         "div": 10,
         "unit": "Cel",
+        "valid_range": [-30, 70],
     }
     assert tlv["cases"]["[1, 117]"][0]["name"] == "battery"
 

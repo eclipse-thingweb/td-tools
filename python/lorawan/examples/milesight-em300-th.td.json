@@ -49,6 +49,7 @@
     }
   ],
   "lorav:defaultEventingFrequencyMinutes": 10,
+  "brick:hasLocation": { "@id": "urn:example:location:TTC_fair" },
   "brick:hasPoint": [
     { "@id": "urn:dev:milesight:em300-th#temperature" },
     { "@id": "urn:dev:milesight:em300-th#humidity" }
@@ -84,7 +85,9 @@
         "type": "number",
         "unit": "Cel",
         "qudt:unit": "qunit:DEG_C",
-        "qudt:hasQuantityKind": "quantitykind:Temperature"
+        "qudt:hasQuantityKind": "quantitykind:Temperature",
+        "minimum": -30,
+        "maximum": 70
       },
       "forms": [
         {
@@ -111,7 +114,9 @@
         "type": "number",
         "unit": "%RH",
         "qudt:unit": "qunit:PERCENT_RH",
-        "qudt:hasQuantityKind": "quantitykind:RelativeHumidity"
+        "qudt:hasQuantityKind": "quantitykind:RelativeHumidity",
+        "minimum": 0,
+        "maximum": 100
       },
       "forms": [
         {

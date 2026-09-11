@@ -52,6 +52,9 @@ def test_decoded_values_satisfy_td_types():
     first = spec["vectors"][0]
     data = decode_uplink(td, first["payload"], fport=first.get("fport"))
     for name, value in data.items():
+        if name.startswith("_"):
+            # Decoder metadata (``_quality``, ``_warnings``) rather than an event.
+            continue
         declared = td[vocab.EVENTS][name][vocab.DATA]["type"]
         if declared == "integer":
             assert isinstance(value, int)

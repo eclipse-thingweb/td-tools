@@ -39,6 +39,7 @@
   "lorav:frequencyPlan": "EU_863_870",
   "lorav:payloadLayout": "fixed",
   "lorav:defaultEventingFrequencyMinutes": 10,
+  "brick:hasLocation": { "@id": "urn:example:location:TTC_fair" },
   "brick:hasPoint": [
     { "@id": "urn:dev:adeunis_comfort2#temperature" },
     { "@id": "urn:dev:adeunis_comfort2#humidity" }
@@ -84,7 +85,9 @@
         "type": "number",
         "unit": "Cel",
         "qudt:unit": "qunit:DEG_C",
-        "qudt:hasQuantityKind": "quantitykind:Temperature"
+        "qudt:hasQuantityKind": "quantitykind:Temperature",
+        "minimum": -20,
+        "maximum": 60
       },
       "forms": [
         {
@@ -107,7 +110,9 @@
         "type": "integer",
         "unit": "%RH",
         "qudt:unit": "qunit:PERCENT_RH",
-        "qudt:hasQuantityKind": "quantitykind:RelativeHumidity"
+        "qudt:hasQuantityKind": "quantitykind:RelativeHumidity",
+        "minimum": 0,
+        "maximum": 85
       },
       "forms": [
         {
