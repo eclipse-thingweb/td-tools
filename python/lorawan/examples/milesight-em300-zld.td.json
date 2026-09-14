@@ -61,7 +61,9 @@
         "type": "integer",
         "unit": "%",
         "qudt:unit": "qunit:PERCENT",
-        "qudt:hasQuantityKind": "quantitykind:DimensionlessRatio"
+        "qudt:hasQuantityKind": "quantitykind:DimensionlessRatio",
+        "minimum": 0,
+        "maximum": 100
       },
       "forms": [
         {

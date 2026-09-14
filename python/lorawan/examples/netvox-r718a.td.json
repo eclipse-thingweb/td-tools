@@ -72,7 +72,9 @@
         "unit": "V",
         "qudt:unit": "qunit:V",
         "qudt:hasQuantityKind": "quantitykind:Voltage",
-        "multipleOf": 0.1
+        "multipleOf": 0.1,
+        "minimum": 3.2,
+        "maximum": 3.6
       },
       "forms": [
         {

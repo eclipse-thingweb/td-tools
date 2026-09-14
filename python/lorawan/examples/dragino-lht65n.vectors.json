@@ -17,13 +17,13 @@
     },
     {
       "name": "port2_ext9_ds_branch",
-      "payload": "07D00A8C02DD090A1E",
+      "payload": "0C4E0A8C02DD090A1E",
       "fport": 2,
       "expected": {
         "retransmissionStatus": 0,
         "pollMessageStatus": 0,
         "extensionCode": 9,
-        "batteryVoltage": 2.0,
+        "batteryVoltage": 3.15,
         "temperature": 27.0,
         "humidity": 73.3
       }
