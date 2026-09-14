@@ -108,7 +108,8 @@
         "type": "number",
         "unit": "V",
         "qudt:unit": "qunit:V",
-        "qudt:hasQuantityKind": "quantitykind:Voltage"
+        "qudt:hasQuantityKind": "quantitykind:Voltage",
+        "multipleOf": 0.001
       },
       "forms": [
         {
@@ -135,7 +136,8 @@
         "qudt:unit": "qunit:DEG_C",
         "qudt:hasQuantityKind": "quantitykind:Temperature",
         "minimum": -40,
-        "maximum": 85
+        "maximum": 85,
+        "multipleOf": 0.01
       },
       "forms": [
         {
@@ -162,7 +164,8 @@
         "qudt:unit": "qunit:PERCENT_RH",
         "qudt:hasQuantityKind": "quantitykind:RelativeHumidity",
         "minimum": 0,
-        "maximum": 96
+        "maximum": 96,
+        "multipleOf": 0.1
       },
       "forms": [
         {

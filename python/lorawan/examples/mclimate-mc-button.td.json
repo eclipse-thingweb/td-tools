@@ -67,7 +67,8 @@
         "type": "number",
         "unit": "V",
         "qudt:unit": "qunit:V",
-        "qudt:hasQuantityKind": "quantitykind:Voltage"
+        "qudt:hasQuantityKind": "quantitykind:Voltage",
+        "multipleOf": 0.008
       },
       "forms": [
         {
@@ -122,7 +123,8 @@
         "qudt:unit": "qunit:DEG_C",
         "qudt:hasQuantityKind": "quantitykind:Temperature",
         "minimum": 0,
-        "maximum": 50
+        "maximum": 50,
+        "multipleOf": 0.1
       },
       "forms": [
         {
