@@ -87,7 +87,8 @@
         "qudt:unit": "qunit:DEG_C",
         "qudt:hasQuantityKind": "quantitykind:Temperature",
         "minimum": -20,
-        "maximum": 60
+        "maximum": 60,
+        "multipleOf": 0.1
       },
       "forms": [
         {
@@ -112,7 +113,8 @@
         "qudt:unit": "qunit:PERCENT_RH",
         "qudt:hasQuantityKind": "quantitykind:RelativeHumidity",
         "minimum": 0,
-        "maximum": 85
+        "maximum": 85,
+        "multipleOf": 1
       },
       "forms": [
         {

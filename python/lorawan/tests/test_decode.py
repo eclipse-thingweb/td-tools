@@ -8,6 +8,8 @@ matches -- exercising the whole binding pipeline.
 
 from __future__ import annotations
 
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
+
 import jsonschema
 import pytest
 
@@ -15,6 +17,40 @@ from lorawan_wot import vocab
 from lorawan_wot.decode import decode_uplink
 
 from .conftest import EXAMPLES_DIR, load_json, vector_files
+
+#: How far off its declared step a reading may sit, as a fraction of that step.
+#: Absorbs IEEE-754 noise only; a real off-grid value misses by a sizeable
+#: fraction of a step.
+_GRID_TOLERANCE = Decimal("1e-6")
+
+
+def _multiple_of_in_decimal(validator, multiple, instance, schema):
+    """``multipleOf``, checked against the decimal grid rather than in binary.
+
+    The examples state each reading's wire resolution -- ``0.1`` for a field sent
+    as deci-degrees, ``0.01`` for centi-degrees. Binary floating point cannot hold
+    those steps exactly, and neither end of the comparison is clean: the stock
+    check leaves a rounding crumb on ``19.7 % 0.1``, and the decoder itself
+    returns ``2885 * 0.001`` as ``2.8850000000000002``. Both are the same reading
+    the datasheet describes, so the quotient is compared to the nearest whole
+    number within a millionth of one step. That is orders of magnitude tighter
+    than any real quantisation error, so a genuinely off-grid value -- ``19.75``
+    against a ``0.1`` step, half a step out -- still fails.
+    """
+    if isinstance(instance, bool) or not isinstance(instance, (int, float)):
+        return
+    try:
+        quotient = Decimal(str(instance)) / Decimal(str(multiple))
+    except (InvalidOperation, ZeroDivisionError):
+        return
+    if abs(quotient - quotient.to_integral_value(ROUND_HALF_EVEN)) > _GRID_TOLERANCE:
+        yield jsonschema.ValidationError(f"{instance} is not a multiple of {multiple}")
+
+
+#: Draft 2020-12 with the decimal-aware ``multipleOf`` above.
+DataSchemaValidator = jsonschema.validators.extend(
+    jsonschema.Draft202012Validator, {"multipleOf": _multiple_of_in_decimal}
+)
 
 
 def _iter_cases():
@@ -79,7 +115,7 @@ def test_decoded_value_validates_against_its_data_schema(td, payload, fport, exp
     decoded = decode_uplink(td, payload, fport=fport)
     for name in expected:
         schema = td[vocab.EVENTS][name][vocab.DATA]
-        jsonschema.validate(instance=decoded[name], schema=schema)
+        DataSchemaValidator(schema).validate(decoded[name])
 
 
 def _value_map_td(pairs):

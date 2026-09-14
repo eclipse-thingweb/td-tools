@@ -61,7 +61,9 @@
         "type": "integer",
         "unit": "%",
         "qudt:unit": "qunit:PERCENT",
-        "qudt:hasQuantityKind": "quantitykind:DimensionlessRatio"
+        "qudt:hasQuantityKind": "quantitykind:DimensionlessRatio",
+        "minimum": 0,
+        "maximum": 100
       },
       "forms": [
         {
@@ -88,7 +90,8 @@
         "qudt:unit": "qunit:DEG_C",
         "qudt:hasQuantityKind": "quantitykind:Temperature",
         "minimum": -30,
-        "maximum": 70
+        "maximum": 70,
+        "multipleOf": 0.1
       },
       "forms": [
         {
@@ -117,7 +120,8 @@
         "qudt:unit": "qunit:PERCENT_RH",
         "qudt:hasQuantityKind": "quantitykind:RelativeHumidity",
         "minimum": 0,
-        "maximum": 100
+        "maximum": 100,
+        "multipleOf": 0.5
       },
       "forms": [
         {

@@ -4,10 +4,10 @@
   "vectors": [
     {
       "name": "single_press_connected",
-      "payload": "016400F801",
+      "payload": "01AF00F801",
       "expected": {
         "frameType": 1,
-        "batteryVoltage": 2.4,
+        "batteryVoltage": 3.0,
         "thermistorProperlyConnected": true,
         "sensorTemperature": 24.8,
         "pressEvent": 1
@@ -15,10 +15,10 @@
     },
     {
       "name": "double_press_disconnected",
-      "payload": "017D04F402",
+      "payload": "01A004F402",
       "expected": {
         "frameType": 1,
-        "batteryVoltage": 2.6,
+        "batteryVoltage": 2.88,
         "thermistorProperlyConnected": false,
         "sensorTemperature": 24.4,
         "pressEvent": 2
@@ -26,10 +26,10 @@
     },
     {
       "name": "triple_press_zero_temp",
-      "payload": "0132000003",
+      "payload": "018C000003",
       "expected": {
         "frameType": 1,
-        "batteryVoltage": 2.0,
+        "batteryVoltage": 2.72,
         "thermistorProperlyConnected": true,
         "sensorTemperature": 0.0,
         "pressEvent": 3
