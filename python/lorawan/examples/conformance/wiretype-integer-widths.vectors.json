@@ -1,0 +1,22 @@
+{
+  "td": "wiretype-integer-widths.td.json",
+  "description": "One 36-byte uplink carrying every integer width.",
+  "vectors": [
+    {
+      "name": "all_widths",
+      "payload": "7F0102010203010203040102030405060708FFFFFEFFFFFDFFFFFFFCFFFFFFFFFFFFFFFB",
+      "expected": {
+        "u8_max_positive": 127,
+        "u16_ascending": 258,
+        "u24_ascending": 66051,
+        "u32_ascending": 16909060,
+        "u64_ascending": 72623859790382856,
+        "s8_minus_one": -1,
+        "s16_minus_two": -2,
+        "s24_minus_three": -3,
+        "s32_minus_four": -4,
+        "s64_minus_five": -5
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:layout-ctv-default-tags",
+  "title": "layout: ctv with default tag fields",
+  "description": "A channel/type/value layout that omits lorav:tagFields, so the binding supplies the default channel(u8) + type(u8) pair.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "ctv",
+  "events": {
+    "temperature": {
+      "data": {
+        "type": "number",
+        "unit": "Cel"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:tag": [
+            3,
+            103
+          ],
+          "lorav:wireType": "s16",
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "humidity": {
+      "data": {
+        "type": "number",
+        "unit": "%RH"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:tag": [
+            4,
+            104
+          ],
+          "lorav:wireType": "u8",
+          "lorav:divisor": 2
+        }
+      ]
+    }
+  }
+}

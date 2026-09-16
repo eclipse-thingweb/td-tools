@@ -1,0 +1,92 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:layout-tlv-multifield-slot",
+  "title": "layout: tlv multi-field case",
+  "description": "Three values share one lorav:tag and are sequenced within that case by lorav:slot, the shape a light channel reporting several readings together takes.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "tlv",
+  "lorav:tagFields": [
+    {
+      "name": "channel",
+      "type": "u8"
+    },
+    {
+      "name": "type",
+      "type": "u8"
+    }
+  ],
+  "events": {
+    "channel_index": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:tag": [
+            5,
+            0
+          ],
+          "lorav:slot": 0,
+          "lorav:wireType": "u8"
+        }
+      ]
+    },
+    "illuminance": {
+      "data": {
+        "type": "integer",
+        "unit": "lx"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:tag": [
+            5,
+            0
+          ],
+          "lorav:slot": 1,
+          "lorav:wireType": "u16"
+        }
+      ]
+    },
+    "infrared": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:tag": [
+            5,
+            0
+          ],
+          "lorav:slot": 2,
+          "lorav:wireType": "s8"
+        }
+      ]
+    }
+  }
+}

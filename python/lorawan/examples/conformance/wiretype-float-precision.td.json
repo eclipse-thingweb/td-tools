@@ -1,0 +1,69 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:wiretype-float-precision",
+  "title": "wire type: float precision",
+  "description": "IEEE-754 half, single and double precision at their declared widths.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "f16_one": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "f16"
+        }
+      ]
+    },
+    "f32_minus_two": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:wireType": "f32"
+        }
+      ]
+    },
+    "f64_minus_quarter": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 6,
+          "lorav:wireType": "f64"
+        }
+      ]
+    }
+  }
+}

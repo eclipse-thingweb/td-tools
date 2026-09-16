@@ -1,0 +1,15 @@
+{
+  "td": "endian-little-explicit.td.json",
+  "description": "Three multi-byte values, all little-endian.",
+  "vectors": [
+    {
+      "name": "little_endian_words",
+      "payload": "01020304FFFE",
+      "expected": {
+        "word_one": 513,
+        "word_two": 1027,
+        "signed_word": -257
+      }
+    }
+  ]
+}

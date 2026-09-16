@@ -1,0 +1,15 @@
+{
+  "td": "endian-big-explicit.td.json",
+  "description": "Three multi-byte values, all big-endian.",
+  "vectors": [
+    {
+      "name": "big_endian_words",
+      "payload": "01020304FFFE",
+      "expected": {
+        "word_one": 258,
+        "word_two": 772,
+        "signed_word": -2
+      }
+    }
+  ]
+}

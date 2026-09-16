@@ -1,0 +1,24 @@
+{
+  "td": "wiretype-xsd-aliases.td.json",
+  "description": "One uplink exercising every xsd: alias with a defined wire width.",
+  "vectors": [
+    {
+      "name": "all_aliases",
+      "payload": "FFFFFEFFFFFFFDFFFFFFFFFFFFFFFCFF01020102030401020304050607083F8000004010000000000000DEAD414243",
+      "expected": {
+        "xsd_byte": -1,
+        "xsd_short": -2,
+        "xsd_int": -3,
+        "xsd_long": -4,
+        "xsd_unsigned_byte": 255,
+        "xsd_unsigned_short": 258,
+        "xsd_unsigned_int": 16909060,
+        "xsd_unsigned_long": 72623859790382856,
+        "xsd_float": 1,
+        "xsd_double": 4,
+        "xsd_hex_binary": "dead",
+        "xsd_string": "ABC"
+      }
+    }
+  ]
+}

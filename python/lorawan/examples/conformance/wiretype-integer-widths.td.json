@@ -1,0 +1,181 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:wiretype-integer-widths",
+  "title": "wire type: integer widths",
+  "description": "Every unsigned and signed integer wire type at its declared width, read big-endian from one fixed layout.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "u8_max_positive": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u8"
+        }
+      ]
+    },
+    "u16_ascending": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:wireType": "u16"
+        }
+      ]
+    },
+    "u24_ascending": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 3,
+          "lorav:wireType": "u24"
+        }
+      ]
+    },
+    "u32_ascending": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 6,
+          "lorav:wireType": "u32"
+        }
+      ]
+    },
+    "u64_ascending": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 10,
+          "lorav:wireType": "u64"
+        }
+      ]
+    },
+    "s8_minus_one": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 18,
+          "lorav:wireType": "s8"
+        }
+      ]
+    },
+    "s16_minus_two": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 19,
+          "lorav:wireType": "s16"
+        }
+      ]
+    },
+    "s24_minus_three": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 21,
+          "lorav:wireType": "s24"
+        }
+      ]
+    },
+    "s32_minus_four": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 24,
+          "lorav:wireType": "s32"
+        }
+      ]
+    },
+    "s64_minus_five": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 28,
+          "lorav:wireType": "s64"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:derived-ref-polynomial",
+  "title": "derived: ref, polynomial, transform",
+  "description": "Values computed from an already-decoded reading rather than read off the wire. Each occupies no payload bytes and carries lorav:wireType 'number'.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "raw_count": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u16"
+        }
+      ]
+    },
+    "scaled": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 0,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "ref": "$raw_count"
+          },
+          "lorav:divisor": 10
+        }
+      ]
+    },
+    "calibrated": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 1,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "ref": "$raw_count",
+            "polynomial": [
+              1,
+              2,
+              3
+            ]
+          }
+        }
+      ]
+    },
+    "post_processed": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 2,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "ref": "$raw_count",
+            "transform": [
+              {
+                "mult": 2
+              },
+              {
+                "add": 5
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

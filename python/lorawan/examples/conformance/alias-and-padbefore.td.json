@@ -1,0 +1,102 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:alias-and-padbefore",
+  "title": "alias and padBefore",
+  "description": "A discriminator published under a different name with lorav:alias, and a value preceded by reserved bytes inside its match case, consumed with lorav:padBefore.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "event_type": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u8",
+          "lorav:alias": "evt"
+        }
+      ]
+    },
+    "status": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:slot": 0,
+          "lorav:wireType": "u8",
+          "lorav:presentWhen": {
+            "field": "evt",
+            "value": 1
+          }
+        }
+      ]
+    },
+    "counter": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:slot": 1,
+          "lorav:padBefore": 2,
+          "lorav:wireType": "u16",
+          "lorav:presentWhen": {
+            "field": "evt",
+            "value": 1
+          }
+        }
+      ]
+    },
+    "temperature": {
+      "data": {
+        "type": "number",
+        "unit": "Cel"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:wireType": "s8",
+          "lorav:presentWhen": {
+            "field": "evt",
+            "value": 2
+          }
+        }
+      ]
+    }
+  }
+}

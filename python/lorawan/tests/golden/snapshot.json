@@ -377,6 +377,475 @@
           ]
         }
       }
+    },
+    "conformance/alias-and-padbefore": {
+      "name": "urn_dev_conformance_alias_and_padbefore",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "alias and padBefore",
+      "fields": [
+        {
+          "name": "event_type",
+          "type": "u8",
+          "var": "evt"
+        },
+        {
+          "match": {
+            "field": "$evt",
+            "cases": {
+              "1": [
+                {
+                  "name": "status",
+                  "type": "u8"
+                },
+                {
+                  "name": "_pad_1_1",
+                  "type": "skip",
+                  "length": 2
+                },
+                {
+                  "name": "counter",
+                  "type": "u16"
+                }
+              ],
+              "2": [
+                {
+                  "name": "temperature",
+                  "type": "s8",
+                  "unit": "Cel"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "conformance/derived-compute-guard": {
+      "name": "urn_dev_conformance_derived_compute_guard",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "derived: compute and guard",
+      "fields": [
+        {
+          "name": "dividend",
+          "type": "u8"
+        },
+        {
+          "name": "divisor_value",
+          "type": "u8"
+        },
+        {
+          "name": "quotient",
+          "type": "number",
+          "compute": {
+            "op": "div",
+            "a": "$dividend",
+            "b": "$divisor_value"
+          }
+        },
+        {
+          "name": "guard_passes",
+          "type": "number",
+          "ref": "$dividend",
+          "guard": {
+            "when": [
+              {
+                "field": "$divisor_value",
+                "gt": 0
+              }
+            ],
+            "else": -1
+          }
+        },
+        {
+          "name": "guard_falls_back",
+          "type": "number",
+          "ref": "$dividend",
+          "guard": {
+            "when": [
+              {
+                "field": "$divisor_value",
+                "gt": 100
+              }
+            ],
+            "else": -1
+          }
+        }
+      ]
+    },
+    "conformance/derived-ref-polynomial": {
+      "name": "urn_dev_conformance_derived_ref_polynomial",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "derived: ref, polynomial, transform",
+      "fields": [
+        {
+          "name": "raw_count",
+          "type": "u16"
+        },
+        {
+          "name": "scaled",
+          "type": "number",
+          "ref": "$raw_count",
+          "div": 10
+        },
+        {
+          "name": "calibrated",
+          "type": "number",
+          "ref": "$raw_count",
+          "polynomial": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "name": "post_processed",
+          "type": "number",
+          "ref": "$raw_count",
+          "transform": [
+            {
+              "mult": 2
+            },
+            {
+              "add": 5
+            }
+          ]
+        }
+      ]
+    },
+    "conformance/endian-big-explicit": {
+      "name": "urn_dev_conformance_endian_big_explicit",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "endianness: big",
+      "fields": [
+        {
+          "name": "word_one",
+          "type": "u16"
+        },
+        {
+          "name": "word_two",
+          "type": "u16"
+        },
+        {
+          "name": "signed_word",
+          "type": "s16"
+        }
+      ]
+    },
+    "conformance/endian-little-explicit": {
+      "name": "urn_dev_conformance_endian_little_explicit",
+      "version": 1,
+      "endian": "little",
+      "direction": "uplink",
+      "description": "endianness: little",
+      "fields": [
+        {
+          "name": "word_one",
+          "type": "u16"
+        },
+        {
+          "name": "word_two",
+          "type": "u16"
+        },
+        {
+          "name": "signed_word",
+          "type": "s16"
+        }
+      ]
+    },
+    "conformance/layout-ctv-default-tags": {
+      "name": "urn_dev_conformance_layout_ctv_default_tags",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "layout: ctv with default tag fields",
+      "fields": [
+        {
+          "tlv": {
+            "tag_fields": [
+              {
+                "name": "channel",
+                "type": "u8"
+              },
+              {
+                "name": "type",
+                "type": "u8"
+              }
+            ],
+            "tag_key": [
+              "channel",
+              "type"
+            ],
+            "cases": {
+              "[3, 103]": [
+                {
+                  "name": "temperature",
+                  "type": "s16",
+                  "div": 10,
+                  "unit": "Cel"
+                }
+              ],
+              "[4, 104]": [
+                {
+                  "name": "humidity",
+                  "type": "u8",
+                  "div": 2,
+                  "unit": "%RH"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "conformance/layout-tlv-multifield-slot": {
+      "name": "urn_dev_conformance_layout_tlv_multifield_slot",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "layout: tlv multi-field case",
+      "fields": [
+        {
+          "tlv": {
+            "tag_fields": [
+              {
+                "name": "channel",
+                "type": "u8"
+              },
+              {
+                "name": "type",
+                "type": "u8"
+              }
+            ],
+            "tag_key": [
+              "channel",
+              "type"
+            ],
+            "cases": {
+              "[5, 0]": [
+                {
+                  "name": "channel_index",
+                  "type": "u8"
+                },
+                {
+                  "name": "illuminance",
+                  "type": "u16",
+                  "unit": "lx"
+                },
+                {
+                  "name": "infrared",
+                  "type": "s8"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "conformance/presentwhen-bit-flagged": {
+      "name": "urn_dev_conformance_presentwhen_bit_flagged",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "presentWhen: flag bit",
+      "fields": [
+        {
+          "name": "flags",
+          "type": "u8"
+        },
+        {
+          "flagged": {
+            "field": "flags",
+            "groups": [
+              {
+                "bit": 0,
+                "fields": [
+                  {
+                    "name": "temperature",
+                    "type": "s16",
+                    "div": 10,
+                    "unit": "Cel"
+                  }
+                ]
+              },
+              {
+                "bit": 1,
+                "fields": [
+                  {
+                    "name": "battery",
+                    "type": "u8",
+                    "unit": "%"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "conformance/wiretype-float-precision": {
+      "name": "urn_dev_conformance_wiretype_float_precision",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "wire type: float precision",
+      "fields": [
+        {
+          "name": "f16_one",
+          "type": "f16"
+        },
+        {
+          "name": "f32_minus_two",
+          "type": "f32"
+        },
+        {
+          "name": "f64_minus_quarter",
+          "type": "f64"
+        }
+      ]
+    },
+    "conformance/wiretype-integer-widths": {
+      "name": "urn_dev_conformance_wiretype_integer_widths",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "wire type: integer widths",
+      "fields": [
+        {
+          "name": "u8_max_positive",
+          "type": "u8"
+        },
+        {
+          "name": "u16_ascending",
+          "type": "u16"
+        },
+        {
+          "name": "u24_ascending",
+          "type": "u24"
+        },
+        {
+          "name": "u32_ascending",
+          "type": "u32"
+        },
+        {
+          "name": "u64_ascending",
+          "type": "u64"
+        },
+        {
+          "name": "s8_minus_one",
+          "type": "s8"
+        },
+        {
+          "name": "s16_minus_two",
+          "type": "s16"
+        },
+        {
+          "name": "s24_minus_three",
+          "type": "s24"
+        },
+        {
+          "name": "s32_minus_four",
+          "type": "s32"
+        },
+        {
+          "name": "s64_minus_five",
+          "type": "s64"
+        }
+      ]
+    },
+    "conformance/wiretype-variable-length": {
+      "name": "urn_dev_conformance_wiretype_variable_length",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "wire type: variable length",
+      "fields": [
+        {
+          "name": "hex_word",
+          "type": "hex",
+          "length": 2
+        },
+        {
+          "name": "bytes_word",
+          "type": "bytes",
+          "length": 2
+        },
+        {
+          "name": "base64_triplet",
+          "type": "base64",
+          "length": 3
+        },
+        {
+          "name": "ascii_tail",
+          "type": "ascii",
+          "length": -1
+        }
+      ]
+    },
+    "conformance/wiretype-xsd-aliases": {
+      "name": "urn_dev_conformance_wiretype_xsd_aliases",
+      "version": 1,
+      "endian": "big",
+      "direction": "uplink",
+      "description": "wire type: xsd aliases",
+      "fields": [
+        {
+          "name": "xsd_byte",
+          "type": "s8"
+        },
+        {
+          "name": "xsd_short",
+          "type": "s16"
+        },
+        {
+          "name": "xsd_int",
+          "type": "s32"
+        },
+        {
+          "name": "xsd_long",
+          "type": "s64"
+        },
+        {
+          "name": "xsd_unsigned_byte",
+          "type": "u8"
+        },
+        {
+          "name": "xsd_unsigned_short",
+          "type": "u16"
+        },
+        {
+          "name": "xsd_unsigned_int",
+          "type": "u32"
+        },
+        {
+          "name": "xsd_unsigned_long",
+          "type": "u64"
+        },
+        {
+          "name": "xsd_float",
+          "type": "f32"
+        },
+        {
+          "name": "xsd_double",
+          "type": "f64"
+        },
+        {
+          "name": "xsd_hex_binary",
+          "type": "hex",
+          "length": 2
+        },
+        {
+          "name": "xsd_string",
+          "type": "ascii",
+          "length": 3
+        }
+      ]
     }
   },
   "decoded": {
@@ -541,6 +1010,108 @@
       "lowBattery": 1,
       "temperature": 25.38,
       "humidity": 68
+    },
+    "alias-and-padbefore-case_one_with_padding": {
+      "event_type": 1,
+      "status": 10,
+      "counter": 258
+    },
+    "alias-and-padbefore-case_two": {
+      "event_type": 2,
+      "temperature": -10
+    },
+    "derived-compute-guard-twenty_over_four": {
+      "dividend": 20,
+      "divisor_value": 4,
+      "quotient": 5,
+      "guard_passes": 20,
+      "guard_falls_back": -1
+    },
+    "derived-ref-polynomial-count_100": {
+      "raw_count": 100,
+      "scaled": 10,
+      "calibrated": 10203,
+      "post_processed": 205
+    },
+    "endian-big-explicit-big_endian_words": {
+      "word_one": 258,
+      "word_two": 772,
+      "signed_word": -2
+    },
+    "endian-little-explicit-little_endian_words": {
+      "word_one": 513,
+      "word_two": 1027,
+      "signed_word": -257
+    },
+    "layout-ctv-default-tags-temperature_only": {
+      "temperature": 25.6
+    },
+    "layout-ctv-default-tags-humidity_only": {
+      "humidity": 50
+    },
+    "layout-ctv-default-tags-both_channels": {
+      "temperature": 25.6,
+      "humidity": 50
+    },
+    "layout-tlv-multifield-slot-one_case_three_slots": {
+      "channel_index": 7,
+      "illuminance": 500,
+      "infrared": -5
+    },
+    "presentwhen-bit-flagged-both_bits_set": {
+      "flags": 3,
+      "temperature": 25,
+      "battery": 90
+    },
+    "presentwhen-bit-flagged-battery_bit_only": {
+      "flags": 2,
+      "battery": 90
+    },
+    "presentwhen-bit-flagged-no_bits_set": {
+      "flags": 0
+    },
+    "wiretype-float-precision-float_constants": {
+      "f16_one": 1,
+      "f32_minus_two": -2,
+      "f64_minus_quarter": -0.25
+    },
+    "wiretype-integer-widths-all_widths": {
+      "u8_max_positive": 127,
+      "u16_ascending": 258,
+      "u24_ascending": 66051,
+      "u32_ascending": 16909060,
+      "u64_ascending": 72623859790382856,
+      "s8_minus_one": -1,
+      "s16_minus_two": -2,
+      "s24_minus_three": -3,
+      "s32_minus_four": -4,
+      "s64_minus_five": -5
+    },
+    "wiretype-variable-length-tail_five_chars": {
+      "hex_word": "dead",
+      "bytes_word": "beef",
+      "base64_triplet": "QUJD",
+      "ascii_tail": "LoRa:)"
+    },
+    "wiretype-variable-length-tail_empty": {
+      "hex_word": "dead",
+      "bytes_word": "beef",
+      "base64_triplet": "QUJD",
+      "ascii_tail": ""
+    },
+    "wiretype-xsd-aliases-all_aliases": {
+      "xsd_byte": -1,
+      "xsd_short": -2,
+      "xsd_int": -3,
+      "xsd_long": -4,
+      "xsd_unsigned_byte": 255,
+      "xsd_unsigned_short": 258,
+      "xsd_unsigned_int": 16909060,
+      "xsd_unsigned_long": 72623859790382856,
+      "xsd_float": 1,
+      "xsd_double": 4,
+      "xsd_hex_binary": "dead",
+      "xsd_string": "ABC"
     }
   },
   "catalog": {

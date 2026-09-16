@@ -1,0 +1,135 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:derived-compute-guard",
+  "title": "derived: compute and guard",
+  "description": "A binary operation over two decoded values, and a conditional gate that falls back to a declared value when its condition does not hold.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "dividend": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u8"
+        }
+      ]
+    },
+    "divisor_value": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:wireType": "u8"
+        }
+      ]
+    },
+    "quotient": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 0,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "compute": {
+              "op": "div",
+              "a": "$dividend",
+              "b": "$divisor_value"
+            }
+          }
+        }
+      ]
+    },
+    "guard_passes": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 1,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "ref": "$dividend",
+            "guard": {
+              "when": [
+                {
+                  "field": "$divisor_value",
+                  "gt": 0
+                }
+              ],
+              "else": -1
+            }
+          }
+        }
+      ]
+    },
+    "guard_falls_back": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:slot": 2,
+          "lorav:wireType": "number",
+          "lorav:derived": {
+            "ref": "$dividend",
+            "guard": {
+              "when": [
+                {
+                  "field": "$divisor_value",
+                  "gt": 100
+                }
+              ],
+              "else": -1
+            }
+          }
+        }
+      ]
+    }
+  }
+}
