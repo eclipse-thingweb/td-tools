@@ -1,0 +1,26 @@
+{
+  "td": "wiretype-variable-length.td.json",
+  "description": "Fixed-width variable-length fields followed by a remaining-length tail.",
+  "vectors": [
+    {
+      "name": "tail_five_chars",
+      "payload": "DEADBEEF4142434C6F52613A29",
+      "expected": {
+        "hex_word": "dead",
+        "bytes_word": "beef",
+        "base64_triplet": "QUJD",
+        "ascii_tail": "LoRa:)"
+      }
+    },
+    {
+      "name": "tail_empty",
+      "payload": "DEADBEEF414243",
+      "expected": {
+        "hex_word": "dead",
+        "bytes_word": "beef",
+        "base64_triplet": "QUJD",
+        "ascii_tail": ""
+      }
+    }
+  ]
+}

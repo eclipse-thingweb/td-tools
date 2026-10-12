@@ -469,6 +469,24 @@ are checked in and maintained here.
 Each example has a matching `*.vectors.json` file with known payloads and their
 expected decoded values, used by the tests.
 
+### Conformance fixtures
+
+The curated examples above are real devices, so they only reach the constructs
+those devices happen to use. `examples/conformance/` fills the rest in: one
+hand-written Thing Description per binding construct, covering every wire type,
+both byte orders, all four payload layouts, both `lorav:presentWhen` shapes and
+all five `lorav:derived` descriptors. They are checked in and reviewed like any
+other example, and are decoded, schema-validated and round-tripped by the same
+tests.
+
+`tests/test_conformance_corpus.py` keeps that coverage from decaying: it walks
+the vocabulary, the layout set, the wire-type enum and the derived-value
+descriptors, and fails if any published member has no example. Adding a
+`lorav:` term without an example that exercises it breaks the suite.
+
+See `examples/conformance/README.md`, which also records the two published
+constructs that deliberately have no fixture, and why.
+
 ### Device catalog
 
 `examples/devices/<vendor>/<model>.td.json` holds Thing Descriptions generated

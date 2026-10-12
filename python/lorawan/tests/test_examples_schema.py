@@ -7,7 +7,7 @@ import pytest
 
 from lorawan_wot import vocab
 
-from .conftest import EXAMPLES_DIR, VOCAB_DIR, load_json
+from .conftest import VOCAB_DIR, example_tds, load_json
 
 _FORM_SCHEMA = load_json(VOCAB_DIR / "lorawan-form.schema.json")
 _THING_SCHEMA = load_json(VOCAB_DIR / "lorawan-thing.schema.json")
@@ -22,7 +22,7 @@ _LORAWAN_TERMS = {
 
 def _lorawan_forms():
     """Yield every LoRaWAN-bearing form across all example Thing Descriptions."""
-    for td_path in EXAMPLES_DIR.glob("*.td.json"):
+    for td_path in example_tds():
         td = load_json(td_path)
         for event_name, affordance in td.get(vocab.EVENTS, {}).items():
             for form in affordance.get(vocab.FORMS, []):
@@ -37,7 +37,7 @@ def test_example_form_validates(form):
 
 def _example_things():
     """Yield every example Thing Description root object."""
-    for td_path in sorted(EXAMPLES_DIR.glob("*.td.json")):
+    for td_path in example_tds():
         yield pytest.param(load_json(td_path), id=td_path.stem)
 
 

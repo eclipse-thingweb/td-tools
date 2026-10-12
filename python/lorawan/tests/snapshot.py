@@ -31,7 +31,7 @@ from typing import Any
 from lorawan_wot.converter import ConversionError, td_to_payload_schema
 from lorawan_wot.decode import decode_uplink
 
-from .conftest import EXAMPLES_DIR, load_json, vector_files
+from .conftest import CONFORMANCE_DIR, EXAMPLES_DIR, load_json, vector_files
 
 
 def _digest(payload: Any) -> str:
@@ -45,11 +45,19 @@ def _digest(payload: Any) -> str:
 
 
 def _curated_payload_schemas() -> dict[str, Any]:
-    """Convert every curated example TD to its payload schema."""
+    """Convert every reviewed example TD to its payload schema.
+
+    The conformance fixtures are recorded under a ``conformance/`` prefix: they
+    are the only examples that reach several of the binding's constructs, so a
+    change in how those constructs are emitted has to show up in this diff.
+    """
     schemas: dict[str, Any] = {}
     for td_path in sorted(EXAMPLES_DIR.glob("*.td.json")):
         name = td_path.name.removesuffix(".td.json")
         schemas[name] = td_to_payload_schema(load_json(td_path))
+    for td_path in sorted(CONFORMANCE_DIR.glob("*.td.json")):
+        name = td_path.name.removesuffix(".td.json")
+        schemas[f"conformance/{name}"] = td_to_payload_schema(load_json(td_path))
     return schemas
 
 
@@ -58,7 +66,9 @@ def _decoded_vectors() -> dict[str, Any]:
     decoded: dict[str, Any] = {}
     for vectors_path in vector_files():
         spec = load_json(vectors_path)
-        td = load_json(EXAMPLES_DIR / spec["td"])
+        # ``td`` names a file beside the vectors, so each fixture directory is
+        # self-contained.
+        td = load_json(vectors_path.parent / spec["td"])
         stem = vectors_path.name.removesuffix(".vectors.json")
         for vector in spec["vectors"]:
             case_id = f"{stem}-{vector['name']}"

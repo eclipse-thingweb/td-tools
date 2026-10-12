@@ -1,0 +1,17 @@
+{
+  "td": "derived-compute-guard.td.json",
+  "description": "A guard whose condition holds and one whose condition does not.",
+  "vectors": [
+    {
+      "name": "twenty_over_four",
+      "payload": "1404",
+      "expected": {
+        "dividend": 20,
+        "divisor_value": 4,
+        "quotient": 5.0,
+        "guard_passes": 20.0,
+        "guard_falls_back": -1.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "td": "wiretype-float-precision.td.json",
+  "description": "Half, single and double precision constants in one uplink.",
+  "vectors": [
+    {
+      "name": "float_constants",
+      "payload": "3C00C0000000BFD0000000000000",
+      "expected": {
+        "f16_one": 1,
+        "f32_minus_two": -2,
+        "f64_minus_quarter": -0.25
+      }
+    }
+  ]
+}

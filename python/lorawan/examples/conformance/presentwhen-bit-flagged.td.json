@@ -1,0 +1,82 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:presentwhen-bit-flagged",
+  "title": "presentWhen: flag bit",
+  "description": "Values present only when a bit of a named flags value is set, expressed with lorav:presentWhen {field, bit}. Each bit group is laid out in slot order.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "flags": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u8"
+        }
+      ]
+    },
+    "temperature": {
+      "data": {
+        "type": "number",
+        "unit": "Cel"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:slot": 0,
+          "lorav:wireType": "s16",
+          "lorav:divisor": 10,
+          "lorav:presentWhen": {
+            "field": "flags",
+            "bit": 0
+          }
+        }
+      ]
+    },
+    "battery": {
+      "data": {
+        "type": "integer",
+        "unit": "%"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:slot": 1,
+          "lorav:wireType": "u8",
+          "lorav:presentWhen": {
+            "field": "flags",
+            "bit": 1
+          }
+        }
+      ]
+    }
+  }
+}

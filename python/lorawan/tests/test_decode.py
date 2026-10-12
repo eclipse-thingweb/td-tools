@@ -57,7 +57,9 @@ def _iter_cases():
     """Yield ``(id, td, payload, fport, expected)`` for every test vector."""
     for vectors_path in vector_files():
         spec = load_json(vectors_path)
-        td = load_json(EXAMPLES_DIR / spec["td"])
+        # ``td`` names a file beside the vectors, so a fixture directory is
+        # self-contained and can be moved without rewriting its vector files.
+        td = load_json(vectors_path.parent / spec["td"])
         for vector in spec["vectors"]:
             case_id = f"{vectors_path.stem}-{vector['name']}"
             yield pytest.param(

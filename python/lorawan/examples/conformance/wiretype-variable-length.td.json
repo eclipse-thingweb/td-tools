@@ -1,0 +1,90 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:wiretype-variable-length",
+  "title": "wire type: variable length",
+  "description": "The four variable-length wire types, each sized with lorav:byteLength, and a trailing field using the -1 sentinel to consume the rest of the payload.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "hex_word": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "hex",
+          "lorav:byteLength": 2
+        }
+      ]
+    },
+    "bytes_word": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:wireType": "bytes",
+          "lorav:byteLength": 2
+        }
+      ]
+    },
+    "base64_triplet": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 4,
+          "lorav:wireType": "base64",
+          "lorav:byteLength": 3
+        }
+      ]
+    },
+    "ascii_tail": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 7,
+          "lorav:wireType": "ascii",
+          "lorav:byteLength": -1
+        }
+      ],
+      "description": "Consumes every byte after the fixed-width fields: lorav:byteLength -1."
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "td": "layout-tlv-multifield-slot.td.json",
+  "description": "One tagged case whose three values decode in slot order.",
+  "vectors": [
+    {
+      "name": "one_case_three_slots",
+      "payload": "05000701F4FB",
+      "expected": {
+        "channel_index": 7,
+        "illuminance": 500,
+        "infrared": -5
+      }
+    }
+  ]
+}

@@ -1,0 +1,215 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:wiretype-xsd-aliases",
+  "title": "wire type: xsd aliases",
+  "description": "Every xsd: alias accepted by lorav:wireType that has a defined wire width, each resolving to the native type of the same width. Aliases and native spellings must decode identically.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "xsd_byte": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "xsd:byte"
+        }
+      ]
+    },
+    "xsd_short": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 1,
+          "lorav:wireType": "xsd:short"
+        }
+      ]
+    },
+    "xsd_int": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 3,
+          "lorav:wireType": "xsd:int"
+        }
+      ]
+    },
+    "xsd_long": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 7,
+          "lorav:wireType": "xsd:long"
+        }
+      ]
+    },
+    "xsd_unsigned_byte": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 15,
+          "lorav:wireType": "xsd:unsignedByte"
+        }
+      ]
+    },
+    "xsd_unsigned_short": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 16,
+          "lorav:wireType": "xsd:unsignedShort"
+        }
+      ]
+    },
+    "xsd_unsigned_int": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 18,
+          "lorav:wireType": "xsd:unsignedInt"
+        }
+      ]
+    },
+    "xsd_unsigned_long": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 22,
+          "lorav:wireType": "xsd:unsignedLong"
+        }
+      ]
+    },
+    "xsd_float": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 30,
+          "lorav:wireType": "xsd:float"
+        }
+      ]
+    },
+    "xsd_double": {
+      "data": {
+        "type": "number"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 34,
+          "lorav:wireType": "xsd:double"
+        }
+      ]
+    },
+    "xsd_hex_binary": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 42,
+          "lorav:wireType": "xsd:hexBinary",
+          "lorav:byteLength": 2
+        }
+      ]
+    },
+    "xsd_string": {
+      "data": {
+        "type": "string"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 44,
+          "lorav:wireType": "xsd:string",
+          "lorav:byteLength": 3
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "td": "layout-ctv-default-tags.td.json",
+  "description": "Channel/type-tagged values, one per uplink and both in one uplink.",
+  "vectors": [
+    {
+      "name": "temperature_only",
+      "payload": "03670100",
+      "expected": {
+        "temperature": 25.6
+      }
+    },
+    {
+      "name": "humidity_only",
+      "payload": "046864",
+      "expected": {
+        "humidity": 50.0
+      }
+    },
+    {
+      "name": "both_channels",
+      "payload": "03670100046864",
+      "expected": {
+        "temperature": 25.6,
+        "humidity": 50.0
+      }
+    }
+  ]
+}

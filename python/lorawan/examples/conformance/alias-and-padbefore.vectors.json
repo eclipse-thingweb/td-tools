@@ -1,0 +1,23 @@
+{
+  "td": "alias-and-padbefore.td.json",
+  "description": "Each match case selected in turn; the reserved bytes before the counter are skipped.",
+  "vectors": [
+    {
+      "name": "case_one_with_padding",
+      "payload": "010AAABB0102",
+      "expected": {
+        "event_type": 1,
+        "status": 10,
+        "counter": 258
+      }
+    },
+    {
+      "name": "case_two",
+      "payload": "02F6",
+      "expected": {
+        "event_type": 2,
+        "temperature": -10
+      }
+    }
+  ]
+}

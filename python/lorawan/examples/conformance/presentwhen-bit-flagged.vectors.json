@@ -1,0 +1,30 @@
+{
+  "td": "presentwhen-bit-flagged.td.json",
+  "description": "Both groups present, one group present, and neither.",
+  "vectors": [
+    {
+      "name": "both_bits_set",
+      "payload": "0300FA5A",
+      "expected": {
+        "flags": 3,
+        "temperature": 25.0,
+        "battery": 90
+      }
+    },
+    {
+      "name": "battery_bit_only",
+      "payload": "025A",
+      "expected": {
+        "flags": 2,
+        "battery": 90
+      }
+    },
+    {
+      "name": "no_bits_set",
+      "payload": "00",
+      "expected": {
+        "flags": 0
+      }
+    }
+  ]
+}

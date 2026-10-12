@@ -1,0 +1,72 @@
+{
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    {
+      "lorav": "https://www.w3.org/2024/wot/lorawan#"
+    }
+  ],
+  "@type": "Thing",
+  "id": "urn:dev:conformance:endian-big-explicit",
+  "title": "endianness: big",
+  "description": "Multi-byte values read big-endian, with lorav:endian stated on every form so the schema-wide default is unambiguous.",
+  "securityDefinitions": {
+    "nosec_sc": {
+      "scheme": "nosec"
+    }
+  },
+  "security": "nosec_sc",
+  "lorav:payloadLayout": "fixed",
+  "events": {
+    "word_one": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 0,
+          "lorav:wireType": "u16",
+          "lorav:endian": "big"
+        }
+      ]
+    },
+    "word_two": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 2,
+          "lorav:wireType": "u16",
+          "lorav:endian": "big"
+        }
+      ]
+    },
+    "signed_word": {
+      "data": {
+        "type": "integer"
+      },
+      "forms": [
+        {
+          "href": "uplink",
+          "op": [
+            "subscribeevent",
+            "unsubscribeevent"
+          ],
+          "lorav:byteOffset": 4,
+          "lorav:wireType": "s16",
+          "lorav:endian": "big"
+        }
+      ]
+    }
+  }
+}

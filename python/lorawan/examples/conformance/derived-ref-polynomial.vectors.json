@@ -1,0 +1,16 @@
+{
+  "td": "derived-ref-polynomial.td.json",
+  "description": "One raw count driving a ref, a descending-order polynomial and a transform chain.",
+  "vectors": [
+    {
+      "name": "count_100",
+      "payload": "0064",
+      "expected": {
+        "raw_count": 100,
+        "scaled": 10.0,
+        "calibrated": 10203.0,
+        "post_processed": 205.0
+      }
+    }
+  ]
+}
