@@ -2,11 +2,11 @@ name: LoRaWAN CI Pipeline
 
 on:
     push:
-        branches: ["main"]
+        branches: ["**"]
         paths:
             - "python/**"
     pull_request:
-        branches: ["main"]
+        branches: ["**"]
         paths:
             - "python/**"
 
