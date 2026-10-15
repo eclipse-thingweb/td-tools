@@ -23,5 +23,5 @@
         "strictNullChecks": true
     },
     "include": ["*.ts", "**/*.ts", "../src/**/*.ts", "**/AIDSchema.json"],
-    "exclude": []
+    "exclude": ["./dist/**/*"]
 }
